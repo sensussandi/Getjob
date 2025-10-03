@@ -1,59 +1,79 @@
 "use client";
-import { useState } from "react";
-import { useRouter } from "next/navigation";  // <-- ini WAJIB ada
+
+import { useEffect, useState } from "react";
+import HeroSection from "../components/HeroSection"; // import HeroSection
+
 
 export default function Home() {
-  const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
-  const router = useRouter();
+  
+  const [users, setUsers] = useState([]);
+  const [form, setForm] = useState({ name: "", email: "" });
+  const [loading, setLoading] = useState(true);
 
-  const handleLogin = (e) => {
-    e.preventDefault();
-
-    // sementara dummy login
-    if (email && password) {
-      console.log("Email:", email);
-      console.log("Password:", password);
-      alert("Login berhasil (dummy)");
-
-      // redirect ke /home
-      router.push("/home");
-    } else {
-      alert("Email atau password salah");
-    }
+  const fetchUsers = async () => {
+    const res = await fetch("http://localhost:5000/api/users");
+    const data = await res.json();
+    setUsers(data);
+    setLoading(false);
   };
 
+  useEffect(() => {
+    fetchUsers();
+  }, []);
+
+  // Tambah user
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    await fetch("http://localhost:5000/api/users", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(form),
+    });
+    setForm({ name: "", email: "" });
+    fetchUsers();
+  };
 
   return (
-    <div className="flex justify-center items-center min-h-screen bg-gray-100">
-      <form
-        onSubmit={handleLogin}
-        className="bg-white p-6 rounded-xl shadow-lg w-80"
-      >
-        <h2 className="text-2xl font-bold text-center mb-4">Login</h2>
+    <div className="min-h-[200vh] bg-white">
+      {/* Hero Section di bagian atas */}
+      <HeroSection />
+      
+    
+    <div style={{ padding: "20px" }}>
+      <h1>Frontend Next.js</h1>
+      <h2>Ambil Data dari Backend Express:</h2>
+
+      {loading ? (
+        <p>Loading...</p>
+      ) : (
+        <ul>
+          {users.map((u) => (
+            <li key={u.id}>
+              {u.name} ({u.email})
+            </li>
+          ))}
+        </ul>
+      )}
+
+      <h2>Tambah User</h2>
+      <form onSubmit={handleSubmit}>
+        <input
+          type="text"
+          placeholder="Nama"
+          value={form.name}
+          onChange={(e) => setForm({ ...form, name: e.target.value })}
+          required
+        />
         <input
           type="email"
           placeholder="Email"
-          value={email}
-          onChange={(e) => setEmail(e.target.value)}
+          value={form.email}
+          onChange={(e) => setForm({ ...form, email: e.target.value })}
           required
-          className="w-full mb-3 px-3 py-2 border rounded-lg focus:outline-none focus:ring focus:ring-blue-400"
         />
-        <input
-          type="password"
-          placeholder="Password"
-          value={password}
-          onChange={(e) => setPassword(e.target.value)}
-          required
-          className="w-full mb-3 px-3 py-2 border rounded-lg focus:outline-none focus:ring focus:ring-blue-400"
-        />
-        <button
-          type="submit"
-          className="w-full bg-blue-500 hover:bg-blue-600 text-white py-2 rounded-lg"
-        >
-          Login
-        </button>
+        <button type="submit">Tambah</button>
       </form>
+    </div>
     </div>
   );
 }
