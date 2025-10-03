@@ -1,16 +1,28 @@
 "use client";
 import { useState } from "react";
+import { useRouter } from "next/navigation";  // <-- ini WAJIB ada
 
 export default function Home() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const router = useRouter();
 
   const handleLogin = (e) => {
     e.preventDefault();
-    console.log("Email:", email);
-    console.log("Password:", password);
-    alert("Login dikirim (dummy)");
+
+    // sementara dummy login
+    if (email && password) {
+      console.log("Email:", email);
+      console.log("Password:", password);
+      alert("Login berhasil (dummy)");
+
+      // redirect ke /home
+      router.push("/home");
+    } else {
+      alert("Email atau password salah");
+    }
   };
+
 
   return (
     <div className="flex justify-center items-center min-h-screen bg-gray-100">
