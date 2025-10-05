@@ -1,28 +1,24 @@
-"use client"; // wajib kalau pakai state/effect di Next.js App Router
+"use client";
 import { useEffect, useState } from "react";
 
 export default function Header() {
   const [showHeader, setShowHeader] = useState(true);
-const [lastScrollY, setLastScrollY] = useState(0);
+  const [lastScrollY, setLastScrollY] = useState(0);
 
-useEffect(() => {
-  const handleScroll = () => {
-    if (window.scrollY > lastScrollY) {
-      // Scroll ke bawah -> header hilang
-      setShowHeader(false);
-    } else {
-      // Scroll ke atas -> header muncul
-      setShowHeader(true);
-    }
-    setLastScrollY(window.scrollY);
-  };
+  // Deteksi scroll arah
+  useEffect(() => {
+    const handleScroll = () => {
+      if (window.scrollY > lastScrollY) {
+        setShowHeader(false); // Scroll ke bawah → sembunyikan
+      } else {
+        setShowHeader(true); // Scroll ke atas → tampilkan
+      }
+      setLastScrollY(window.scrollY);
+    };
 
-  window.addEventListener("scroll", handleScroll);
-
-  return () => {
-    window.removeEventListener("scroll", handleScroll);
-  };
-}, [lastScrollY]);
+    window.addEventListener("scroll", handleScroll);
+    return () => window.removeEventListener("scroll", handleScroll);
+  }, [lastScrollY]);
 
   return (
     <nav
@@ -31,39 +27,43 @@ useEffect(() => {
       }`}
     >
       <div className="max-w-screen-xl mx-auto flex items-center justify-between px-6 py-3">
-        {/* Logo + Brand */}
-        <div className="flex items-center space-x-2">
-          <img
-            src="/logo.jpg" // ganti dengan logo kamu di folder public
-            alt="Logo"
-            className="h-8 w-8"
-          />
-          <div>
-            <span className="text-xl font-bold text-gray-800">USD</span>
-            <span className="ml-1 text-sm text-orange-500 font-semibold">Get Job</span>
+        
+        {/* === KIRI: Logo + Menu Tengah === */}
+        <div className="flex items-center space-x-10">
+          {/* Logo */}
+          <div className="flex items-center space-x-2">
+            <img
+              src="/logo.jpg"
+              alt="Logo"
+              className="h-8 w-8"
+            />
+            <div>
+              <span className="text-xl font-bold text-white">USD</span>
+              <span className="ml-1 text-sm text-orange-500 font-semibold">Get Job</span>
+            </div>
+          </div>
+
+          {/* Menu Tengah */}
+          <div className="hidden md:flex space-x-8 font-medium text-white">
+            <a href="/pasang-loker" className="hover:text-[#FFD700] transition-colors">
+              Pasang Loker
+            </a>
+            <a href="/cari-loker" className="hover:text-[#FFD700] transition-colors">
+              Cari Loker
+            </a>
           </div>
         </div>
 
-        {/* Menu Tengah */}
-        <div className="hidden md:flex space-x-8 font-medium text-gray-700 text-white">
-          <a href="/pasang-loker" className="hover:text-[#FFD700]">
-            Pasang Loker
-          </a>
-          <a href="/cari-loker" className="hover:text-[#FFD700]">
-            Cari Loker
-          </a>
-        </div>
-
-        {/* Menu Kanan */}
-        <div className="flex items-center space-x-4 ">
-          <a href="/login" className="text-white hover:text-[#FFD700]">
-            Registrasi/Masuk
+        {/* === KANAN: Menu Registrasi / Perusahaan === */}
+        <div className="flex items-center space-x-4">
+          <a href="/loginMhs" className="text-white hover:text-[#FFD700] transition-colors">
+            Login Mahasiswa
           </a>
           <a
             href="/perusahaan"
-            className="bg-orange-600 text-white px-4 py-2 rounded-md font-medium hover:bg-orange-700"
+            className="bg-orange-600 text-white px-4 py-2 rounded-md font-medium hover:bg-orange-700 transition-colors"
           >
-            Untuk Perusahaan
+            Login Perusahaan
           </a>
         </div>
       </div>
