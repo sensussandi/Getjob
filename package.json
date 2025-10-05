@@ -12,10 +12,12 @@
     "@tailwindcss/vite": "^4.1.14",
     "daisyui": "^5.1.26",
     "flowbite": "^3.1.2",
+    "lucide-react": "^0.544.0",
     "mysql2": "^3.15.1",
     "next": "15.5.4",
     "react": "19.1.0",
-    "react-dom": "19.1.0"
+    "react-dom": "19.1.0",
+    "react-select": "^5.10.2"
   },
   "devDependencies": {
     "@eslint/eslintrc": "^3",

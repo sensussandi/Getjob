@@ -1,5 +1,5 @@
 import "./globals.css";
-import Header from "@/components/Header";// pastikan sesuai nama file
+import ClientLayout from "@/components/ClientLayout";
 
 export const metadata = {
   title: "GetJob",
@@ -10,8 +10,7 @@ export default function RootLayout({ children }) {
   return (
     <html lang="en">
       <body className="antialiased">
-        <Header />
-        <main className="pt-16">{children}</main>
+        <ClientLayout>{children}</ClientLayout>
       </body>
     </html>
   );
