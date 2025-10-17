@@ -16,35 +16,35 @@ export default function LoginMhs() {
   };
 
   const handleLogin = async () => {
-  if (!formData.nim || !formData.password) {
-    alert("NIM dan Password harus diisi!");
-    return;
-  }
+    if (!formData.nim || !formData.password) {
+      alert("NIM dan Password harus diisi!");
+      return;
+    } 
 
-  try {
-    const response = await fetch("http://localhost:5000/api/loginMhs", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(formData),
-    });
+    try {
+      const response = await fetch("/api/loginMhs", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(formData),
+      });
 
-    const result = await response.json();
+      const result = await response.json();
 
       if (response.ok && result.success) {
-      // Simpan email dan NIM di localStorage
-      localStorage.setItem("userEmail", result.data.email);
-      localStorage.setItem("userNim", result.data.nim);
+        // Simpan email dan NIM di localStorage
+        localStorage.setItem("userEmail", result.data.email);
+        localStorage.setItem("userNim", result.data.nim);
 
-      alert("Login berhasil!");
-      window.location.href = "/lengkapiDataMHS";
-    } else {
-      alert(result.message || "Login gagal!");
+        alert("Login berhasil!");
+        window.location.href = "/lengkapiDataMHS";
+      } else {
+        alert(result.message || "Login gagal!");
+      }
+    } catch (error) {
+      console.error("Error:", error);
+      alert("Tidak bisa terhubung ke server!");
     }
-  } catch (error) {
-    console.error("Error:", error);
-    alert("Tidak bisa terhubung ke server!");
-  }
-};
+  };
 
 
   const handleForgotPassword = () => {
@@ -100,7 +100,7 @@ export default function LoginMhs() {
                   value={formData.nim}
                   onChange={handleChange}
                   placeholder="Masukkan NIM"
-                  className="w-full pl-12 pr-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-900 focus:border-transparent transition"
+                  className="w-full pl-12 pr-4 py-3 border text-black placeholder-gray-400 rounded-lg focus:ring-2 focus:ring-red-900 focus:border-transparent transition"
                 />
               </div>
             </div>
@@ -118,7 +118,7 @@ export default function LoginMhs() {
                   value={formData.password}
                   onChange={handleChange}
                   placeholder="Masukkan Password"
-                  className="w-full pl-12 pr-12 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-900 focus:border-transparent transition"
+                  className="w-full pl-12 pr-12 py-3 border text-black placeholder-gray-400 rounded-lg focus:ring-2 focus:ring-red-900 focus:border-transparent transition"
                 />
                 <button
                   type="button"
