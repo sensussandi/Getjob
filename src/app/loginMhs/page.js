@@ -36,7 +36,7 @@ export default function LoginMhs() {
         localStorage.setItem("userNim", result.data.nim);
 
         alert("Login berhasil!");
-        window.location.href = "/lengkapiDataMHS";
+        window.location.href = "/dashboardMHS";
       } else {
         alert(result.message || "Login gagal!");
       }
