@@ -1,24 +1,30 @@
 "use client";
 import { useEffect, useState } from "react";
+import { useRouter } from "next/navigation";
 
 export default function Header() {
   const [showHeader, setShowHeader] = useState(true);
   const [lastScrollY, setLastScrollY] = useState(0);
+  const router = useRouter();
 
-  // Deteksi scroll arah
+  // Deteksi arah scroll
   useEffect(() => {
     const handleScroll = () => {
       if (window.scrollY > lastScrollY) {
-        setShowHeader(false); // Scroll ke bawah → sembunyikan
+        setShowHeader(false);
       } else {
-        setShowHeader(true); // Scroll ke atas → tampilkan
+        setShowHeader(true);
       }
       setLastScrollY(window.scrollY);
     };
-
     window.addEventListener("scroll", handleScroll);
     return () => window.removeEventListener("scroll", handleScroll);
   }, [lastScrollY]);
+
+  // Fungsi klik logo
+  const handleLogoClick = () => {
+    router.push("/"); // arahkan ke halaman utama (home)
+  };
 
   return (
     <nav
@@ -27,16 +33,14 @@ export default function Header() {
       }`}
     >
       <div className="max-w-screen-xl mx-auto flex items-center justify-between px-6 py-3">
-        
         {/* === KIRI: Logo + Menu Tengah === */}
         <div className="flex items-center space-x-10">
           {/* Logo */}
-          <div className="flex items-center space-x-2">
-            <img
-              src="/logo.jpg"
-              alt="Logo"
-              className="h-8 w-8"
-            />
+          <div
+            onClick={handleLogoClick}
+            className="flex items-center space-x-2 cursor-pointer hover:opacity-80 transition"
+          >
+            <img src="/logo.jpg" alt="Logo" className="h-8 w-8" />
             <div>
               <span className="text-xl font-bold text-white">USD</span>
               <span className="ml-1 text-sm text-orange-500 font-semibold">Get Job</span>
