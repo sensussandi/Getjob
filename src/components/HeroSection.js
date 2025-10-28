@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Search, MapPin, Briefcase, ChevronDown } from "lucide-react";
+import { Search, MapPin, Briefcase, ChevronDown, ChevronUp } from "lucide-react";
 
 export default function HeroSection() {
   const [keyword, setKeyword] = useState("");
@@ -18,14 +18,6 @@ export default function HeroSection() {
     "Sales", "Human Resources", "Customer Service", 
     "Engineering", "Healthcare", "Education"
   ];
-
-  const filteredLocations = locations.filter(loc =>
-    loc.toLowerCase().includes(location.toLowerCase())
-  );
-
-  const filteredCategories = categories.filter(cat =>
-    cat.toLowerCase().includes(category.toLowerCase())
-  );
 
   const handleSearch = () => {
     console.log("Search:", { keyword, location, category });
@@ -51,8 +43,8 @@ export default function HeroSection() {
         <div className="md:w-1/2 space-y-8 z-10">
           <div className="space-y-4">
             <div className="inline-block bg-yellow-400 text-[#800000] px-4 py-2 rounded-full text-sm font-bold animate-bounce mt-4">
-          🔥 Pencarian Loker Mahasiswa Sanata Dharma
-           </div>
+              🔥 Pencarian Loker Mahasiswa Sanata Dharma
+            </div>
             <h1 className="text-5xl md:text-6xl font-extrabold leading-tight">
               Cari Kerja <span className="text-[#FFD700] drop-shadow-lg">PALING MUDAH</span><br />
               Menggunakan  <span className="bg-white text-[#800000] px-3 py-1 rounded-lg">GETJOB</span>
@@ -76,31 +68,39 @@ export default function HeroSection() {
               />
             </div>
 
+            {/* Dropdowns */}
             <div className="grid md:grid-cols-2 gap-4">
-              {/* Location Search */}
+              
+              {/* === Dropdown Lokasi === */}
               <div className="relative">
-                <MapPin className="absolute left-4 top-4 w-5 h-5 text-gray-400 z-10" />
-                <input
-                  type="text"
-                  value={location}
-                  onChange={(e) => setLocation(e.target.value)}
-                  onFocus={() => setShowLocationDropdown(true)}
-                  onBlur={() => setTimeout(() => setShowLocationDropdown(false), 200)}
-                  placeholder="Cari lokasi"
-                  className="w-full pl-12 pr-10 py-4 border-2 border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-[#800000] focus:border-transparent transition-all cursor-text"
-                />
-                <ChevronDown className="absolute right-4 top-4 w-5 h-5 text-gray-400" />
-                
-                {showLocationDropdown && filteredLocations.length > 0 && (
-                  <div className="absolute z-20 w-full mt-2 bg-white border-2 border-gray-200 rounded-xl shadow-lg max-h-48 overflow-y-auto">
-                    {filteredLocations.map((loc, index) => (
+                <button
+                  type="button"
+                  onClick={() => setShowLocationDropdown(!showLocationDropdown)}
+                  className="w-full flex justify-between items-center pl-12 pr-4 py-4 border-2 border-gray-200 rounded-xl bg-white text-gray-600 focus:outline-none focus:ring-2 focus:ring-[#800000] transition-all"
+                >
+                  <div className="flex items-center gap-2 text-gray-600">
+                    <MapPin className="w-5 h-5 text-gray-400" />
+                    {location || "Semua Lokasi"}
+                  </div>
+                  {showLocationDropdown ? (
+                    <ChevronUp className="w-5 h-5 text-gray-500 transition-transform duration-300" />
+                  ) : (
+                    <ChevronDown className="w-5 h-5 text-gray-500 transition-transform duration-300" />
+                  )}
+                </button>
+
+                {showLocationDropdown && (
+                  <div className="absolute z-20 w-full mt-2 bg-white border-2 border-gray-200 rounded-xl shadow-lg max-h-56 overflow-y-auto">
+                    {locations.map((loc, index) => (
                       <div
                         key={index}
-                        onMouseDown={() => {
+                        onClick={() => {
                           setLocation(loc);
                           setShowLocationDropdown(false);
                         }}
-                        className="px-4 py-3 hover:bg-red-50 cursor-pointer transition-colors border-b border-gray-100 last:border-b-0"
+                        className={`px-4 py-3 hover:bg-red-50 cursor-pointer border-b border-gray-100 last:border-b-0 ${
+                          location === loc ? "bg-yellow-50 text-[#800000] font-semibold" : ""
+                        }`}
                       >
                         <div className="flex items-center gap-2">
                           <MapPin className="w-4 h-4 text-[#800000]" />
@@ -112,30 +112,36 @@ export default function HeroSection() {
                 )}
               </div>
 
-              {/* Category Search */}
+              {/* === Dropdown Kategori === */}
               <div className="relative">
-                <Briefcase className="absolute left-4 top-4 w-5 h-5 text-gray-400 z-10" />
-                <input
-                  type="text"
-                  value={category}
-                  onChange={(e) => setCategory(e.target.value)}
-                  onFocus={() => setShowCategoryDropdown(true)}
-                  onBlur={() => setTimeout(() => setShowCategoryDropdown(false), 200)}
-                  placeholder="Cari kategori"
-                  className="w-full pl-12 pr-10 py-4 border-2 border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-[#800000] focus:border-transparent transition-all cursor-text"
-                />
-                <ChevronDown className="absolute right-4 top-4 w-5 h-5 text-gray-400" />
-                
-                {showCategoryDropdown && filteredCategories.length > 0 && (
-                  <div className="absolute z-20 w-full mt-2 bg-white border-2 border-gray-200 rounded-xl shadow-lg max-h-48 overflow-y-auto">
-                    {filteredCategories.map((cat, index) => (
+                <button
+                  type="button"
+                  onClick={() => setShowCategoryDropdown(!showCategoryDropdown)}
+                  className="w-full flex justify-between items-center pl-12 pr-4 py-4 border-2 border-gray-200 rounded-xl bg-white text-gray-600 focus:outline-none focus:ring-2 focus:ring-[#800000] transition-all"
+                >
+                  <div className="flex items-center gap-2 text-gray-600">
+                    <Briefcase className="w-5 h-5 text-gray-400" />
+                    {category || "Semua Kategori"}
+                  </div>
+                  {showCategoryDropdown ? (
+                    <ChevronUp className="w-5 h-5 text-gray-500 transition-transform duration-300" />
+                  ) : (
+                    <ChevronDown className="w-5 h-5 text-gray-500 transition-transform duration-300" />
+                  )}
+                </button>
+
+                {showCategoryDropdown && (
+                  <div className="absolute z-20 w-full mt-2 bg-white border-2 border-gray-200 rounded-xl shadow-lg max-h-56 overflow-y-auto">
+                    {categories.map((cat, index) => (
                       <div
                         key={index}
-                        onMouseDown={() => {
+                        onClick={() => {
                           setCategory(cat);
                           setShowCategoryDropdown(false);
                         }}
-                        className="px-4 py-3 hover:bg-red-50 cursor-pointer transition-colors border-b border-gray-100 last:border-b-0"
+                        className={`px-4 py-3 hover:bg-red-50 cursor-pointer border-b border-gray-100 last:border-b-0 ${
+                          category === cat ? "bg-yellow-50 text-[#800000] font-semibold" : ""
+                        }`}
                       >
                         <div className="flex items-center gap-2">
                           <Briefcase className="w-4 h-4 text-[#800000]" />
