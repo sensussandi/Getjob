@@ -31,12 +31,11 @@ export default function LoginMhs() {
       const result = await response.json();
 
       if (response.ok && result.success) {
-        // Simpan email dan NIM di localStorage
-        localStorage.setItem("userEmail", result.data.email);
-        localStorage.setItem("userNim", result.data.nim);
+        // Simpan seluruh data user ke localStorage
+        localStorage.setItem("user", JSON.stringify(result.data));
 
         alert("Login berhasil!");
-        window.location.href = "/lengkapiDataMHS";
+        window.location.href = "/dashboardMHS";
       } else {
         alert(result.message || "Login gagal!");
       }
