@@ -16,15 +16,15 @@ export default function Sidebar() {
   // ✅ Ambil nama user dari backend berdasarkan email di localStorage
   useEffect(() => {
     const fetchUserData = async () => {
-      const userEmail = localStorage.getItem("userEmail");
-      if (!userEmail) {
+      const user = localStorage.getItem("user");
+      if (!user) {
         console.warn("Email tidak ditemukan, redirect ke login...");
         router.push("/loginMhs");
         return;
       }
 
       try {
-        const res = await fetch(`http://localhost:5000/api/users/email/${userEmail}`);
+        const res = await fetch(`http://localhost:5000/api/users/email/${user}`);
         const result = await res.json();
 
         if (result.success && result.data) {
@@ -43,7 +43,7 @@ export default function Sidebar() {
 
   // ✅ Logout handler
   const handleLogout = () => {
-    localStorage.removeItem("userEmail");
+    localStorage.removeItem("user");
     alert("Anda telah logout!");
     router.push("/"); // kembali ke halaman utama
   };
