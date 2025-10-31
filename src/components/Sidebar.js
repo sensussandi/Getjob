@@ -16,7 +16,7 @@ export default function Sidebar() {
   // ✅ Ambil nama user dari backend berdasarkan email di localStorage
   useEffect(() => {
     const fetchUserData = async () => {
-      const userEmail = localStorage.getItem("userEmail");
+      const userEmail = localStorage.getItem("user");
       if (!userEmail) {
         console.warn("Email tidak ditemukan, redirect ke login...");
         router.push("/loginMhs");
