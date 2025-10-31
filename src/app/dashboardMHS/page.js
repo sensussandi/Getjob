@@ -40,6 +40,6 @@ export default function DashboardMHS() {
       >
         Logout
       </button>
-    </div>
-  );
+  </div>
+);
 }
