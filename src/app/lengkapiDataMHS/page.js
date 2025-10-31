@@ -26,7 +26,7 @@ export default function LengkapiData() {
   const [currentStep, setCurrentStep] = useState(1);
 
   useEffect(() => {
-    const fetchUserData = async () => {
+    const fetchuser = async () => {
       try {
         const userEmail = localStorage.getItem("userEmail");
         if (!userEmail) {
@@ -64,7 +64,7 @@ export default function LengkapiData() {
         setIsLoading(false);
       }
     };
-    fetchUserData();
+    fetchuser();
   }, [router]);
 
   const handleChange = (e) => setFormData({ ...formData, [e.target.name]: e.target.value });
