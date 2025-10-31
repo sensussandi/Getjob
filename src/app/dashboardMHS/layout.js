@@ -24,7 +24,7 @@ export default function Layout({ children }) {
 
   if (!checkedAuth) {
     return (
-      <div className="flex items-center justify-center h-screen text-red-900 font-semibold">
+      <div className="flex item`s-center justify-center h-screen text-red-900 font-semibold">
         Mengecek sesi login...
       </div>
     );

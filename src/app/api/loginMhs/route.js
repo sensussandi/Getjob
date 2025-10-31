@@ -25,7 +25,7 @@ export async function POST(request) {
       // Jika login berhasil, simpan waktu login ke tabel log (opsional)
       const user = rows[0];
       // Misalnya kamu mau update status atau waktu login terakhir:
-      await connection.execute("UPDATE pencari_kerja SET linkedin = ? WHERE nim = ?", [Terakhir login: ${new Date().toISOString()}, nim]);
+      await connection.execute("UPDATE pencari_kerja SET linkedin = ? WHERE nim = ?", [`Terakhir login: ${new Date().toISOString()}`, nim]);
 
       await connection.end();
 
@@ -47,6 +47,6 @@ export async function POST(request) {
     }
   } catch (error) {
     console.error("Error loginMhs:", error.message);
-    return Response.json({ success: false, message: "Server error: " + error.message }, { status: 500 });
-  }
+    return Response.json({ success: false, message: "Server error: " + error.message }, { status: 500 });
+  }
 }
