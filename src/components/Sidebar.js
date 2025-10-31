@@ -11,18 +11,13 @@ export default function Sidebar() {
   const [isCollapsed, setIsCollapsed] = useState(false);
   const [activeMenu, setActiveMenu] = useState("dashboard");
   const [userName, setUserName] = useState("Memuat...");
-  const [userRole, setUserRole] = useState("Mahasiswa");
+  const [userRole, setUserRole] = useState("pencari_kerja");
 
   // ✅ Ambil nama user dari backend berdasarkan email di localStorage
   useEffect(() => {
     const fetchUserData = async () => {
-<<<<<<< HEAD
-      const user = localStorage.getItem("user");
-      if (!user) {
-=======
       const userEmail = localStorage.getItem("user");
       if (!userEmail) {
->>>>>>> 6360268fc73422eb9344a79b9837d72178381660
         console.warn("Email tidak ditemukan, redirect ke login...");
         router.push("/loginMhs");
         return;
