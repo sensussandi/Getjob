@@ -43,16 +43,24 @@ export default function Header() {
             <img src="/logo.jpg" alt="Logo" className="h-8 w-8" />
             <div>
               <span className="text-xl font-bold text-white">USD</span>
-              <span className="ml-1 text-sm text-orange-500 font-semibold">Get Job</span>
+              <span className="ml-1 text-sm text-orange-500 font-semibold">
+                Get Job
+              </span>
             </div>
           </div>
 
           {/* Menu Tengah */}
           <div className="hidden md:flex space-x-8 font-medium text-white">
-            <a href="/pasang-loker" className="hover:text-[#FFD700] transition-colors">
+            <a
+              href="/pasang-loker"
+              className="hover:text-[#FFD700] transition-colors"
+            >
               Pasang Loker
             </a>
-            <a href="/cari-loker" className="hover:text-[#FFD700] transition-colors">
+            <a
+              href="/cari-loker"
+              className="hover:text-[#FFD700] transition-colors"
+            >
               Cari Loker
             </a>
           </div>
@@ -60,11 +68,14 @@ export default function Header() {
 
         {/* === KANAN: Menu Registrasi / Perusahaan === */}
         <div className="flex items-center space-x-4">
-          <a href="/loginMhs" className="text-white hover:text-[#FFD700] transition-colors">
+          <a
+            href="/loginMhs"
+            className="text-white hover:text-[#FFD700] transition-colors"
+          >
             Login Mahasiswa
           </a>
           <a
-            href="/perusahaan"
+            href="/loginPerusahaan"
             className="bg-orange-600 text-white px-4 py-2 rounded-md font-medium hover:bg-orange-700 transition-colors"
           >
             Login Perusahaan
