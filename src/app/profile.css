@@ -1,0 +1,122 @@
+@import "./globals.css";
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* --- GLOBAL STYLE --- */
+body {
+    font-family: "Poppins", sans-serif;
+    background-color: #fafafa;
+    color: #222;
+}
+
+/* Form container */
+.profile-form {
+    background-color: #ffffff;
+    border-radius: 20px;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+    width: 420px;
+    padding: 2rem 2.5rem;
+    transition: background 0.4s, color 0.4s;
+}
+
+/* Heading */
+.profile-form h1 {
+    font-size: 1.9rem;
+    font-weight: 600;
+    text-align: center;
+    margin-bottom: 1.8rem;
+    color: #222;
+}
+
+/* Label dan Input */
+.profile-form label {
+    display: block;
+    font-weight: 600;
+    margin-bottom: 0.5rem;
+}
+
+.profile-form input[type="file"],
+.profile-form select,
+.profile-form textarea {
+    width: 100%;
+    border: 1px solid #ccc;
+    border-radius: 10px;
+    padding: 10px 12px;
+    margin-bottom: 1rem;
+    font-size: 0.95rem;
+    background-color: #fff;
+    transition: border 0.3s;
+}
+
+.profile-form input[type="file"]:hover,
+.profile-form select:hover,
+.profile-form textarea:hover {
+    border-color: #ff7b00;
+}
+
+.profile-form p {
+    font-size: 0.8rem;
+    color: #888;
+    margin-top: -0.5rem;
+    margin-bottom: 1rem;
+}
+
+/* Tombol unggah (warna oranye) */
+.profile-form input[type="file"]::file-selector-button {
+    background-color: #ff7b00;
+    color: white;
+    border: none;
+    padding: 6px 12px;
+    border-radius: 6px;
+    cursor: pointer;
+    font-weight: 500;
+}
+
+.profile-form input[type="file"]::file-selector-button:hover {
+    background-color: #e56f00;
+}
+
+/* Tombol submit */
+.btn-next {
+    width: 100%;
+    background-color: #0057ff;
+    color: white;
+    font-weight: 600;
+    border: none;
+    padding: 10px 0;
+    border-radius: 10px;
+    cursor: pointer;
+    transition: background-color 0.3s;
+}
+
+.btn-next:hover {
+    background-color: #003fd4;
+}
+
+/* Dark Mode Styling */
+.dark {
+    background-color: #111827;
+    color: #f3f4f6;
+}
+
+.dark .profile-form {
+    background-color: #1f2937;
+    color: #f3f4f6;
+}
+
+.dark input,
+.dark select,
+.dark textarea {
+    background-color: #111827;
+    color: #f3f4f6;
+    border-color: #374151;
+}
+
+.dark input[type="file"]::file-selector-button {
+    background-color: #2563eb;
+}
+
+.dark .btn-next {
+    background-color: #2563eb;
+}
