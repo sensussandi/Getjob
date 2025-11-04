@@ -11,9 +11,23 @@ export async function GET() {
       database: "getjob_db",
     });
 
-    // ✅ 2. Ambil data perusahaan pertama
-    const [adminRes] = await db.query(`SELECT * FROM admin_perusahaan LIMIT 1`);
-    const admin = adminRes[0];
+    // ✅ 2. Ambil profil perusahaan
+    const [adminRes] = await db.query(`
+      SELECT 
+        nama_perusahaan, 
+        alamat_perusahaan, 
+        email_perusahaan as email, 
+        tentang_perusahaan
+        logo_url
+      FROM admin_perusahaan
+      LIMIT 1
+    `);
+    const admin = adminRes[0] || {
+      nama_perusahaan: "Belum ada data",
+      alamat_perusahaan: "-",
+      email: "-",
+      tentang_perusahaan: "-",
+    };
 
     // ✅ 3. Ambil data lowongan kerja
     const [lowongan] = await db.query(`
@@ -30,9 +44,7 @@ export async function GET() {
       LIMIT 10
     `);
 
-    // ✅ 4. Ambil pelamar terbaru — disesuaikan ke struktur tabel kamu
-    //    Karena tabel mendaftar TIDAK punya kolom nim dan id_lowongan,
-    //    maka di sini kita tampilkan data dasar saja.
+    // ✅ 4. Ambil pelamar terbaru
     const [pelamar] = await db.query(`
       SELECT 
         id_pendaftaran AS id,
@@ -43,7 +55,7 @@ export async function GET() {
       LIMIT 5
     `);
 
-    // ✅ 5. Statistik sederhana (tanpa join)
+    // ✅ 5. Statistik sederhana
     const [statsRes] = await db.query(`
       SELECT
         (SELECT COUNT(*) FROM lowongan_kerja) AS totalLowongan,
@@ -51,7 +63,6 @@ export async function GET() {
         (SELECT COUNT(*) FROM mendaftar) AS totalPelamar,
         (SELECT COUNT(*) FROM mendaftar WHERE DATE(tanggal_daftar) = CURDATE()) AS pelamarBaru
     `);
-
     const stats = statsRes[0];
 
     await db.end();
@@ -59,10 +70,10 @@ export async function GET() {
     // ✅ 6. Kirim hasil ke frontend
     return NextResponse.json({
       success: true,
-      admin,
-      lowongan,
-      pelamar,
-      stats,
+      admin,      // profil perusahaan
+      lowongan,   // daftar lowongan
+      pelamar,    // pelamar terbaru
+      stats,      // statistik
     });
 
   } catch (err) {

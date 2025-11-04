@@ -80,6 +80,10 @@ export default function DashboardPerusahaan() {
                     <Mail className="w-4 h-4" />
                     {admin.email || "email@company.com"}
                   </span>
+                  <p className="text-gray-600 text-sm mt-2 max-w-2xl">
+                    {admin.tentang_perusahaan || "Belum ada deskripsi perusahaan."}
+                  </p>
+
                 </div>
               </div>
             </div>
@@ -96,7 +100,10 @@ export default function DashboardPerusahaan() {
                 <span>Buat Lowongan</span>
               </button>
 
-              <button className="px-5 py-3 border-2 border-gray-300 rounded-xl font-medium hover:bg-gray-50 transition-all flex items-center gap-2 text-gray-700">
+              <button
+                onClick={() => router.push("/dashboardPerusahaan/pengaturan")}
+                className="px-5 py-3 border-2 border-gray-300 rounded-xl font-medium hover:bg-gray-50 transition-all flex items-center gap-2 text-gray-700"
+              >
                 <Settings className="w-5 h-5" />
                 <span>Pengaturan</span>
               </button>
