@@ -1,104 +1,129 @@
 "use client";
-import { Briefcase, CheckCircle2, MessageCircle } from "lucide-react";
+import { useState } from "react";
 
 export default function PasangLokerPage() {
+  const [formData, setFormData] = useState({
+    nama_posisi: "",
+    tanggal_dibuka: "",
+    tanggal_ditutup: "",
+    deskripsi_pekerjaan: "",
+    kualifikasi: "",
+    gaji: "",
+    lokasi: "",
+  });
+
+  const handleChange = (e) => {
+    setFormData({ ...formData, [e.target.name]: e.target.value });
+  };
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+
+    const res = await fetch("/api/pasang-loker", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(formData),
+    });
+
+    const data = await res.json();
+    alert(data.message);
+
+    if (data.success) {
+      setFormData({
+        nama_posisi: "",
+        tanggal_dibuka: "",
+        tanggal_ditutup: "",
+        deskripsi_pekerjaan: "",
+        kualifikasi: "",
+        gaji: "",
+        lokasi: "",
+      });
+    }
+  };
+
   return (
-    <section className="min-h-screen bg-gradient-to-b from-[#800000] via-[#900000] to-[#700000] text-white py-16">
-      <div className="max-w-screen-xl mx-auto px-6">
+    <div className="p-8 max-w-2xl mx-auto">
+      <h1 className="text-3xl font-bold text-center text-red-800 mb-8">
+        🧾 Form Pasang Loker
+      </h1>
 
-        {/* === Header Section === */}
-        <div className="text-center mb-12">
-          <h1 className="text-5xl font-extrabold mb-4">
-            Pasang <span className="text-yellow-400">Iklan Lowongan Kerja</span>
-          </h1>
-          <p className="text-lg text-red-100 max-w-2xl mx-auto">
-            Temukan kandidat terbaik untuk perusahaan Anda melalui platform rekrutmen
-            <br /> <b>USD GetJob</b> — cepat, mudah, dan terpercaya!
-          </p>
-        </div>
+      <form onSubmit={handleSubmit} className="space-y-5">
+        <input
+          type="text"
+          name="nama_posisi"
+          value={formData.nama_posisi}
+          onChange={handleChange}
+          placeholder="Nama Posisi"
+          className="border border-gray-300 p-2 w-full rounded"
+          required
+        />
 
-        {/* === Feature Cards Section === */}
-        <div className="grid md:grid-cols-3 gap-8 mb-16">
-          {[
-            {
-              title: "Job Posting",
-              desc: "Pasang lowongan kerja dan jangkau ribuan mahasiswa aktif di seluruh Indonesia.",
-            },
-            {
-              title: "Applicant Tracking System",
-              desc: "Pantau dan kelola lamaran kandidat langsung dari dashboard perusahaan Anda.",
-            },
-            {
-              title: "Talent Search",
-              desc: "Temukan talenta terbaik dengan filter lokasi, jurusan, dan keterampilan spesifik.",
-            },
-            {
-              title: "Candidate Recommendation",
-              desc: "Sistem kami membantu merekomendasikan kandidat paling cocok untuk posisi Anda.",
-            },
-            {
-              title: "Career Page",
-              desc: "Bangun citra perusahaan yang menarik dengan halaman profil karier profesional.",
-            },
-            {
-              title: "Support 24/7",
-              desc: "Tim kami siap membantu Anda kapan pun melalui WhatsApp dan email.",
-            },
-          ].map((item, i) => (
-            <div
-              key={i}
-              className="bg-white text-gray-800 rounded-xl shadow-lg p-6 transform hover:scale-[1.02] transition-transform"
-            >
-              <div className="flex items-center gap-3 mb-3">
-                <CheckCircle2 className="w-6 h-6 text-[#800000]" />
-                <h3 className="text-xl font-semibold text-[#800000]">
-                  {item.title}
-                </h3>
-              </div>
-              <p className="text-gray-600">{item.desc}</p>
-            </div>
-          ))}
-        </div>
-
-        {/* === Call to Action Section === */}
-        <div className="bg-white text-gray-800 rounded-2xl shadow-2xl p-8 flex flex-col md:flex-row items-center justify-between gap-8">
-          {/* Text */}
-          <div className="space-y-4 md:w-2/3">
-            <h2 className="text-3xl font-bold text-[#800000]">
-              Siap Pasang Lowongan Sekarang?
-            </h2>
-            <p className="text-gray-700 leading-relaxed">
-              Dengan USD GetJob, Anda dapat menjangkau ribuan mahasiswa dan lulusan aktif
-              dari berbagai jurusan di Universitas Sanata Dharma dan kampus mitra lainnya.
-              Posting iklan Anda sekarang dan temukan talenta terbaik tanpa proses rumit.
-            </p>
+        <div className="flex gap-4">
+          <div className="w-1/2">
+            <label className="text-sm text-gray-600">Tanggal Dibuka</label>
+            <input
+              type="date"
+              name="tanggal_dibuka"
+              value={formData.tanggal_dibuka}
+              onChange={handleChange}
+              className="border border-gray-300 p-2 w-full rounded"
+              required
+            />
           </div>
-          <a
-            href="https://wa.me/628562906005"
-            target="_blank"
-            rel="noopener noreferrer"
-            className="flex items-center gap-3 bg-[#25D366] text-white px-6 py-4 rounded-xl font-semibold text-lg hover:bg-[#1DA851] transition-all transform hover:scale-[1.05]"
-          >
-            <MessageCircle className="w-6 h-6" />
-            Hubungi Kami via WhatsApp
-          </a>
-        </div>
-
-        {/* === Trusted By Section === */}
-        <div className="text-center mt-16">
-          <h3 className="text-2xl font-bold text-yellow-400 mb-4">
-            Dipercaya oleh berbagai perusahaan ternama
-          </h3>
-          <div className="flex flex-wrap justify-center gap-6 opacity-90">
-            <img src="/logos/ef.png" alt="EF" className="h-10" />
-            <img src="/logos/homecredit.png" alt="Home Credit" className="h-10" />
-            <img src="/logos/united.png" alt="United Tractors" className="h-10" />
-            <img src="/logos/bankmega.png" alt="Bank Mega" className="h-10" />
-            <img src="/logos/oqo.png" alt="OQO" className="h-10" />
+          <div className="w-1/2">
+            <label className="text-sm text-gray-600">Tanggal Ditutup</label>
+            <input
+              type="date"
+              name="tanggal_ditutup"
+              value={formData.tanggal_ditutup}
+              onChange={handleChange}
+              className="border border-gray-300 p-2 w-full rounded"
+            />
           </div>
         </div>
 
-      </div>
-    </section>
+        <textarea
+          name="deskripsi_pekerjaan"
+          value={formData.deskripsi_pekerjaan}
+          onChange={handleChange}
+          placeholder="Deskripsi Pekerjaan"
+          className="border border-gray-300 p-2 w-full rounded h-28"
+          required
+        />
+
+        <textarea
+          name="kualifikasi"
+          value={formData.kualifikasi}
+          onChange={handleChange}
+          placeholder="Kualifikasi / Syarat Pelamar"
+          className="border border-gray-300 p-2 w-full rounded h-24"
+        />
+
+        <input
+          type="text"
+          name="gaji"
+          value={formData.gaji}
+          onChange={handleChange}
+          placeholder="Gaji (opsional)"
+          className="border border-gray-300 p-2 w-full rounded"
+        />
+
+        <input
+          type="text"
+          name="lokasi"
+          value={formData.lokasi}
+          onChange={handleChange}
+          placeholder="Lokasi Kerja"
+          className="border border-gray-300 p-2 w-full rounded"
+        />
+
+        <button
+          type="submit"
+          className="bg-red-800 hover:bg-red-900 text-white px-6 py-2 rounded w-full font-semibold transition"
+        >
+          Pasang Loker
+        </button>
+      </form>
+    </div>
   );
 }
