@@ -22,9 +22,12 @@ export default function LoginPerusahaan() {
     const data = await res.json();
 
     if (res.ok && data.success) {
-      // Store data using state management instead of localStorage for Claude.ai compatibility
-      // In production: localStorage.setItem("perusahaan", JSON.stringify(data.perusahaan));
-      router.push("/dashboardPerusahaan");
+      // Simpan user ke localStorage
+      localStorage.setItem("user", JSON.stringify(data.data));
+      localStorage.setItem("isLoggedIn", "true");
+
+      // Redirect sesuai role
+      router.push(data.redirect);
     } else {
       setError(data.message || "Login gagal. Coba lagi.");
     }
@@ -47,7 +50,7 @@ export default function LoginPerusahaan() {
         {/* === Form Card === */}
         <div className="bg-white rounded-2xl shadow-2xl p-8">
           <h2 className="text-2xl font-bold text-gray-800 text-center mb-6">Login</h2>
-          
+
           <form onSubmit={handleLogin} className="space-y-4">
             {/* Email */}
             <div>

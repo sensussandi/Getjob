@@ -5,7 +5,7 @@ import Header from "@/components/Header";
 
 export default function ClientLayout({ children }) {
   const pathname = usePathname();
-  const noHeaderPages = [ "/loginMhs", "/dashboardMHS", "/loginPerusahaan","/lengkapiDataMHS","/dashboardPerusahaan","/dashboardPerusahaan/lowongan/tambah"];
+  const noHeaderPages = [ "/loginMhs" , "/dashboardAdmin", "/loginPerusahaan","/lengkapiDataMHS","/dashboardPerusahaan","/dashboardPerusahaan/lowongan/tambah"];
 
   return (
     <>
