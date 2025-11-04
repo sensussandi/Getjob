@@ -3,7 +3,7 @@ import mysql from "mysql2/promise";
 
 export async function GET() {
   try {
-    // ✅ 1. Koneksi ke database
+    // ✅ 1. Koneksi database
     const db = await mysql.createConnection({
       host: "localhost",
       user: "root",
@@ -14,29 +14,22 @@ export async function GET() {
     // ✅ 2. Ambil profil perusahaan
     const [adminRes] = await db.query(`
       SELECT 
-        nama_perusahaan, 
-        alamat_perusahaan, 
-        email_perusahaan as email, 
-        tentang_perusahaan
+        nama_perusahaan,
+        alamat_perusahaan,
+        email_perusahaan AS email,
+        tentang_perusahaan,
         logo_url
       FROM admin_perusahaan
       LIMIT 1
     `);
-    const admin = adminRes[0] || {
-      nama_perusahaan: "Belum ada data",
-      alamat_perusahaan: "-",
-      email: "-",
-      tentang_perusahaan: "-",
-    };
+    const admin = adminRes[0];
 
     // ✅ 3. Ambil data lowongan kerja
     const [lowongan] = await db.query(`
       SELECT 
         id_lowongan,
         nama_posisi,
-        gaji,
         lokasi,
-        kualifikasi,
         deskripsi_pekerjaan,
         tanggal_ditutup
       FROM lowongan_kerja
@@ -65,15 +58,16 @@ export async function GET() {
     `);
     const stats = statsRes[0];
 
+    // ✅ 6. Tutup koneksi database
     await db.end();
 
-    // ✅ 6. Kirim hasil ke frontend
+    // ✅ 7. Kirim semua hasil ke frontend
     return NextResponse.json({
       success: true,
-      admin,      // profil perusahaan
-      lowongan,   // daftar lowongan
-      pelamar,    // pelamar terbaru
-      stats,      // statistik
+      admin,
+      lowongan,
+      pelamar,
+      stats,
     });
 
   } catch (err) {
@@ -81,7 +75,7 @@ export async function GET() {
     return NextResponse.json(
       {
         success: false,
-        message: "Gagal mengambil data dari database",
+        message: "Gagal mengambil data dashboard",
         error: err.message,
       },
       { status: 500 }
