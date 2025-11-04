@@ -6,7 +6,7 @@ export async function POST(request) {
     const { nim, password } = body;
 
     if (!nim || !password) {
-      return Response.json({ success: false, message: "NIM dan Password wajib diisi!" }, { status: 400 });
+      return Response.json({ success: false, message: "NIM dan Password wajib diisi!!" }, { status: 400 });
     }
 
     // Koneksi ke Database

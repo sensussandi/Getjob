@@ -180,22 +180,6 @@ export default function HeroSection() {
               Cari Pekerjaan Sekarang
             </button>
           </div>
-
-          {/* Stats */}
-          <div className="flex gap-8 justify-center md:justify-start">
-            <div className="text-center">
-              <div className="text-3xl font-bold text-[#FFD700]">10K+</div>
-              <div className="text-sm text-red-100">Lowongan</div>
-            </div>
-            <div className="text-center">
-              <div className="text-3xl font-bold text-[#FFD700]">500+</div>
-              <div className="text-sm text-red-100">Perusahaan</div>
-            </div>
-            <div className="text-center">
-              <div className="text-3xl font-bold text-[#FFD700]">50K+</div>
-              <div className="text-sm text-red-100">Pengguna</div>
-            </div>
-          </div>
         </div>
 
         {/* Bagian Kanan: Ilustrasi */}
