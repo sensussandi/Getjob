@@ -1,16 +1,18 @@
 "use client";
 import { useState } from "react";
-import { User, Lock, Eye, EyeOff, GraduationCap, X } from "lucide-react"; 
+import { User, Lock, Eye, EyeOff, GraduationCap, X, Mail, Phone } from "lucide-react";
 import { signIn } from "next-auth/react";
 
 export default function LoginMhs() {
   const [showPassword, setShowPassword] = useState(false);
+  const [rememberMe, setRememberMe] = useState(false); // State untuk checkbox "Ingat Saya"
   const [formData, setFormData] = useState({
     nim: "",
     password: "",
+    nama_lengkap: "",
+    email: "",
+    no_telephone: "",
   });
-  const [rememberMe, setRememberMe] = useState(false);
-  const [showForgotPassword, setShowForgotPassword] = useState(false);
 
   const handleChange = (e) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
@@ -20,7 +22,7 @@ export default function LoginMhs() {
   //   if (!formData.nim || !formData.password) {
   //     alert("NIM dan Password harus diisi!");
   //     return;
-  //   } 
+  //   }
 
   //   try {
   //     const response = await fetch("/api/loginMhs", {
@@ -45,7 +47,8 @@ export default function LoginMhs() {
   //     alert("Tidak bisa terhubung ke server!");
   //   }
   // };
-// ✅ LOGIN menggunakan NextAuth
+
+  // LOGIN menggunakan NextAuth
   const handleLogin = async (e) => {
     e.preventDefault();
 
@@ -57,15 +60,22 @@ export default function LoginMhs() {
     try {
       const res = await signIn("credentials", {
         redirect: false,
-        nim: formData.nim,
-        password: formData.password,
+        nim: formData.nim, // Mengirim NIM ke backend
+        password: formData.password, // Mengirim password ke backend
+        callbackUrl: "/dashboardMHS", // redirect ke halaman dashboard mhs setelah login
       });
 
       if (res.ok) {
+        await fetch("/api/auth/session?update", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ rememberMe }),
+        });
+
         alert("Login berhasil!");
-        window.location.href = "/dashboardMHS"; // arahkan ke dashboard
+        window.location.href = "/dashboardMHS";
       } else {
-        alert("NIM atau password salah!");
+        alert("NIM atau Password salah!");
       }
     } catch (error) {
       console.error("Error:", error);
@@ -83,7 +93,7 @@ export default function LoginMhs() {
 
   const handleCancel = () => {
     // Langsung redirect ke home tanpa konfirmasi
-    window.location.href = '/';
+    window.location.href = "/";
     // Atau jika menggunakan Next.js router:
     // router.push('/');
   };
@@ -109,15 +119,11 @@ export default function LoginMhs() {
         {/* Login Card */}
         <div className="bg-white rounded-2xl shadow-2xl overflow-hidden">
           <div className="p-8">
-            <h2 className="text-2xl font-bold text-gray-800 mb-6 text-center">
-              Login
-            </h2>
+            <h2 className="text-2xl font-bold text-gray-800 mb-6 text-center">Login</h2>
 
             {/* NIM Input */}
             <div className="mb-4">
-              <label className="block text-sm font-medium text-gray-700 mb-2">
-                NIM
-              </label>
+              <label className="block text-sm font-medium text-gray-700 mb-2">NIM</label>
               <div className="relative">
                 <User className="absolute left-3 top-1/2 transform -translate-y-1/2 w-5 h-5 text-gray-400" />
                 <input
@@ -133,9 +139,7 @@ export default function LoginMhs() {
 
             {/* Password Input */}
             <div className="mb-6">
-              <label className="block text-sm font-medium text-gray-700 mb-2">
-                Password
-              </label>
+              <label className="block text-sm font-medium text-gray-700 mb-2">Password</label>
               <div className="relative">
                 <Lock className="absolute left-3 top-1/2 transform -translate-y-1/2 w-5 h-5 text-gray-400" />
                 <input
@@ -146,16 +150,8 @@ export default function LoginMhs() {
                   placeholder="Masukkan Password"
                   className="w-full pl-12 pr-12 py-3 border text-black placeholder-gray-400 rounded-lg focus:ring-2 focus:ring-red-900 focus:border-transparent transition"
                 />
-                <button
-                  type="button"
-                  onClick={() => setShowPassword(!showPassword)}
-                  className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-gray-600 transition"
-                >
-                  {showPassword ? (
-                    <EyeOff className="w-5 h-5" />
-                  ) : (
-                    <Eye className="w-5 h-5" />
-                  )}
+                <button type="button" onClick={() => setShowPassword(!showPassword)} className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-gray-600 transition">
+                  {showPassword ? <EyeOff className="w-5 h-5" /> : <Eye className="w-5 h-5" />}
                 </button>
               </div>
             </div>
@@ -163,29 +159,25 @@ export default function LoginMhs() {
             {/* Forgot Password Link */}
             <div className="flex items-center justify-between mb-6">
               <label className="flex items-center cursor-pointer">
-                <input
-                  type="checkbox"
-                  checked={rememberMe}
-                  onChange={(e) => setRememberMe(e.target.checked)}
-                  className="w-4 h-4 text-red-900 border-gray-300 rounded focus:ring-2 focus:ring-red-900"
-                />
+                <input type="checkbox" checked={rememberMe} onChange={(e) => setRememberMe(e.target.checked)} className="w-4 h-4 text-red-900 border-gray-300 rounded focus:ring-2 focus:ring-red-900" />
                 <span className="ml-2 text-sm text-gray-700">Ingat Saya</span>
               </label>
-              <button
-                type="button"
-                onClick={handleForgotPassword}
-                className="text-sm text-red-900 hover:text-red-700 font-medium transition"
-              >
+              <button type="button" onClick={handleForgotPassword} className="text-sm text-red-900 hover:text-red-700 font-medium transition">
                 Lupa Kata Sandi?
               </button>
+            </div>
+            <div className="text-center mt-6">
+              <p className="text-sm text-gray-600">
+                Belum punya akun?{" "}
+                <a href="/registrasiMHS" className="text-red-900 font-semibold hover:text-red-700 transition">
+                  Daftar di sini
+                </a>
+              </p>
             </div>
 
             {/* Login Button */}
             <div className="space-y-3">
-              <button
-                onClick={handleLogin}
-                className="w-full bg-red-900 text-white py-3 rounded-lg font-semibold hover:bg-red-800 transition-all transform hover:scale-[1.02] active:scale-[0.98] shadow-lg hover:shadow-xl"
-              >
+              <button onClick={handleLogin} className="w-full bg-red-900 text-white py-3 rounded-lg font-semibold hover:bg-red-800 transition-all transform hover:scale-[1.02] active:scale-[0.98] shadow-lg hover:shadow-xl">
                 Masuk
               </button>
               <button
@@ -198,12 +190,13 @@ export default function LoginMhs() {
             </div>
           </div>
         </div>
-
+        <div className="flex justify-between items-center mb-6">
+          <span className="text-sm text-red-900 cursor-pointer">Lupa Kata Sandi?</span>
+        </div>
         {/* Additional Info */}
         <div className="text-center mt-6">
           <p className="text-red-100 text-sm">
-            Butuh bantuan? Hubungi{" "}
-            <span className="font-semibold">admin@university.ac.id</span>
+            Butuh bantuan? Hubungi <span className="font-semibold">admin@university.ac.id</span>
           </p>
         </div>
       </div>
