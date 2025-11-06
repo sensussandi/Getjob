@@ -5,17 +5,16 @@ import Header from "@/components/Header";
 
 export default function ClientLayout({ children }) {
   const pathname = usePathname();
-  const noHeaderPages = [ "/loginMhs", "/dashboardMHS", "/pengaturan", "/profil", "/loginPerusahaan","/lengkapiDataMHS","/dashboardPerusahaan"];
 
   // Halaman tanpa header
-  const noHeaderPages = [
+    const noHeaderPages = [
     "/loginMhs",
     "/dashboardMHS",
     "/loginPerusahaan",
+    "/pengaturan",
+    "/profil",
     "/lengkapiDataMHS",
     "/dashboardPerusahaan",
-    "/dashboardPerusahaan/pengaturan",
-    "/dashboardPerusahaan/lowongan/tambah",
   ];
 
   // ✅ Cek apakah path diawali dengan '/lowongan/' dan punya ID di belakang
