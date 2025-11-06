@@ -1,9 +1,11 @@
 "use client"; // Use client adalah directive untuk mengaktifkan fitur client-side rendering di Next.js
 import { useState } from "react"; // Import useState dari React untuk mengelola state komponen
+import { useSession } from "next-auth/react"; 
 
 export default function ProfilePage() {
   // Function default untuk menampilkan halaman profil
     const [darkMode, setDarkMode] = useState(false);
+    const { data: session } = useSession(); // ambil session user
     const [formData, setFormData] = useState({
     photo: null,
     prodi: "",
@@ -23,18 +25,30 @@ export default function ProfilePage() {
     const handleSubmit = async (e) => {
     // Function untuk menangani submit form
     e.preventDefault();
+    if (!session?.user?.nim) {
+        alert("Anda belum login!");
+        return;
+        }
     const data = new FormData();
+    data.append("nim", session.user.nim); // Kirim NIM dari session
     data.append("photo", formData.photo);
     data.append("prodi", formData.prodi);
     data.append("about", formData.about);
     data.append("cv", formData.cv);
 
-    const res = await fetch("/api/profil", {
-      // Kirim data ke endpoint /api/profile
+    try {
+        const res = await fetch("/api/profil", {
         method: "POST",
         body: data,
-    });
-    alert(res.ok ? "Profil berhasil dikirim!" : "Gagal mengirim data!");
+        });
+
+        const result = await res.json();
+        alert(result.success ? "Profil berhasil disimpan!" : `Gagal: ${result.message}`);
+        console.log("Server response:", result);
+    } catch (err) {
+        console.error("Fetch error:", err);
+        alert("Tidak bisa terhubung ke server!");
+    }
     };
 
     return (
