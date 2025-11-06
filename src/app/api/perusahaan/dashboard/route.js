@@ -3,7 +3,7 @@ import mysql from "mysql2/promise";
 
 export async function GET() {
   try {
-    // ✅ 1. Koneksi ke database
+    // ✅ 1. Koneksi database
     const db = await mysql.createConnection({
       host: "localhost",
       user: "root",
@@ -11,8 +11,17 @@ export async function GET() {
       database: "getjob_db",
     });
 
-    // ✅ 2. Ambil data perusahaan pertama
-    const [adminRes] = await db.query(`SELECT * FROM admin_perusahaan LIMIT 1`);
+    // ✅ 2. Ambil profil perusahaan
+    const [adminRes] = await db.query(`
+      SELECT 
+        nama_perusahaan,
+        alamat_perusahaan,
+        email_perusahaan AS email,
+        tentang_perusahaan,
+        logo_url
+      FROM admin_perusahaan
+      LIMIT 1
+    `);
     const admin = adminRes[0];
 
     // ✅ 3. Ambil data lowongan kerja
@@ -20,9 +29,7 @@ export async function GET() {
       SELECT 
         id_lowongan,
         nama_posisi,
-        gaji,
         lokasi,
-        kualifikasi,
         deskripsi_pekerjaan,
         tanggal_ditutup
       FROM lowongan_kerja
@@ -30,9 +37,7 @@ export async function GET() {
       LIMIT 10
     `);
 
-    // ✅ 4. Ambil pelamar terbaru — disesuaikan ke struktur tabel kamu
-    //    Karena tabel mendaftar TIDAK punya kolom nim dan id_lowongan,
-    //    maka di sini kita tampilkan data dasar saja.
+    // ✅ 4. Ambil pelamar terbaru
     const [pelamar] = await db.query(`
       SELECT 
         id_pendaftaran AS id,
@@ -43,7 +48,7 @@ export async function GET() {
       LIMIT 5
     `);
 
-    // ✅ 5. Statistik sederhana (tanpa join)
+    // ✅ 5. Statistik sederhana
     const [statsRes] = await db.query(`
       SELECT
         (SELECT COUNT(*) FROM lowongan_kerja) AS totalLowongan,
@@ -51,12 +56,12 @@ export async function GET() {
         (SELECT COUNT(*) FROM mendaftar) AS totalPelamar,
         (SELECT COUNT(*) FROM mendaftar WHERE DATE(tanggal_daftar) = CURDATE()) AS pelamarBaru
     `);
-
     const stats = statsRes[0];
 
+    // ✅ 6. Tutup koneksi database
     await db.end();
 
-    // ✅ 6. Kirim hasil ke frontend
+    // ✅ 7. Kirim semua hasil ke frontend
     return NextResponse.json({
       success: true,
       admin,
@@ -70,7 +75,7 @@ export async function GET() {
     return NextResponse.json(
       {
         success: false,
-        message: "Gagal mengambil data dari database",
+        message: "Gagal mengambil data dashboard",
         error: err.message,
       },
       { status: 500 }

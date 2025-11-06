@@ -197,16 +197,6 @@ export default function LoginMhs() {
               </button>
             </div>
           </div>
-
-          {/* Footer */}
-          <div className="bg-gray-50 px-8 py-4 text-center">
-            <p className="text-sm text-gray-600">
-              Belum punya akun?{" "}
-              <button className="text-red-900 font-medium hover:text-red-700 transition">
-                Daftar Sekarang
-              </button>
-            </p>
-          </div>
         </div>
 
         {/* Additional Info */}
