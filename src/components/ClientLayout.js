@@ -15,6 +15,7 @@ export default function ClientLayout({ children }) {
     "/profil",
     "/lengkapiDataMHS",
     "/dashboardPerusahaan",
+    "/dashboardAdmin",
   ];
 
   // ✅ Cek apakah path diawali dengan '/lowongan/' dan punya ID di belakang

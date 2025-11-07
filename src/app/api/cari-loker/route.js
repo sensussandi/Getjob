@@ -1,27 +1,16 @@
 import { NextResponse } from "next/server";
 import mysql from "mysql2/promise";
 
-// === KONFIGURASI DATABASE ===
-const dbConfig = {
-  host: "localhost",
-  user: "root",
-  password: "",
-  database: "getjob_db", // sesuai dengan database kamu
-};
-
-// === GET: Ambil & cari data dari tabel lowongan_kerja ===
-export async function GET(req) {
+export async function GET() {
   try {
-    const { searchParams } = new URL(req.url);
-    const keyword = searchParams.get("keyword") || "";
-    const lokasi = searchParams.get("lokasi") || "";
-    const kategori = searchParams.get("kategori") || "";
+    const db = await mysql.createConnection({
+      host: "localhost",
+      user: "root",
+      password: "", // isi jika pakai password
+      database: "getjob_db",
+    });
 
-    const db = await mysql.createConnection(dbConfig);
-
-    // Query pencarian berdasarkan keyword, lokasi, dan kategori (kualifikasi)
-    const [rows] = await db.execute(
-      `
+    const [rows] = await db.query(`
       SELECT 
         l.id_lowongan,
         l.nama_posisi,
@@ -31,30 +20,27 @@ export async function GET(req) {
         l.lokasi,
         l.tanggal_dibuka,
         l.tanggal_ditutup,
+        l.external_url,
         a.nama_perusahaan
-      FROM lowongan_kerja l
-      JOIN admin_perusahaan a ON l.id_admin = a.id_admin
-      WHERE (l.nama_posisi LIKE ? OR l.deskripsi_pekerjaan LIKE ? OR a.nama_perusahaan LIKE ?)
-        AND (l.lokasi LIKE ?)
-        AND (l.kualifikasi LIKE ?)
+      FROM lowongan_kerja AS l
+      JOIN admin_perusahaan AS a ON l.id_admin = a.id_admin
       ORDER BY l.tanggal_dibuka DESC
-      `,
-      [
-        `%${keyword}%`,
-        `%${keyword}%`,
-        `%${keyword}%`,
-        `%${lokasi}%`,
-        `%${kategori}%`,
-      ]
-    );
+    `);
 
+
+    // 3️⃣ Tutup koneksi DB
     await db.end();
 
-    return NextResponse.json({ success: true, data: rows });
+    // 4️⃣ Kirim response ke frontend
+    return NextResponse.json({
+      success: true,
+      data: rows,
+    });
+
   } catch (error) {
-    console.error("Error ambil data lowongan:", error);
+    console.error("❌ Error GET lowongan:", error);
     return NextResponse.json(
-      { success: false, message: "Gagal memuat data lowongan", error: error.message },
+      { success: false, message: "Server error" },
       { status: 500 }
     );
   }
