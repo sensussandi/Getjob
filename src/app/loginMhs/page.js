@@ -1,6 +1,7 @@
 "use client";
 import { useState } from "react";
-import { User, Lock, Eye, EyeOff, GraduationCap, X } from "lucide-react";
+import { User, Lock, Eye, EyeOff, GraduationCap, X } from "lucide-react"; 
+import { signIn } from "next-auth/react";
 
 export default function LoginMhs() {
   const [showPassword, setShowPassword] = useState(false);
@@ -15,36 +16,62 @@ export default function LoginMhs() {
     setFormData({ ...formData, [e.target.name]: e.target.value });
   };
 
-  const handleLogin = async () => {
+  // const handleLogin = async () => {
+  //   if (!formData.nim || !formData.password) {
+  //     alert("NIM dan Password harus diisi!");
+  //     return;
+  //   } 
+
+  //   try {
+  //     const response = await fetch("/api/loginMhs", {
+  //       method: "POST",
+  //       headers: { "Content-Type": "application/json" },
+  //       body: JSON.stringify(formData),
+  //     });
+
+  //     const result = await response.json();
+
+  //     if (response.ok && result.success) {
+  //       // Simpan seluruh data user ke localStorage
+  //       localStorage.setItem("user", JSON.stringify(result.data));
+
+  //       alert("Login berhasil!");
+  //       window.location.href = "/dashboardMHS";
+  //     } else {
+  //       alert(result.message || "Login gagal!");
+  //     }
+  //   } catch (error) {
+  //     console.error("Error:", error);
+  //     alert("Tidak bisa terhubung ke server!");
+  //   }
+  // };
+// ✅ LOGIN menggunakan NextAuth
+  const handleLogin = async (e) => {
+    e.preventDefault();
+
     if (!formData.nim || !formData.password) {
       alert("NIM dan Password harus diisi!");
       return;
-    } 
+    }
 
     try {
-      const response = await fetch("/api/loginMhs", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(formData),
+      const res = await signIn("credentials", {
+        redirect: false,
+        nim: formData.nim,
+        password: formData.password,
       });
 
-      const result = await response.json();
-
-      if (response.ok && result.success) {
-        // Simpan seluruh data user ke localStorage
-        localStorage.setItem("user", JSON.stringify(result.data));
-
+      if (res.ok) {
         alert("Login berhasil!");
-        window.location.href = "/dashboardMHS";
+        window.location.href = "/dashboardMHS"; // arahkan ke dashboard
       } else {
-        alert(result.message || "Login gagal!");
+        alert("NIM atau password salah!");
       }
     } catch (error) {
       console.error("Error:", error);
       alert("Tidak bisa terhubung ke server!");
     }
   };
-
 
   const handleForgotPassword = () => {
     const email = prompt("Masukkan email Anda untuk reset password:");

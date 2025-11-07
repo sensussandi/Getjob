@@ -20,14 +20,23 @@ export async function GET() {
         l.lokasi,
         l.tanggal_dibuka,
         l.tanggal_ditutup,
+        l.external_url,
         a.nama_perusahaan
       FROM lowongan_kerja AS l
       JOIN admin_perusahaan AS a ON l.id_admin = a.id_admin
       ORDER BY l.tanggal_dibuka DESC
     `);
 
-    db.end();
-    return NextResponse.json({ success: true, data: rows });
+
+    // 3️⃣ Tutup koneksi DB
+    await db.end();
+
+    // 4️⃣ Kirim response ke frontend
+    return NextResponse.json({
+      success: true,
+      data: rows,
+    });
+
   } catch (error) {
     console.error("❌ Error GET lowongan:", error);
     return NextResponse.json(

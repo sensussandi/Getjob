@@ -25,6 +25,7 @@ export default function TambahLowongan() {
     tanggal_ditutup: "",
     tipe_pekerjaan: "Full-time",
     tingkat_pengalaman: "Entry Level",
+    external_url: "",
   });
   const [isSubmitting, setIsSubmitting] = useState(false);
 
@@ -214,6 +215,24 @@ export default function TambahLowongan() {
                   options={kota}
                   icon={<MapPin className="w-5 h-5 text-gray-400" />}
                 />
+
+                 {/* web perusahaan*/}
+                  <div className="md:col-span-2">
+                    <label className="block text-sm font-semibold text-gray-700 mb-2">
+                      Link Eksternal (Opsional)
+                    </label>
+                    <input
+                      type="url"
+                      name="external_url"
+                      placeholder="https://website-perusahaan.com/career/it-support"
+                      className="w-full border-2 border-gray-200 rounded-xl px-4 py-3 focus:border-[#800000] focus:ring-2 focus:ring-[#800000]/20 outline-none transition-all hover:border-gray-300"
+                      value={form.external_url || ""}
+                      onChange={(e) => setForm({ ...form, external_url: e.target.value })}
+                    />
+                    <p className="text-xs text-gray-500 mt-1">
+                      Jika diisi, pelamar akan diarahkan ke link ini.
+                    </p>
+                  </div>
 
                 {/* Tanggal Penutupan */}
                 <div className="md:col-span-2">

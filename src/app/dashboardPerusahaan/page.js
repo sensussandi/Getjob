@@ -64,25 +64,46 @@ export default function DashboardPerusahaan() {
           <div className="flex justify-between items-start">
             {/* Company Info */}
             <div className="flex items-start gap-4">
-              <div className="w-16 h-16 bg-gradient-to-br from-[#800000] to-[#b22222] rounded-2xl flex items-center justify-center shadow-lg">
-                <Building2 className="w-8 h-8 text-white" />
-              </div>
-              <div>
-                <h1 className="text-3xl font-bold text-gray-900 mb-1">
-                  {admin.nama_perusahaan}
-                </h1>
-                <div className="flex items-center gap-4 text-sm text-gray-600">
-                  <span className="flex items-center gap-1">
-                    <MapPin className="w-4 h-4" />
-                    {admin.alamat_perusahaan}
-                  </span>
-                  <span className="flex items-center gap-1">
-                    <Mail className="w-4 h-4" />
-                    {admin.email || "email@company.com"}
-                  </span>
-                </div>
-              </div>
+            {/* LOGO PERUSAHAAN */}
+            <div className="w-16 h-16 rounded-2xl overflow-hidden bg-gray-100 flex items-center justify-center shadow-lg">
+              {admin.logo_url ? (
+                <img
+                  src={
+                    admin.logo_url.startsWith("http")
+                      ? admin.logo_url
+                      : admin.logo_url.startsWith("/")
+                      ? admin.logo_url
+                      : "/" + admin.logo_url
+                  }
+                  alt="Logo Perusahaan"
+                  className="w-full h-full object-cover"
+                />
+              ) : (
+                <Building2 className="w-8 h-8 text-gray-500" />
+              )}
             </div>
+
+            {/* INFORMASI PERUSAHAAN */}
+            <div>
+              <h1 className="text-3xl font-bold text-gray-900 mb-1">
+                {admin.nama_perusahaan}
+              </h1>
+              <div className="flex items-center gap-4 text-sm text-gray-600 flex-wrap">
+                <span className="flex items-center gap-1">
+                  <MapPin className="w-4 h-4" />
+                  {admin.alamat_perusahaan}
+                </span>
+                <span className="flex items-center gap-1">
+                  <Mail className="w-4 h-4" />
+                  {admin.email || "email@company.com"}
+                </span>
+              </div>
+              <p className="text-gray-600 text-sm mt-2 max-w-2xl">
+                {admin.tentang_perusahaan || "Belum ada deskripsi perusahaan."}
+              </p>
+            </div>
+          </div>
+
 
             {/* Action Buttons */}
             <div className="flex gap-3">
@@ -96,7 +117,10 @@ export default function DashboardPerusahaan() {
                 <span>Buat Lowongan</span>
               </button>
 
-              <button className="px-5 py-3 border-2 border-gray-300 rounded-xl font-medium hover:bg-gray-50 transition-all flex items-center gap-2 text-gray-700">
+              <button
+                onClick={() => router.push("/dashboardPerusahaan/pengaturan")}
+                className="px-5 py-3 border-2 border-gray-300 rounded-xl font-medium hover:bg-gray-50 transition-all flex items-center gap-2 text-gray-700"
+              >
                 <Settings className="w-5 h-5" />
                 <span>Pengaturan</span>
               </button>
