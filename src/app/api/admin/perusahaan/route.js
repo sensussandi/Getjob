@@ -13,7 +13,10 @@ export async function GET() {
     const [rows] = await db.execute("SELECT * FROM admin_perusahaan ORDER BY id_admin DESC");
     await db.end();
 
-    return NextResponse.json(rows);
+    return NextResponse.json({
+      success: true,
+      data: rows,
+    });
   } catch (error) {
     console.error("Error mengambil data perusahaan:", error);
     return NextResponse.json(

@@ -1,6 +1,6 @@
 "use client";
-import { useEffect, useState } from "react";
-import { Building2, Users, Briefcase, BarChart3, Plus, Eye, Trash2 } from "lucide-react";
+import React, { useState, useEffect } from "react";
+import { Building2, Users, Briefcase, BarChart3, Plus, Eye, Trash2, MapPin, Calendar } from "lucide-react";
 
 export default function DashboardAdmin() {
   const [stats, setStats] = useState({
@@ -17,11 +17,15 @@ export default function DashboardAdmin() {
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const [perusahaan, pencaker, lowongan] = await Promise.all([
-          fetch("http://localhost:5000/api/admin/perusahaan").then((r) => r.json()),
-          fetch("http://localhost:5000/api/admin/pencaker").then((r) => r.json()),
-          fetch("http://localhost:5000/api/admin/lowongan").then((r) => r.json()),
+        const [perusahaanRes, pencakerRes, lowonganRes] = await Promise.all([
+          fetch("/api/admin/perusahaan").then((r) => r.json()),
+          fetch("/api/admin/pencaker").then((r) => r.json()),
+          fetch("/api/admin/lowongan").then((r) => r.json()),
         ]);
+
+        const perusahaan = perusahaanRes.data || perusahaanRes.perusahaan || [];
+        const pencaker = pencakerRes.data || pencakerRes.pencaker || [];
+        const lowongan = lowonganRes.data || lowonganRes.lowongan || [];
 
         setDataPerusahaan(perusahaan);
         setDataPencariKerja(pencaker);
@@ -78,7 +82,83 @@ export default function DashboardAdmin() {
         <div className="space-y-10">
           <DataTable title="Data Perusahaan" data={dataPerusahaan} columns={["nama_perusahaan", "email_perusahaan", "no_telephone"]} />
           <DataTable title="Data Pencari Kerja" data={dataPencariKerja} columns={["nama_lengkap", "email", "prodi"]} />
-          <DataTable title="Data Lowongan Kerja" data={dataLowongan} columns={["nama_posisi", "lokasi", "tanggal_ditutup"]} />
+          {/* === DATA LOWONGAN KERJA (DESAIN PREMIUM SEPERTI DASHBOARD PERUSAHAAN) === */}
+          <div className="bg-white shadow-xl rounded-2xl overflow-hidden">
+            <div className="flex justify-between items-center px-6 py-4 border-b border-gray-100 bg-gray-50">
+              <h3 className="text-xl font-bold text-gray-800">Data Lowongan Kerja</h3>
+              <button className="bg-[#800000] text-white px-4 py-2 rounded-lg hover:bg-[#a00000] flex items-center gap-2">
+                <Plus className="w-4 h-4" /> Tambah
+              </button>
+            </div>
+
+            {/* Grid Card Lowongan */}
+            <div className="p-6 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+              {dataLowongan.length === 0 ? (
+                <p className="text-center col-span-full text-gray-500 py-6">
+                  Tidak ada data lowongan
+                </p>
+              ) : (
+                dataLowongan.map((job, i) => (
+                  <div
+                    key={i}
+                    className="bg-white border border-gray-200 rounded-xl hover:border-[#800000]/40 hover:shadow-lg transition-all duration-300 overflow-hidden group"
+                  >
+                    <div className="p-5">
+                      {/* Header */}
+                      <div className="flex justify-between items-start mb-3">
+                        <div>
+                          <h4 className="text-lg font-bold text-gray-900 group-hover:text-[#800000] transition-colors">
+                            {job.nama_posisi}
+                          </h4>
+                          <div className="text-sm text-gray-500 mt-1">
+                            <span className="font-medium">{job.nama_perusahaan || "Perusahaan Tidak Diketahui"}</span>
+                          </div>
+                        </div>
+                        <span className="text-xs bg-green-100 text-green-700 px-3 py-1 rounded-full font-semibold">
+                          Aktif
+                        </span>
+                      </div>
+
+                      {/* Lokasi & Tanggal */}
+                      <div className="flex items-center justify-between text-sm text-gray-600 mb-3">
+                        <div className="flex items-center gap-1.5">
+                          <MapPin className="w-4 h-4 text-gray-400" />
+                          {job.lokasi || "Tidak diketahui"}
+                        </div>
+                        <div className="flex items-center gap-1.5">
+                          <Calendar className="w-4 h-4 text-gray-400" />
+                          Tutup:{" "}
+                          {job.tanggal_ditutup
+                            ? new Date(job.tanggal_ditutup).toLocaleDateString("id-ID", {
+                              day: "2-digit",
+                              month: "short",
+                              year: "numeric",
+                            })
+                            : "-"}
+                        </div>
+                      </div>
+
+                      {/* Deskripsi */}
+                      <p className="text-sm text-gray-600 mb-4 line-clamp-3">
+                        {job.deskripsi_pekerjaan || "Tidak ada deskripsi lowongan."}
+                      </p>
+
+                      {/* Footer Actions */}
+                      <div className="flex justify-between items-center pt-3 border-t border-gray-100">
+                        <button className="text-sm font-medium text-[#800000] hover:underline flex items-center gap-1">
+                          <Eye className="w-4 h-4" /> Detail
+                        </button>
+                        <button className="text-sm font-medium text-red-600 hover:underline flex items-center gap-1">
+                          <Trash2 className="w-4 h-4" /> Hapus
+                        </button>
+                      </div>
+                    </div>
+                  </div>
+                ))
+              )}
+            </div>
+          </div>
+
         </div>
       </div>
     </div>
