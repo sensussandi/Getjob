@@ -110,6 +110,17 @@ export default function ProfilePage() {
             </div>
         </div>
 
+        <a
+        href="/dashboardMHS"
+        className="inline-flex items-center justify-center gap-1
+                    bg-gradient-to-r from-orange-500 to-orange-600
+                    text-white text-xs font-medium rounded-md
+                    px-3 py-1.5 shadow-sm hover:from-orange-600 hover:to-orange-700
+                    transition-all duration-200 focus:ring-2 focus:ring-orange-400"
+        >
+        ← Kembali
+    </a>
+
         {/* Tombol Selanjutnya */}
         <button type="submit" className="w-full bg-red-900 text-white py-3 rounded-md font-semibold hover:bg-orange-400 transition flex items-center justify-center gap-2">
             Selanjutnya <span>›</span>

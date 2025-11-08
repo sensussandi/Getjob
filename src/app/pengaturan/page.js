@@ -105,6 +105,17 @@ export default function PengaturanPage() {
             </button>
         </div>
 
+        <a
+        href="/dashboardMHS"
+        className="inline-flex items-center justify-center gap-1
+                    bg-gradient-to-r from-orange-500 to-orange-600
+                    text-white text-xs font-medium rounded-md
+                    px-3 py-1.5 shadow-sm hover:from-orange-600 hover:to-orange-700
+                    transition-all duration-200 focus:ring-2 focus:ring-orange-400"
+        >
+        ← Kembali
+    </a>
+
         {/* Tombol Simpan */}
         <button type="submit" className="bg-green-600 hover:bg-green-700 text-white font-semibold px-4 py-2 rounded w-full transition duration-300">
             Simpan Perubahan
