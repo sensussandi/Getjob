@@ -1,131 +1,210 @@
-"use client"; // Use client adalah directive untuk mengaktifkan fitur client-side rendering di Next.js
-import { useState } from "react"; // Import useState dari React untuk mengelola state komponen
-import { useSession } from "next-auth/react"; 
+"use client";
+import { useEffect, useState } from "react";
+import { useSession } from "next-auth/react";
+import { ArrowLeft, Pencil, Save, X } from "lucide-react";
+import Link from "next/link";
 
 export default function ProfilePage() {
-  // Function default untuk menampilkan halaman profil
-    const [darkMode, setDarkMode] = useState(false);
-    const { data: session } = useSession(); // ambil session user
+    const { data: session, status } = useSession();
+    const [profile, setProfile] = useState(null);
+    const [loading, setLoading] = useState(true);
+    const [editMode, setEditMode] = useState(false);
     const [formData, setFormData] = useState({
-    photo: null,
     prodi: "",
-    about: "",
+    tentang_anda: "",
+    foto: null,
     cv: null,
     });
 
-    const handleChange = (e) => {
-    // Function untuk menangani perubahan input form
-    const { name, value, files } = e.target;
-    setFormData({
-        ...formData,
-        [name]: files ? files[0] : value,
-    });
+    useEffect(() => {
+    const fetchProfile = async () => {
+        try {
+        const nim = session?.user?.nim;
+        if (!nim) return;
+        const res = await fetch(`/api/profil?nim=${nim}`);
+        const data = await res.json();
+        if (data.success) {
+            setProfile(data.data);
+            setFormData({
+            prodi: data.data.prodi || "",
+            tentang_anda: data.data.tentang_anda || "",
+            foto: null,
+            cv: null,
+            });
+        }
+        } catch (err) {
+        console.error("Gagal mengambil profil:", err);
+        } finally {
+        setLoading(false);
+        }
     };
 
-    const handleSubmit = async (e) => {
-    // Function untuk menangani submit form
-    e.preventDefault();
-    if (!session?.user?.nim) {
-        alert("Anda belum login!");
-        return;
-        }
-    const data = new FormData();
-    data.append("nim", session.user.nim); // Kirim NIM dari session
-    data.append("photo", formData.photo);
-    data.append("prodi", formData.prodi);
-    data.append("about", formData.about);
-    data.append("cv", formData.cv);
+    if (session?.user?.nim) fetchProfile();
+    }, [session]);
 
+    const handleFileChange = (e) => {
+    const { name, files } = e.target;
+    setFormData({ ...formData, [name]: files[0] });
+    };
+
+    const handleSave = async () => {
     try {
+        const form = new FormData();
+        form.append("nim", session.user.nim);
+        form.append("prodi", formData.prodi);
+        form.append("about", formData.tentang_anda);
+        if (formData.foto) form.append("photo", formData.foto);
+        if (formData.cv) form.append("cv", formData.cv);
+
         const res = await fetch("/api/profil", {
         method: "POST",
-        body: data,
+        body: form,
         });
 
         const result = await res.json();
-        alert(result.success ? "Profil berhasil disimpan!" : `Gagal: ${result.message}`);
-        console.log("Server response:", result);
-    } catch (err) {
-        console.error("Fetch error:", err);
-        alert("Tidak bisa terhubung ke server!");
+        if (result.success) {
+        alert("Profil berhasil diperbarui!");
+        setEditMode(false);
+        setProfile((prev) => ({
+            ...prev,
+            prodi: formData.prodi,
+            tentang_anda: formData.tentang_anda,
+            foto: formData.foto ? formData.foto.name : prev.foto,
+            cv: formData.cv ? formData.cv.name : prev.cv,
+        }));
+        } else {
+        alert("Gagal memperbarui profil.");
+        }
+    } catch (error) {
+        console.error("Error simpan profil:", error);
+        alert("Terjadi kesalahan saat menyimpan profil.");
     }
     };
 
+    if (status === "loading" || loading) return <div className="flex items-center justify-center h-screen text-[#6b0000] font-semibold">Memuat profil...</div>;
+
+    if (!profile)
     return (
-    <div className={`${darkMode ? "bg-gray-900 text-white" : "bg-gray-50 text-gray-900"} min-h-screen flex flex-col items-center justify-center transition-all duration-300 px-4`}>
-    
-      {/* Judul */}
-        <h1 className="text-3xl md:text-4xl font-semibold mb-8 text-center">Lengkapi Profile Anda</h1>
+        <div className="flex flex-col items-center justify-center h-screen">
+        <p className="text-gray-600 mb-4">Data profil tidak ditemukan.</p>
+        <Link href="/dashboardMHS" className="bg-[#6b0000] text-white px-5 py-2 rounded-lg shadow hover:bg-[#8b0000] transition">
+            Kembali ke Dashboard
+        </Link>
+        </div>
+    );
 
-      {/* Form */}
-        <form onSubmit={handleSubmit} className={`w-full max-w-md bg-white dark:bg-gray-800 rounded-2xl shadow-lg p-8 space-y-6 ${darkMode ? "text-white" : "text-gray-800"}`}>
-        {/* FOTO PROFIL */}
-        <div className="flex flex-col items-center">
-            <label className="text-lg font-medium mb-2">Foto Profile</label>
-            <div className="w-28 h-28 rounded-full bg-gray-100 flex items-center justify-center mb-3 border border-gray-300 overflow-hidden">
-            <img src={formData.photo ? URL.createObjectURL(formData.photo) : "/default-avatar.png"} alt="Preview" className="object-cover w-full h-full" />
-            </div>
-            <label className="cursor-pointer text-white px-4 py-2 rounded-md hover:bg-orange-600 transition"
-            style={{ backgroundColor: "#800000" }}>
-            Pilih Foto
-            <input type="file" name="photo" accept=".jpeg,.jpg,.png" onChange={handleChange} className="hidden" />
-            </label>
-            <p className="text-sm mt-1 text-gray-500">Format: .jpeg .jpg .png</p>
+    return (
+    <div className="min-h-screen bg-[#fff8f8] flex items-center justify-center py-10 px-4">
+        <div className="w-full max-w-lg bg-white shadow-2xl rounded-3xl overflow-hidden border border-gray-200">
+        {/* HEADER */}
+        <div className="bg-gradient-to-r from-[#6b0000] to-[#b22c2c] text-white p-6 text-center">
+            <h1 className="text-3xl font-bold tracking-wide">Profil Saya</h1>
         </div>
 
-        {/* PRODI */}
-        <div>
-            <label className="block text-lg font-medium mb-2">Prodi</label>
-            <select name="prodi" value={formData.prodi} onChange={handleChange} className="w-full border border-gray-300 rounded-md px-3 py-2 focus:ring-2 focus:ring-blue-500 focus:outline-none dark:bg-gray-700 dark:border-gray-600">
-            <option value="">Pilih prodi Anda</option>
-            <option value="Informatika">Informatika</option>
-            <option value="Teknik Mesin">Teknik Mesin</option>
-            <option value="Teknik Elektro">Teknik Elektro</option>
-            <option value="Matematika">Matematika</option>
-            </select>
-        </div>
-
-        {/* TENTANG ANDA */}
-        <div>
-            <label className="block text-lg font-medium mb-2">Tentang Anda</label>
-            <textarea
-            name="about"
-            value={formData.about}
-            onChange={handleChange}
-            placeholder="Tulis tentang Anda..."
-            className="w-full h-28 border border-gray-300 rounded-md px-3 py-2 resize-none focus:ring-2 focus:ring-blue-500 focus:outline-none dark:bg-gray-700 dark:border-gray-600"
+        {/* CONTENT */}
+        <div className="flex flex-col items-center p-8 bg-gradient-to-b from-orange-100 to-gray-100">
+          {/* FOTO */}
+            <div className="flex flex-col items-center mb-5">
+            <img
+                src={formData.foto ? URL.createObjectURL(formData.foto) : profile.foto ? `/uploads/${profile.foto}` : "/default-avatar.png"}
+                alt="Foto Profil"
+                className="w-32 h-32 rounded-full object-cover border-4 border-[#6b0000] shadow-lg"
             />
-        </div>
 
-        {/* CV */}
-        <div className="flex flex-col items-center">
-            <label className="text-lg font-medium mb-2">Masukkan CV Anda (opsional)</label>
-            <div className="flex flex-col items-center">
-            <label className="cursor-pointer text-white px-4 py-2 rounded-md hover:bg-orange-600 transition"
-            style={{ backgroundColor: "#800000" }}>
-                Pilih file
-                <input type="file" name="cv" accept=".pdf" onChange={handleChange} className="hidden" />
-            </label>
-            <p className="text-sm mt-1 text-gray-500">Format: .pdf</p>
+            {editMode && (
+                <div className="mt-4 text-center">
+                <label className="bg-[#6b0000] text-white px-4 py-2 rounded-lg text-sm cursor-pointer hover:bg-[#8b0000] transition shadow">
+                    Pilih Foto
+                    <input type="file" name="foto" accept=".jpg,.jpeg,.png" onChange={handleFileChange} className="hidden" />
+                </label>
+                <p className="text-xs text-gray-600 mt-1">Format: .jpeg .jpg .png</p>
+                </div>
+            )}
+            </div>
+
+          {/* NAMA & PRODI */}
+            <h2 className="text-2xl font-semibold text-gray-800 text-center mb-1">{session.user.name}</h2>
+            {editMode ? (
+            <select
+                name="prodi"
+                value={formData.prodi}
+                onChange={(e) => setFormData({ ...formData, prodi: e.target.value })}
+                className="mt-2 w-60 border border-gray-300 rounded-lg px-3 py-2 text-gray-700 focus:outline-none focus:ring-2 focus:ring-[#6b0000]"
+            >
+                <option value="">Pilih Prodi</option>
+                <option value="Informatika">Informatika</option>
+                <option value="Sistem Informasi">Sistem Informasi</option>
+                <option value="Teknologi Informasi">Teknologi Informasi</option>
+            </select>
+            ) : (
+            <p className="text-gray-600">{profile.prodi || "Prodi belum diisi"}</p>
+            )}
+
+          {/* TENTANG ANDA */}
+            <div className="w-full mt-5">
+            <p className="font-semibold text-gray-800 mb-1">Tentang Anda</p>
+            {editMode ? (
+                <textarea
+                name="tentang_anda"
+                value={formData.tentang_anda}
+                onChange={(e) => setFormData({ ...formData, tentang_anda: e.target.value })}
+                rows="3"
+                placeholder="Tulis tentang Anda..."
+                className="w-full border border-gray-300 rounded-lg p-3 text-sm focus:outline-none focus:ring-2 focus:ring-[#6b0000]"
+                />
+            ) : (
+                <p className="italic text-gray-700 bg-white border rounded-lg p-3 shadow-sm">{profile.tentang_anda || "Belum ada deskripsi"}</p>
+            )}
+            </div>
+
+          {/* CV */}
+            <div className="w-full mt-5 text-center">
+            <p className="font-semibold text-gray-800 mb-1">Masukkan CV Anda (opsional)</p>
+            {editMode ? (
+                <div>
+                <label className="bg-[#6b0000] text-white px-4 py-2 rounded-lg text-sm cursor-pointer hover:bg-[#8b0000] transition shadow">
+                    Pilih file
+                    <input type="file" name="cv" accept=".pdf" onChange={handleFileChange} className="hidden" />
+                </label>
+                <p className="text-xs text-gray-600 mt-1">Format: .pdf</p>
+                </div>
+            ) : profile.cv ? (
+                <a href={`/uploads/${profile.cv}`} target="_blank" rel="noopener noreferrer" className="text-blue-600 hover:underline">
+                Lihat CV Saya
+                </a>
+            ) : (
+                <p className="text-gray-500 text-sm">Belum mengunggah CV</p>
+            )}
+            </div>
+
+          {/* BUTTONS */}
+            <div className="flex justify-between w-full mt-8">
+            <Link
+                href="/dashboardMHS"
+                className="inline-flex items-center gap-1 bg-gradient-to-r from-orange-500 to-orange-600
+                            text-white text-sm font-medium rounded-md px-4 py-2
+                            hover:from-orange-600 hover:to-orange-700 transition-all duration-200"
+            >
+                <ArrowLeft className="w-4 h-4" /> Kembali
+            </Link>
+
+            {!editMode ? (
+                <button onClick={() => setEditMode(true)} className="flex items-center gap-1 bg-[#6b0000] text-white px-4 py-2 rounded-md text-sm font-medium hover:bg-[#8b0000] transition">
+                <Pencil className="w-4 h-4" /> Edit Profil
+                </button>
+            ) : (
+                <div className="flex gap-2">
+                <button onClick={handleSave} className="flex items-center gap-1 bg-green-600 text-white px-4 py-2 rounded-md text-sm hover:bg-green-700 transition">
+                    <Save className="w-4 h-4" /> Simpan
+                </button>
+                <button onClick={() => setEditMode(false)} className="flex items-center gap-1 bg-gray-500 text-white px-4 py-2 rounded-md text-sm hover:bg-gray-600 transition">
+                    <X className="w-4 h-4" /> Batal
+                </button>
+                </div>
+            )}
             </div>
         </div>
-
-        <a
-        href="/dashboardMHS"
-        className="inline-flex items-center justify-center gap-1
-                    bg-gradient-to-r from-orange-500 to-orange-600
-                    text-white text-xs font-medium rounded-md
-                    px-3 py-1.5 shadow-sm hover:from-orange-600 hover:to-orange-700
-                    transition-all duration-200 focus:ring-2 focus:ring-orange-400"
-        >
-        ← Kembali
-    </a>
-
-        {/* Tombol Selanjutnya */}
-        <button type="submit" className="w-full bg-red-900 text-white py-3 rounded-md font-semibold hover:bg-orange-400 transition flex items-center justify-center gap-2">
-            Selanjutnya <span>›</span>
-        </button>
-        </form>
+        </div>
     </div>
     );
 }
