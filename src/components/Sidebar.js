@@ -30,7 +30,7 @@ export default function Sidebar() {
     }
   }, [session]);
 
-  // ✅ Logout handler
+  // Logout handler
   const handleLogout = async () => {
     await signOut({ callbackUrl: "/loginMhs" }); // redirect otomatis ke login
   };
@@ -39,9 +39,7 @@ export default function Sidebar() {
     { id: "dashboard", icon: Home, label: "Dashboard", href: "/dashboardMHS", badge: null },
     { id: "loker", icon: Briefcase, label: "Rekomendasi Loker", href: "/loker", badge: "12" },
     { id: "lamaran", icon: BookOpen, label: "Lamaran Saya", href: "/lamaran", badge: "3" },
-    { id: "statistik", icon: BarChart3, label: "Statistik", href: "/statistik", badge: null },
-    { id: "profil", icon: User, label: "Profil", href: "/profil", badge: null },
-    { id: "pengaturan", icon: Settings, label: "Pengaturan", href: "/pengaturan", badge: null },
+    { id: "edit_profile", icon: Settings, label: "Edit Profile", href: "/editProfileMHS", badge: null },
   ];
 
   if (status === "loading") {
