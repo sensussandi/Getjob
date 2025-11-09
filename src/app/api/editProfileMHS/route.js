@@ -23,33 +23,17 @@ export async function GET(req) {
         database: "getjob_db",
     });
 
-    // HASH PASSWORD
-let passwordBaru = password;
-
-// Ambil password lama untuk dibandingkan
-const [userRows] = await db.execute("SELECT password FROM pencari_kerja WHERE nim = ?", [nim]);
-const passwordLama = userRows.length > 0 ? userRows[0].password : null;
-
-// Hash hanya jika password baru berbeda dan bukan kosong
-if (passwordBaru && passwordBaru.trim() !== "" && !(await bcrypt.compare(passwordBaru, passwordLama))) {
-    const salt = await bcrypt.genSalt(10);
-    passwordBaru = await bcrypt.hash(passwordBaru, salt);
-} else {
-    passwordBaru = passwordLama;
-}
-// END HASH
-
-    // Cek apakah user ada
     const [rows] = await db.execute("SELECT * FROM pencari_kerja WHERE nim = ?", [nim]);
     await db.end();
 
-    // Jika user tidak ditemukan
-    if (rows.length === 0)
+    if (rows.length === 0) {
         return NextResponse.json({
         success: false,
         message: "User tidak ditemukan!",
         });
+    }
 
+    // Kembalikan data user ke frontend
     return NextResponse.json({ success: true, user: rows[0] });
     } catch (error) {
     console.error("GET /api/editProfileMHS error:", error);
@@ -119,10 +103,23 @@ export async function POST(req) {
         database: "getjob_db",
     });
 
+    // HASH PASSWORD 
+    let passwordBaru = password;
+    const [userRows] = await db.execute("SELECT password FROM pencari_kerja WHERE nim = ?", [nim]);
+    const passwordLama = userRows.length > 0 ? userRows[0].password : null;
+
+    if (passwordBaru && passwordBaru.trim() !== "" && !(await bcrypt.compare(passwordBaru, passwordLama))) {
+        const salt = await bcrypt.genSalt(10);
+        passwordBaru = await bcrypt.hash(passwordBaru, salt);
+    } else {
+        passwordBaru = passwordLama;
+    }
+
+    // Cek apakah user sudah ada
     const [rows] = await db.execute("SELECT nim FROM pencari_kerja WHERE nim = ?", [nim]);
 
-    // Jika user belum ada → INSERT
     if (rows.length === 0) {
+      // INSERT user baru
         await db.execute(
         `INSERT INTO pencari_kerja 
         (nim, nama_lengkap, password, tanggal_lahir, jenis_kelamin, alamat, email, no_telephone, prodi, pendidikan_terakhir, linkedin, keahlian, tentang_anda, foto, cv)
@@ -146,10 +143,10 @@ export async function POST(req) {
         ]
         );
     } else {
-      // Jika user sudah ada UPDATE
+      // UPDATE user lama
         await db.execute(
         `UPDATE pencari_kerja 
-            SET nama_lengkap=?, password=?, tanggal_lahir=?, jenis_kelamin=?, alamat=?, 
+        SET nama_lengkap=?, password=?, tanggal_lahir=?, jenis_kelamin=?, alamat=?, 
                 email=?, no_telephone=?, prodi=?, pendidikan_terakhir=?, linkedin=?, 
                 keahlian=?, tentang_anda=?, 
                 foto = COALESCE(?, foto), cv = COALESCE(?, cv)
@@ -175,9 +172,10 @@ export async function POST(req) {
     }
 
     await db.end();
+
     return NextResponse.json({
         success: true,
-        message: "Semua data berhasil diperbarui!",
+        message: "Data profil berhasil disimpan!",
     });
     } catch (error) {
     console.error("POST /api/editProfileMHS error:", error);
