@@ -4,50 +4,59 @@ import fs from "fs";
 import path from "path";
 import bcrypt from "bcryptjs";
 
-// GET — Ambil semua data user berdasarkan NIM
+// =================== [ GET DATA USER ] ===================
 export async function GET(req) {
-    try {
+  try {
     const { searchParams } = new URL(req.url);
     const nim = searchParams.get("nim");
 
     if (!nim)
-        return NextResponse.json({
+      return NextResponse.json({
         success: false,
         message: "NIM tidak dikirim!",
-        });
+      });
 
     const db = await mysql.createConnection({
-        host: "localhost",
-        user: "root",
-        password: "",
-        database: "getjob_db",
+      host: "localhost",
+      user: "root",
+      password: "",
+      database: "getjob_db",
     });
 
     const [rows] = await db.execute("SELECT * FROM pencari_kerja WHERE nim = ?", [nim]);
     await db.end();
 
     if (rows.length === 0) {
-        return NextResponse.json({
+      return NextResponse.json({
         success: false,
         message: "User tidak ditemukan!",
-        });
+      });
     }
 
-    // Kembalikan data user ke frontend
+    // Hapus password agar tidak dikirim ke client
+    delete rows[0].password;
+
+    // Pastikan path foto bisa diakses dari frontend
+    rows[0].foto = rows[0].foto
+      ? `/uploads/${rows[0].foto}`
+      : "/default-avatar.png";
+
+    // Path CV juga dibuat jelas (jika ada)
+    rows[0].cv = rows[0].cv ? `/uploads/${rows[0].cv}` : null;
+
     return NextResponse.json({ success: true, user: rows[0] });
-    } catch (error) {
+  } catch (error) {
     console.error("GET /api/editProfileMHS error:", error);
-    return NextResponse.json({
-        success: false,
-        message: "Gagal memuat data user.",
-        error: error.message,
-    });
-    }
+    return NextResponse.json(
+      { success: false, message: "Gagal memuat data user.", error: error.message },
+      { status: 500 }
+    );
+  }
 }
 
-// POST — Simpan atau update semua data user
+// =================== [ UPDATE / INSERT USER DATA ] ===================
 export async function POST(req) {
-    try {
+  try {
     const formData = await req.formData();
 
     // Ambil semua data dari form
@@ -68,120 +77,123 @@ export async function POST(req) {
     const cv = formData.get("cv");
 
     if (!nim)
-        return NextResponse.json({
+      return NextResponse.json({
         success: false,
         message: "NIM user tidak ditemukan!",
-        });
+      });
 
-    // Siapkan folder upload
+    // === Folder upload ===
     const uploadDir = path.join(process.cwd(), "public/uploads");
     if (!fs.existsSync(uploadDir)) fs.mkdirSync(uploadDir, { recursive: true });
 
     const saveFile = async (file, name) => {
-        const bytes = await file.arrayBuffer();
-        const buffer = Buffer.from(bytes);
-        fs.writeFileSync(path.join(uploadDir, name), buffer);
+      const bytes = await file.arrayBuffer();
+      const buffer = Buffer.from(bytes);
+      fs.writeFileSync(path.join(uploadDir, name), buffer);
     };
 
     let fotoFileName = null;
     let cvFileName = null;
 
     if (foto && typeof foto.name === "string") {
-        fotoFileName = `${Date.now()}_${foto.name}`;
-        await saveFile(foto, fotoFileName);
+      fotoFileName = `${Date.now()}_${foto.name}`;
+      await saveFile(foto, fotoFileName);
     }
     if (cv && typeof cv.name === "string") {
-        cvFileName = `${Date.now()}_${cv.name}`;
-        await saveFile(cv, cvFileName);
+      cvFileName = `${Date.now()}_${cv.name}`;
+      await saveFile(cv, cvFileName);
     }
 
-    // Koneksi ke database
+    // === Koneksi ke DB ===
     const db = await mysql.createConnection({
-        host: "localhost",
-        user: "root",
-        password: "",
-        database: "getjob_db",
+      host: "localhost",
+      user: "root",
+      password: "",
+      database: "getjob_db",
     });
 
-    // HASH PASSWORD 
-    let passwordBaru = password;
+    // Ambil password lama
     const [userRows] = await db.execute("SELECT password FROM pencari_kerja WHERE nim = ?", [nim]);
     const passwordLama = userRows.length > 0 ? userRows[0].password : null;
 
-    if (passwordBaru && passwordBaru.trim() !== "" && !(await bcrypt.compare(passwordBaru, passwordLama))) {
-        const salt = await bcrypt.genSalt(10);
-        passwordBaru = await bcrypt.hash(passwordBaru, salt);
-    } else {
-        passwordBaru = passwordLama;
+    // === Logika password aman ===
+    let passwordFinal = passwordLama;
+    if (password && password.trim() !== "") {
+      // Jika password baru diisi → hash baru
+      passwordFinal = await bcrypt.hash(password, 10);
     }
 
-    // Cek apakah user sudah ada
+    // === Cek apakah user sudah ada ===
     const [rows] = await db.execute("SELECT nim FROM pencari_kerja WHERE nim = ?", [nim]);
 
     if (rows.length === 0) {
-      // INSERT user baru
-        await db.execute(
+      // === INSERT ===
+      await db.execute(
         `INSERT INTO pencari_kerja 
         (nim, nama_lengkap, password, tanggal_lahir, jenis_kelamin, alamat, email, no_telephone, prodi, pendidikan_terakhir, linkedin, keahlian, tentang_anda, foto, cv)
         VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
         [
-            nim,
-            nama_lengkap,
-            passwordBaru,
-            tanggal_lahir || null,
-            jenis_kelamin || null,
-            alamat || "",
-            email || "",
-            no_telephone || "",
-            prodi || "",
-            pendidikan_terakhir || "",
-            linkedin || "",
-            keahlian || "",
-            tentang_anda || "",
-            fotoFileName || null,
-            cvFileName || null,
+          nim,
+          nama_lengkap,
+          passwordFinal,
+          tanggal_lahir || null,
+          jenis_kelamin || null,
+          alamat || "",
+          email || "",
+          no_telephone || "",
+          prodi || "",
+          pendidikan_terakhir || "",
+          linkedin || "",
+          keahlian || "",
+          tentang_anda || "",
+          fotoFileName || null,
+          cvFileName || null,
         ]
-        );
+      );
     } else {
-      // UPDATE user lama
-        await db.execute(
+      // === UPDATE ===
+      await db.execute(
         `UPDATE pencari_kerja 
-        SET nama_lengkap=?, password=?, tanggal_lahir=?, jenis_kelamin=?, alamat=?, 
-                email=?, no_telephone=?, prodi=?, pendidikan_terakhir=?, linkedin=?, 
-                keahlian=?, tentang_anda=?, 
-                foto = COALESCE(?, foto), cv = COALESCE(?, cv)
-            WHERE nim=?`,
+         SET nama_lengkap=?, password=?, tanggal_lahir=?, jenis_kelamin=?, alamat=?, 
+             email=?, no_telephone=?, prodi=?, pendidikan_terakhir=?, linkedin=?, 
+             keahlian=?, tentang_anda=?, 
+             foto = COALESCE(?, foto), cv = COALESCE(?, cv)
+         WHERE nim=?`,
         [
-            nama_lengkap,
-            passwordBaru,
-            tanggal_lahir || null,
-            jenis_kelamin || null,
-            alamat || "",
-            email || "",
-            no_telephone || "",
-            prodi || "",
-            pendidikan_terakhir || "",
-            linkedin || "",
-            keahlian || "",
-            tentang_anda || "",
-            fotoFileName,
-            cvFileName,
-            nim,
+          nama_lengkap,
+          passwordFinal,
+          tanggal_lahir || null,
+          jenis_kelamin || null,
+          alamat || "",
+          email || "",
+          no_telephone || "",
+          prodi || "",
+          pendidikan_terakhir || "",
+          linkedin || "",
+          keahlian || "",
+          tentang_anda || "",
+          fotoFileName,
+          cvFileName,
+          nim,
         ]
-        );
+      );
     }
 
     await db.end();
 
     return NextResponse.json({
-        success: true,
-        message: "Data profil berhasil disimpan!",
+      success: true,
+      message: "Data profil berhasil disimpan!",
     });
-    } catch (error) {
+  } catch (error) {
     console.error("POST /api/editProfileMHS error:", error);
     return NextResponse.json(
-        { success: false, message: "Gagal menyimpan data!", error: error.message },
-        { status: 500 }
+      {
+        success: false,
+        message: "Gagal menyimpan data!",
+        error: error.message,
+      },
+      { status: 500 }
     );
-    }
+  }
 }

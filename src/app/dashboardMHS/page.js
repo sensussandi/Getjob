@@ -50,9 +50,10 @@ export default function DashboardMHS() {
 
         <div className="flex flex-col items-center p-8 bg-gradient-to-r from-orange-200 to-gray-100">
           <img
-            src={user.foto ? `/uploads/${user.foto}` : "/default-avatar.png"}
+            src={session?.user?.foto || "/default-avatar.png"}
             alt="Foto Profil"
-            className="w-28 h-28 rounded-full object-cover border-4 border-[#6b0000] shadow-lg mb-4"
+            className="w-32 h-32 rounded-full object-cover border-4 border-[#6b0000]"
+            onError={(e) => (e.target.src = "/default-avatar.png")}
           />
           <h2 className="text-2xl font-semibold text-gray-800">
             {user.name || "Mahasiswa"}
