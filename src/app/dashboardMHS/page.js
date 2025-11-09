@@ -71,13 +71,6 @@ export default function DashboardMHS() {
               <span>{user.no_telephone || "Nomor belum diisi"}</span>
             </div>
           </div>
-
-          <button
-            onClick={() => signOut()}
-            className="mt-6 bg-[#6b0000] text-white px-6 py-2 rounded-lg font-semibold hover:bg-[#8b0000] transition"
-          >
-            Logout
-          </button>
         </div>
       </div>
     </div>

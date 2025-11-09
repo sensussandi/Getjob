@@ -187,8 +187,8 @@ export default function RegisterPage() {
             >
               <option value="">Pilih Prodi</option>
               <option value="Informatika">Informatika</option>
-              <option value="Teknik Mesin">Teknik Mesin</option>
-              <option value="Teknik Elektro">Teknik Elektro</option>
+              <option value="TM">Teknik Mesin</option>
+              <option value="TE">Teknik Elektro</option>
               <option value="Matematika">Matematika</option>
             </select>
           </div>
@@ -204,9 +204,17 @@ export default function RegisterPage() {
               required
             >
               <option value="">Pilih Pendidikan</option>
-              <option value="SMA/SMK">SMA/SMK</option>
-              <option value="D3">D3</option>
-              <option value="S1">S1</option>
+              <option value="SDMI">SD / MI (Sekolah Dasar / Madrasah Ibtidaiyah)</option>
+              <option value="SMPMTs">SMP / MTs (Sekolah Menengah Pertama / Madrasah Tsanawiyah)</option>
+              <option value="SMAMA">SMA / MA (Sekolah Menengah Atas / Madrasah Aliyah)</option>
+              <option value="SMK">SMK (Sekolah Menengah Kejuruan)</option>
+              <option value="D1">D1 (Diploma 1)</option>
+              <option value="D2">D2 (Diploma 2)</option>
+              <option value="D3">D3 (Diploma 3 / Ahli Madya)</option>
+              <option value="D4">D4 / Sarjana Terapan</option>
+              <option value="S1">S1 (Strata 1)</option>
+              <option value="S2">S2 (Strata 2 / Magister)</option>
+              <option value="S3">S3 (Strata 3 / Doktor)</option>  
             </select>
           </div>
 

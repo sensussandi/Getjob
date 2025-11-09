@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 import mysql from "mysql2/promise";
 import fs from "fs";
 import path from "path";
+import bcrypt from "bcryptjs";
 
 // GET — Ambil semua data user berdasarkan NIM
 export async function GET(req) {
@@ -22,9 +23,27 @@ export async function GET(req) {
         database: "getjob_db",
     });
 
+    // HASH PASSWORD
+let passwordBaru = password;
+
+// Ambil password lama untuk dibandingkan
+const [userRows] = await db.execute("SELECT password FROM pencari_kerja WHERE nim = ?", [nim]);
+const passwordLama = userRows.length > 0 ? userRows[0].password : null;
+
+// Hash hanya jika password baru berbeda dan bukan kosong
+if (passwordBaru && passwordBaru.trim() !== "" && !(await bcrypt.compare(passwordBaru, passwordLama))) {
+    const salt = await bcrypt.genSalt(10);
+    passwordBaru = await bcrypt.hash(passwordBaru, salt);
+} else {
+    passwordBaru = passwordLama;
+}
+// END HASH
+
+    // Cek apakah user ada
     const [rows] = await db.execute("SELECT * FROM pencari_kerja WHERE nim = ?", [nim]);
     await db.end();
 
+    // Jika user tidak ditemukan
     if (rows.length === 0)
         return NextResponse.json({
         success: false,
@@ -111,7 +130,7 @@ export async function POST(req) {
         [
             nim,
             nama_lengkap,
-            password,
+            passwordBaru,
             tanggal_lahir || null,
             jenis_kelamin || null,
             alamat || "",
@@ -137,7 +156,7 @@ export async function POST(req) {
             WHERE nim=?`,
         [
             nama_lengkap,
-            password,
+            passwordBaru,
             tanggal_lahir || null,
             jenis_kelamin || null,
             alamat || "",
