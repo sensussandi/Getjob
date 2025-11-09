@@ -11,11 +11,32 @@ import {
   Plus,
   Settings,
   Eye,
+  CalendarDays,
   Calendar,
   Building2,
   Mail,
   ArrowUpRight,
 } from "lucide-react";
+
+function formatTanggal(tanggal) {
+  if (!tanggal) return "-";
+  try {
+    const date = new Date(tanggal);
+    if (isNaN(date)) return tanggal;
+
+    // Sesuaikan zona waktu WIB (+7 jam)
+    const localDate = new Date(date.getTime() + 7 * 60 * 60 * 1000);
+
+    // Format ke bahasa Indonesia
+    return localDate.toLocaleDateString("id-ID", {
+      day: "2-digit",
+      month: "long",
+      year: "numeric",
+    });
+  } catch (e) {
+    return tanggal;
+  }
+}
 
 export default function DashboardPerusahaan() {
   const [data, setData] = useState(null);
@@ -64,46 +85,46 @@ export default function DashboardPerusahaan() {
           <div className="flex justify-between items-start">
             {/* Company Info */}
             <div className="flex items-start gap-4">
-            {/* LOGO PERUSAHAAN */}
-            <div className="w-16 h-16 rounded-2xl overflow-hidden bg-gray-100 flex items-center justify-center shadow-lg">
-              {admin.logo_url ? (
-                <img
-                  src={
-                    admin.logo_url.startsWith("http")
-                      ? admin.logo_url
-                      : admin.logo_url.startsWith("/")
-                      ? admin.logo_url
-                      : "/" + admin.logo_url
-                  }
-                  alt="Logo Perusahaan"
-                  className="w-full h-full object-cover"
-                />
-              ) : (
-                <Building2 className="w-8 h-8 text-gray-500" />
-              )}
-            </div>
-
-            {/* INFORMASI PERUSAHAAN */}
-            <div>
-              <h1 className="text-3xl font-bold text-gray-900 mb-1">
-                {admin.nama_perusahaan}
-              </h1>
-              <div className="flex items-center gap-4 text-sm text-gray-600 flex-wrap">
-                <span className="flex items-center gap-1">
-                  <MapPin className="w-4 h-4" />
-                  {admin.alamat_perusahaan}
-                </span>
-                <span className="flex items-center gap-1">
-                  <Mail className="w-4 h-4" />
-                  {admin.email || "email@company.com"}
-                </span>
+              {/* LOGO PERUSAHAAN */}
+              <div className="w-16 h-16 rounded-2xl overflow-hidden bg-gray-100 flex items-center justify-center shadow-lg">
+                {admin.logo_url ? (
+                  <img
+                    src={
+                      admin.logo_url.startsWith("http")
+                        ? admin.logo_url
+                        : admin.logo_url.startsWith("/")
+                        ? admin.logo_url
+                        : "/" + admin.logo_url
+                    }
+                    alt="Logo Perusahaan"
+                    className="w-full h-full object-cover"
+                  />
+                ) : (
+                  <Building2 className="w-8 h-8 text-gray-500" />
+                )}
               </div>
-              <p className="text-gray-600 text-sm mt-2 max-w-2xl">
-                {admin.tentang_perusahaan || "Belum ada deskripsi perusahaan."}
-              </p>
-            </div>
-          </div>
 
+              {/* INFORMASI PERUSAHAAN */}
+              <div>
+                <h1 className="text-3xl font-bold text-gray-900 mb-1">
+                  {admin.nama_perusahaan}
+                </h1>
+                <div className="flex items-center gap-4 text-sm text-gray-600 flex-wrap">
+                  <span className="flex items-center gap-1">
+                    <MapPin className="w-4 h-4" />
+                    {admin.alamat_perusahaan}
+                  </span>
+                  <span className="flex items-center gap-1">
+                    <Mail className="w-4 h-4" />
+                    {admin.email || "email@company.com"}
+                  </span>
+                </div>
+                <p className="text-gray-600 text-sm mt-2 max-w-2xl">
+                  {admin.tentang_perusahaan ||
+                    "Belum ada deskripsi perusahaan."}
+                </p>
+              </div>
+            </div>
 
             {/* Action Buttons */}
             <div className="flex gap-3">
@@ -194,8 +215,8 @@ export default function DashboardPerusahaan() {
                             {job.lokasi}
                           </span>
                           <span className="flex items-center gap-1.5">
-                            <Calendar className="w-4 h-4" />
-                            Tutup: {job.tanggal_ditutup}
+                            <CalendarDays className="w-4 h-4" />
+                            Tutup: {formatTanggal(job.tanggal_ditutup)}
                           </span>
                         </div>
                       </div>
@@ -236,7 +257,14 @@ export default function DashboardPerusahaan() {
                           </div>
                         </div>
                       </div>
-                      <button className="px-4 py-2 bg-[#800000] text-white rounded-lg text-sm font-medium hover:bg-[#5c0000] transition-all opacity-0 group-hover:opacity-100">
+                      <button
+                        onClick={() =>
+                          router.push(
+                            `/dashboardPerusahaan/lowongan/edit/${job.id_lowongan}`
+                          )
+                        }
+                        className="px-4 py-2 bg-[#800000] text-white rounded-lg text-sm font-medium hover:bg-[#5c0000] transition-all opacity-0 group-hover:opacity-100"
+                      >
                         Kelola
                       </button>
                     </div>

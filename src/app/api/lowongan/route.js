@@ -24,6 +24,7 @@ export async function GET() {
         a.nama_perusahaan
       FROM lowongan_kerja AS l
       JOIN admin_perusahaan AS a ON l.id_admin = a.id_admin
+      WHERE l.tanggal_ditutup >= CURDATE()   -- tampilkan hanya yang masih aktif
       ORDER BY l.tanggal_dibuka DESC
     `);
 
