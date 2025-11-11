@@ -1,13 +1,45 @@
 "use client";
 import { useEffect, useState } from "react";
-import { useParams } from "next/navigation";
-import { MapPin, DollarSign, CalendarDays, Briefcase, Building2, Clock, ExternalLink } from "lucide-react";
+import { useParams, useRouter } from "next/navigation";
+import {
+  MapPin,
+  DollarSign,
+  CalendarDays,
+  Briefcase,
+  Building2,
+  Clock,
+  ExternalLink,
+  ArrowLeft,
+} from "lucide-react";
+
+// 🗓️ Fungsi format tanggal ke Bahasa Indonesia (WIB)
+function formatTanggal(tanggal) {
+  if (!tanggal) return "-";
+  try {
+    const date = new Date(tanggal);
+    if (isNaN(date)) return tanggal;
+
+    // Konversi ke WIB (+7 jam)
+    const localDate = new Date(date.getTime() + 7 * 60 * 60 * 1000);
+
+    // Format ke bahasa Indonesia
+    return localDate.toLocaleDateString("id-ID", {
+      day: "2-digit",
+      month: "long",
+      year: "numeric",
+    });
+  } catch (e) {
+    return tanggal;
+  }
+}
 
 export default function DetailLowongan() {
   const { id } = useParams();
+  const router = useRouter();
   const [lowongan, setLowongan] = useState(null);
   const [loading, setLoading] = useState(true);
 
+  // 🔁 Fetch detail lowongan dari API
   useEffect(() => {
     const fetchDetail = async () => {
       try {
@@ -23,6 +55,7 @@ export default function DetailLowongan() {
     fetchDetail();
   }, [id]);
 
+  // 🌀 Loading state
   if (loading)
     return (
       <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-gray-50 to-gray-100">
@@ -33,6 +66,7 @@ export default function DetailLowongan() {
       </div>
     );
 
+  // ❌ Jika data tidak ditemukan
   if (!lowongan)
     return (
       <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-gray-50 to-gray-100">
@@ -48,7 +82,16 @@ export default function DetailLowongan() {
   return (
     <div className="min-h-screen bg-gradient-to-br from-gray-50 via-white to-gray-50 py-8 px-4 sm:px-6 lg:px-8">
       <div className="max-w-4xl mx-auto">
-        {/* Header Card dengan Gradient */}
+        {/* 🔙 Tombol Kembali */}
+        <button
+          onClick={() => router.back()}
+          className="mb-6 flex items-center gap-2 text-[#800000] hover:text-[#5c0000] font-semibold transition-all"
+        >
+          <ArrowLeft className="w-5 h-5" />
+          Kembali
+        </button>
+
+        {/* 🟥 Header Card */}
         <div className="bg-gradient-to-r from-[#800000] to-[#a00000] rounded-3xl p-8 mb-6 shadow-xl text-white">
           <div className="flex items-start justify-between mb-4">
             <div className="flex-1">
@@ -60,12 +103,14 @@ export default function DetailLowongan() {
               </h1>
               <div className="flex items-center gap-2 text-white/90 mb-4">
                 <Building2 className="w-5 h-5" />
-                <span className="text-lg font-medium">{lowongan.nama_perusahaan}</span>
+                <span className="text-lg font-medium">
+                  {lowongan.nama_perusahaan}
+                </span>
               </div>
             </div>
           </div>
-          
-          {/* Info Grid */}
+
+          {/* 🧭 Info Grid */}
           <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
             <div className="bg-white/10 backdrop-blur-sm rounded-xl p-3 border border-white/20">
               <div className="flex items-center gap-2 text-white/80 text-xs mb-1">
@@ -74,7 +119,7 @@ export default function DetailLowongan() {
               </div>
               <p className="font-semibold">{lowongan.lokasi}</p>
             </div>
-            
+
             <div className="bg-white/10 backdrop-blur-sm rounded-xl p-3 border border-white/20">
               <div className="flex items-center gap-2 text-white/80 text-xs mb-1">
                 <DollarSign className="w-4 h-4" />
@@ -82,33 +127,37 @@ export default function DetailLowongan() {
               </div>
               <p className="font-semibold">{lowongan.gaji}</p>
             </div>
-            
+
             <div className="bg-white/10 backdrop-blur-sm rounded-xl p-3 border border-white/20">
               <div className="flex items-center gap-2 text-white/80 text-xs mb-1">
                 <CalendarDays className="w-4 h-4" />
                 <span className="font-medium">Ditutup</span>
               </div>
-              <p className="font-semibold">{lowongan.tanggal_ditutup}</p>
+              <p className="font-semibold">
+                {formatTanggal(lowongan.tanggal_ditutup)}
+              </p>
             </div>
           </div>
         </div>
 
-        {/* Content Card */}
+        {/* 📋 Content Card */}
         <div className="bg-white rounded-3xl shadow-xl overflow-hidden">
-          {/* Deskripsi Section */}
+          {/* Deskripsi */}
           <div className="p-8 border-b border-gray-100">
             <div className="flex items-center gap-3 mb-4">
               <div className="w-10 h-10 bg-[#800000]/10 rounded-xl flex items-center justify-center">
                 <Briefcase className="w-5 h-5 text-[#800000]" />
               </div>
-              <h2 className="text-2xl font-bold text-gray-900">Deskripsi Pekerjaan</h2>
+              <h2 className="text-2xl font-bold text-gray-900">
+                Deskripsi Pekerjaan
+              </h2>
             </div>
             <p className="text-gray-700 leading-relaxed whitespace-pre-line">
               {lowongan.deskripsi_pekerjaan}
             </p>
           </div>
 
-          {/* Kualifikasi Section */}
+          {/* Kualifikasi */}
           <div className="p-8 bg-gradient-to-br from-gray-50 to-white">
             <div className="flex items-center gap-3 mb-4">
               <div className="w-10 h-10 bg-[#800000]/10 rounded-xl flex items-center justify-center">
@@ -121,7 +170,7 @@ export default function DetailLowongan() {
             </p>
           </div>
 
-          {/* CTA Section */}
+          {/* CTA / Tombol Lamar */}
           <div className="p-8 bg-gradient-to-br from-gray-50 to-white border-t border-gray-100">
             {lowongan.external_url ? (
               <a

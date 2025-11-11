@@ -16,16 +16,22 @@ export default function ClientLayout({ children }) {
     "/lengkapiDataMHS",
     "/dashboardPerusahaan",
     "/editProfileMHS",
+    "/dashboardPerusahaan/pengaturan",
+    "/dashboardPerusahaan/lowongan/tambah",
   ];
 
-  // ✅ Cek apakah path diawali dengan '/lowongan/' dan punya ID di belakang
+  const isEditLowongan = pathname.startsWith(
+    "/dashboardPerusahaan/lowongan/edit/"
+  );
+
   const isLowonganDetail = pathname.startsWith("/lowongan/");
-
+  
   const hideHeader =
-    noHeaderPages.includes(pathname) || isLowonganDetail;
-
+  noHeaderPages.includes(pathname) ||
+  isLowonganDetail ||
+  isEditLowongan;
   return (
-    <>
+    <> 
       {!hideHeader && <Header />}
       <main>{children}</main>
     </>

@@ -1,14 +1,16 @@
 import { NextResponse } from "next/server";
 import mysql from "mysql2/promise";
 
-export async function GET(req, { params }) {
-  const { id } = params;
+export async function GET(req, context) {
+  const { id } = await context.params; // ✅ wajib pakai await
+
   try {
     const db = await mysql.createConnection({
-      host: "localhost",
+      host: "127.0.0.1",   // ✅ pastikan pakai IP
       user: "root",
       password: "",
       database: "getjob_db",
+      port: 3306,          // ✅ port default MySQL
     });
 
     const [rows] = await db.query(
@@ -21,12 +23,19 @@ export async function GET(req, { params }) {
 
     await db.end();
 
-    if (rows.length === 0)
-      return NextResponse.json({ success: false, message: "Lowongan tidak ditemukan" }, { status: 404 });
+    if (rows.length === 0) {
+      return NextResponse.json(
+        { success: false, message: "Lowongan tidak ditemukan" },
+        { status: 404 }
+      );
+    }
 
     return NextResponse.json({ success: true, data: rows[0] });
   } catch (error) {
     console.error("❌ Error detail lowongan:", error);
-    return NextResponse.json({ success: false, message: "Server error" }, { status: 500 });
+    return NextResponse.json(
+      { success: false, message: "Server error" },
+      { status: 500 }
+    );
   }
 }
