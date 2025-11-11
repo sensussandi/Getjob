@@ -183,8 +183,27 @@ export default function PengaturanPage() {
               </div>
             </div>
 
-            {/* Tombol Simpan */}
-            <div className="flex justify-end">
+            {/* Tombol Simpan+logout */}
+            {/* Tombol Simpan + Logout */}
+            <div className="flex justify-end gap-3 mt-6">
+              <button
+                type="button"
+                onClick={() => {
+                  if (confirm("Apakah Anda yakin ingin logout?")) {
+                    // 🔹 Hapus data login (ubah sesuai yang kamu simpan di localStorage)
+                    localStorage.removeItem("id_admin");
+                    localStorage.removeItem("nama_perusahaan");
+                    localStorage.removeItem("token");
+
+                    alert("Anda telah logout.");
+                    router.push("/loginPerusahaan");
+                  }
+                }}
+                className="px-6 py-3 border-2 border-red-600 text-red-600 rounded-lg font-semibold hover:bg-red-50 transition-all"
+              >
+                Logout
+              </button>
+
               <button
                 type="submit"
                 className="px-6 py-3 bg-gradient-to-r from-[#800000] to-[#b22222] text-white rounded-lg font-semibold hover:opacity-90"

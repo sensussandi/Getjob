@@ -1,4 +1,5 @@
 import mysql from "mysql2/promise";
+import bycrypt from "bcryptjs";
 
 export async function POST(request) {
   try {
@@ -23,7 +24,24 @@ export async function POST(request) {
     if (rows.length > 0) {
       // Jika login berhasil, simpan waktu login ke tabel log (opsional)
       const user = rows[0];
-      // Misalnya kamu mau update status atau waktu login terakhir:
+      let validPassword = false;
+
+    // Jika password sudah di-hash (diawali $2a$ atau $2b$)
+    if (user.password.startsWith("$2a$") || user.password.startsWith("$2b$")) {
+      validPassword = await bcrypt.compare(password, user.password);
+    } else {
+      // 🔹 Jika masih plaintext (data lama), bandingkan biasa
+      validPassword = password === user.password;
+    }
+
+    if (!validPassword) {
+      await connection.end();
+      return NextResponse.json(
+        { success: false, message: "Password salah!" },
+        { status: 401 }
+      );
+    }
+      // Simpan waktu login terakhir ke kolom linkedin sebagai contoh
       await connection.execute("UPDATE pencari_kerja SET linkedin = ? WHERE nim = ?", [`Terakhir login: ${new Date().toISOString()}`, nim]);
 
       await connection.end();

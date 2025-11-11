@@ -15,17 +15,27 @@ export default function ClientLayout({ children }) {
     "/profil",
     "/lengkapiDataMHS",
     "/dashboardPerusahaan",
+<<<<<<< HEAD
     "/dashboardAdmin",
+=======
+    "/editProfileMHS",
+    "/dashboardPerusahaan/pengaturan",
+    "/dashboardPerusahaan/lowongan/tambah",
+>>>>>>> 42088b622a1e2466c89ab486238d7f9559c23fab
   ];
 
-  // ✅ Cek apakah path diawali dengan '/lowongan/' dan punya ID di belakang
+  const isEditLowongan = pathname.startsWith(
+    "/dashboardPerusahaan/lowongan/edit/"
+  );
+
   const isLowonganDetail = pathname.startsWith("/lowongan/");
-
+  
   const hideHeader =
-    noHeaderPages.includes(pathname) || isLowonganDetail;
-
+  noHeaderPages.includes(pathname) ||
+  isLowonganDetail ||
+  isEditLowongan;
   return (
-    <>
+    <> 
       {!hideHeader && <Header />}
       <main>{children}</main>
     </>
