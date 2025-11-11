@@ -37,7 +37,7 @@ export default function Sidebar() {
 
   const menuItems = [
     { id: "dashboard", icon: Home, label: "Dashboard", href: "/dashboardMHS", badge: null },
-    { id: "loker", icon: Briefcase, label: "Rekomendasi Loker", href: "/loker", badge: "12" },
+    { id: "loker", icon: Briefcase, label: "Rekomendasi Loker", href: "/dashboardMHS/rekomendasi", badge: null },
     { id: "lamaran", icon: BookOpen, label: "Lamaran Saya", href: "/lamaran", badge: "3" },
     { id: "edit_profile", icon: Settings, label: "Edit Profile", href: "/editProfileMHS", badge: null },
   ];
