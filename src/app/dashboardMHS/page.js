@@ -1,21 +1,23 @@
 "use client";
+
 import { useEffect, useState } from "react";
+import { useSession, signOut } from "next-auth/react";
+import { Mail, Phone } from "lucide-react";
 
 export default function DashboardMHS() {
-  const [user, setUser] = useState(null);
-  const [loading, setLoading] = useState(true);
+  const { data: session, status } = useSession();
+  const [localUser, setLocalUser] = useState(null);
 
   useEffect(() => {
     if (typeof window !== "undefined") {
-      const storedUser = localStorage.getItem("user");
-      if (storedUser) {
-        setUser(JSON.parse(storedUser));
-      }
-      setLoading(false);
+      const stored = localStorage.getItem("user");
+      if (stored) setLocalUser(JSON.parse(stored));
     }
   }, []);
 
-  if (loading) {
+  const user = session?.user || localUser;
+
+  if (status === "loading") {
     return (
       <div className="flex items-center justify-center h-screen text-red-900 font-semibold">
         Memuat data pengguna...
@@ -23,23 +25,55 @@ export default function DashboardMHS() {
     );
   }
 
-  return (
-    <div className="min-h-screen bg-red-50 p-8">
-      <h1 className="text-3xl font-bold text-red-900 mb-4">
-        Selamat Datang, {user?.nama_lengkap || "Mahasiswa"} 👋
-      </h1>
-      <p className="text-lg text-gray-700">NIM: {user?.nim}</p>
-      <p className="text-lg text-gray-700">Program Studi: {user?.prodi}</p>
+  if (!user) {
+    return (
+      <div className="flex flex-col items-center justify-center h-screen">
+        <p className="text-gray-600 mb-4">Anda belum login.</p>
+        <a
+          href="/loginMhs"
+          className="bg-red-900 text-white px-4 py-2 rounded-lg hover:bg-red-800"
+        >
+          Ke Halaman Login
+        </a>
+      </div>
+    );
+  }
 
-      <button
-        onClick={() => {
-          localStorage.removeItem("user");
-          window.location.href = "/loginMhs";
-        }}
-        className="mt-6 bg-red-900 text-white px-6 py-2 rounded-lg hover:bg-red-800 transition"
-      >
-        Logout
-      </button>
-  </div>
-);
+  return (
+    <div className="min-h-screen bg-[#fff8f8] flex items-center justify-center py-12 px-4">
+      <div className="w-full max-w-lg bg-white shadow-xl rounded-3xl overflow-hidden">
+        <div className="bg-gradient-to-r from-[#6b0000] to-[#b22c2c] text-white p-6 text-center">
+          <h1 className="text-3xl font-bold">
+            Selamat Datang, {user.name || user.nama_lengkap} 👋
+          </h1>
+        </div>
+
+        <div className="flex flex-col items-center p-8 bg-gradient-to-r from-orange-200 to-gray-100">
+          <img
+            src={session?.user?.foto || "/default-avatar.png"}
+            alt="Foto Profil"
+            className="w-32 h-32 rounded-full object-cover border-4 border-[#6b0000]"
+            onError={(e) => (e.target.src = "/default-avatar.png")}
+          />
+          <h2 className="text-2xl font-semibold text-gray-800">
+            {user.name || "Mahasiswa"}
+          </h2>
+          <p className="text-gray-600">
+            {user.prodi || "Program Studi Tidak Diketahui"}
+          </p>
+
+          <div className="mt-4 text-left w-full px-6 space-y-2">
+            <div className="flex items-center gap-2 text-gray-700">
+              <Mail className="w-5 h-5 text-[#6b0000]" />
+              <span>{user.email || "Email belum diisi"}</span>
+            </div>
+            <div className="flex items-center gap-2 text-gray-700">
+              <Phone className="w-5 h-5 text-[#6b0000]" />
+              <span>{user.no_telephone || "Nomor belum diisi"}</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
 }
