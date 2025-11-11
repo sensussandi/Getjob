@@ -110,7 +110,7 @@ export default function LowonganTerbaru() {
                 className="bg-white rounded-2xl border border-gray-200 hover:border-[#800000]/30 hover:shadow-2xl transition-all duration-300 overflow-hidden group cursor-pointer"
               >
                 {/* Company Header with Gradient */}
-                <div className="bg-gradient-to-r from-[#800000] to-[#b22222] p-5">
+                <div className="bg-gradient-                  -r from-[#800000] to-[#b22222] p-5">
                   <div className="flex items-center gap-3">
                     <div className="w-12 h-12 bg-white rounded-xl flex items-center justify-center flex-shrink-0">
                       <Building2 className="w-6 h-6 text-[#800000]" />

@@ -6,7 +6,7 @@ export async function GET() {
     const db = await mysql.createConnection({
       host: "localhost",
       user: "root",
-      password: "", // isi jika pakai password
+      password: "",
       database: "getjob_db",
     });
 

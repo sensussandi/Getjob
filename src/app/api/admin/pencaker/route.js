@@ -1,5 +1,5 @@
-import mysql from "mysql2/promise";
 import { NextResponse } from "next/server";
+import mysql from "mysql2/promise";
 
 export async function GET() {
   try {
@@ -13,7 +13,10 @@ export async function GET() {
     const [rows] = await db.execute("SELECT * FROM pencari_kerja ORDER BY nim DESC");
     await db.end();
 
-    return NextResponse.json(rows);
+    return NextResponse.json({
+      success: true,
+      data: rows,
+    });
   } catch (error) {
     console.error("Error mengambil data pencaker:", error);
     return NextResponse.json(

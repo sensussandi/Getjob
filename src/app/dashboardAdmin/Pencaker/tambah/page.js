@@ -36,7 +36,7 @@ export default function RegisterPage() {
     }
 
     try {
-      const res = await fetch("/api/registrasiMHS", {
+      const res = await fetch("/api/admin/pencaker/tambah", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(formData),
