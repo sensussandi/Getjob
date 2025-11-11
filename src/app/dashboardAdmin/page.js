@@ -1,6 +1,7 @@
 "use client";
 import React, { useState, useEffect } from "react";
 import { Building2, Users, Briefcase, BarChart3, Plus, Eye, Trash2, MapPin, Calendar } from "lucide-react";
+import { useRouter } from "next/navigation";
 
 export default function DashboardAdmin() {
   const [stats, setStats] = useState({
@@ -8,6 +9,7 @@ export default function DashboardAdmin() {
     totalPencariKerja: 0,
     totalLowongan: 0,
   });
+  const router = useRouter();
 
   const [dataPerusahaan, setDataPerusahaan] = useState([]);
   const [dataPencariKerja, setDataPencariKerja] = useState([]);
@@ -81,14 +83,18 @@ export default function DashboardAdmin() {
         {/* Data Tabel */}
         <div className="space-y-10">
           <DataTable title="Data Perusahaan" data={dataPerusahaan} columns={["nama_perusahaan", "email_perusahaan", "no_telephone"]} />
-          <DataTable title="Data Pencari Kerja" data={dataPencariKerja} columns={["nama_lengkap", "email", "prodi"]} />
+          <DataTable title="Data Pencari Kerja" data={dataPencariKerja} columns={["nim", "nama_lengkap", "email", "prodi"]} />
           {/* === DATA LOWONGAN KERJA (DESAIN PREMIUM SEPERTI DASHBOARD PERUSAHAAN) === */}
           <div className="bg-white shadow-xl rounded-2xl overflow-hidden">
             <div className="flex justify-between items-center px-6 py-4 border-b border-gray-100 bg-gray-50">
               <h3 className="text-xl font-bold text-gray-800">Data Lowongan Kerja</h3>
-              <button className="bg-[#800000] text-white px-4 py-2 rounded-lg hover:bg-[#a00000] flex items-center gap-2">
+              <button
+                onClick={() => router.push("/dashboardAdmin/lowongan/tambah")}
+                className="bg-[#800000] text-white px-4 py-2 rounded-lg hover:bg-[#a00000] flex items-center gap-2"
+              >
                 <Plus className="w-4 h-4" /> Tambah
               </button>
+
             </div>
 
             {/* Grid Card Lowongan */}
