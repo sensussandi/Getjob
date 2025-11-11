@@ -25,7 +25,7 @@ export async function GET() {
     const admin = adminRes[0];
 
     // ✅ 3. Ambil data lowongan kerja
-    const [lowongan] = await db.query(`
+      const [lowongan] = await db.query(`
       SELECT 
         id_lowongan,
         nama_posisi,
@@ -33,6 +33,7 @@ export async function GET() {
         deskripsi_pekerjaan,
         tanggal_ditutup
       FROM lowongan_kerja
+      WHERE tanggal_ditutup >= CURDATE()  -- hanya tampil yang belum tutup
       ORDER BY id_lowongan DESC
       LIMIT 10
     `);
@@ -48,14 +49,31 @@ export async function GET() {
       LIMIT 5
     `);
 
-    // ✅ 5. Statistik sederhana
-    const [statsRes] = await db.query(`
-      SELECT
-        (SELECT COUNT(*) FROM lowongan_kerja) AS totalLowongan,
-        (SELECT COUNT(*) FROM lowongan_kerja) AS lowonganAktif,
-        (SELECT COUNT(*) FROM mendaftar) AS totalPelamar,
-        (SELECT COUNT(*) FROM mendaftar WHERE DATE(tanggal_daftar) = CURDATE()) AS pelamarBaru
-    `);
+   // ✅ 5. Statistik hanya untuk lowongan yang masih aktif
+const [statsRes] = await db.query(`
+  SELECT
+    -- Total semua lowongan yang belum tutup
+    (SELECT COUNT(*) 
+      FROM lowongan_kerja 
+      WHERE tanggal_ditutup >= CURDATE()
+    ) AS totalLowongan,
+
+    -- Jumlah lowongan aktif (bisa disamakan, tapi disiapkan kalau nanti kamu ingin beda kriteria)
+    (SELECT COUNT(*) 
+      FROM lowongan_kerja 
+      WHERE tanggal_ditutup >= CURDATE()
+    ) AS lowonganAktif,
+
+    -- Total pelamar
+    (SELECT COUNT(*) FROM mendaftar) AS totalPelamar,
+
+    -- Pelamar baru hari ini
+    (SELECT COUNT(*) 
+      FROM mendaftar 
+      WHERE DATE(tanggal_daftar) = CURDATE()
+    ) AS pelamarBaru
+`);
+
     const stats = statsRes[0];
 
     // ✅ 6. Tutup koneksi database
@@ -69,7 +87,6 @@ export async function GET() {
       pelamar,
       stats,
     });
-
   } catch (err) {
     console.error("❌ ERROR DASHBOARD:", err);
     return NextResponse.json(

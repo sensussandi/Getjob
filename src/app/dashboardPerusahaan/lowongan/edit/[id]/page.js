@@ -1,21 +1,24 @@
 "use client";
-import { useState } from "react";
-import { useRouter } from "next/navigation";
+import { useEffect, useState } from "react";
+import { useParams, useRouter } from "next/navigation";
 import {
   Briefcase,
   MapPin,
   FileText,
   CalendarDays,
-  GraduationCap,
   DollarSign,
   Building2,
   Clock,
   Users,
   X,
+  Save,
 } from "lucide-react";
 
-export default function TambahLowongan() {
+export default function EditLowongan() {
   const router = useRouter();
+  const { id } = useParams();
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [loading, setLoading] = useState(true);
   const [form, setForm] = useState({
     nama_posisi: "",
     deskripsi_pekerjaan: "",
@@ -23,43 +26,82 @@ export default function TambahLowongan() {
     gaji: "",
     lokasi: "",
     tanggal_ditutup: "",
-    tipe_pekerjaan: "Full-time",
-    tingkat_pengalaman: "Entry Level",
+    tipe_pekerjaan: "",
+    tingkat_pengalaman: "",
     external_url: "",
   });
-  const [isSubmitting, setIsSubmitting] = useState(false);
 
+  // 🔹 Ambil data lama dari database
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        const res = await fetch(`/api/lowongan/${id}`);
+        const data = await res.json();
+        if (data.success && data.data) {
+          setForm(data.data);
+        }
+      } catch (error) {
+        console.error("Gagal mengambil data lowongan:", error);
+      } finally {
+        setLoading(false);
+      }
+    };
+    fetchData();
+  }, [id]);
+
+  // 🔹 Update field
   const handleChange = (e) => {
     const { name, value } = e.target;
     setForm({ ...form, [name]: value });
   };
 
+  // 🔹 Simpan perubahan (Update)
   const handleSubmit = async (e) => {
     e.preventDefault();
     setIsSubmitting(true);
     try {
-      const res = await fetch("/api/admin/lowongan/tambah", {
-        method: "POST",
+      const res = await fetch(`/api/lowongan/update/${id}`, {
+        method: "PUT",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(form),
       });
-
       const data = await res.json();
       if (res.ok && data.success) {
-        alert("✅ Lowongan berhasil dibuat!");
+        alert("✅ Lowongan berhasil diperbarui!");
         router.push("/dashboardPerusahaan");
       } else {
-        alert(data.message || "❌ Gagal menambahkan lowongan.");
+        alert(data.message || "❌ Gagal memperbarui lowongan.");
       }
     } catch (error) {
-      alert("⚠️ Terjadi kesalahan. Coba lagi nanti.");
+      alert("⚠️ Terjadi kesalahan saat update.");
       console.error(error);
     } finally {
       setIsSubmitting(false);
     }
   };
 
-  // Data untuk dropdown
+  // 🔹 Hapus lowongan
+  const handleDelete = async () => {
+    if (confirm("⚠️ Apakah Anda yakin ingin menghapus lowongan ini?")) {
+      try {
+        const res = await fetch(`/api/lowongan/delete/${id}`, {
+          method: "DELETE",
+        });
+        const data = await res.json();
+        if (res.ok && data.success) {
+          alert("🗑️ Lowongan berhasil dihapus!");
+          router.push("/dashboardPerusahaan");
+        } else {
+          alert(data.message || "❌ Gagal menghapus lowongan.");
+        }
+      } catch (err) {
+        console.error("Gagal menghapus:", err);
+        alert("Terjadi kesalahan saat menghapus lowongan.");
+      }
+    }
+  };
+
+  // 🔹 Data dropdown
   const rangeGaji = [
     "< Rp 3.000.000",
     "Rp 3.000.000 - Rp 5.000.000",
@@ -86,13 +128,20 @@ export default function TambahLowongan() {
   ];
 
   const tipePekerjaan = ["Full-time", "Part-time", "Contract", "Internship", "Freelance"];
-  
   const tingkatPengalaman = ["Entry Level", "Junior", "Mid Level", "Senior", "Lead/Manager"];
+
+  if (loading)
+    return (
+      <div className="flex flex-col items-center justify-center min-h-screen text-gray-600">
+        <div className="w-10 h-10 border-4 border-gray-200 border-t-[#800000] rounded-full animate-spin mb-3"></div>
+        Memuat data lowongan...
+      </div>
+    );
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100 py-8 px-4">
       <div className="max-w-5xl mx-auto">
-        {/* Header dengan gradient */}
+        {/* 🔹 Header dengan gradient */}
         <div className="bg-gradient-to-r from-[#800000] to-[#b22222] rounded-2xl shadow-xl p-8 mb-8 text-white">
           <div className="flex justify-between items-start">
             <div>
@@ -101,8 +150,10 @@ export default function TambahLowongan() {
                   <Briefcase className="w-8 h-8" />
                 </div>
                 <div>
-                  <h1 className="text-3xl font-bold">Buat Lowongan Baru</h1>
-                  <p className="text-white/90 text-sm mt-1">Lengkapi informasi lowongan pekerjaan Anda</p>
+                  <h1 className="text-3xl font-bold">Edit Lowongan</h1>
+                  <p className="text-white/90 text-sm mt-1">
+                    Perbarui informasi lowongan pekerjaan Anda
+                  </p>
                 </div>
               </div>
             </div>
@@ -115,17 +166,16 @@ export default function TambahLowongan() {
           </div>
         </div>
 
-        {/* Form Container */}
+        {/* 🔹 Form Container */}
         <div className="bg-white shadow-xl rounded-2xl overflow-hidden">
           <form onSubmit={handleSubmit}>
-            {/* Section 1: Informasi Dasar */}
+            {/* SECTION 1 */}
             <div className="p-8 border-b border-gray-100">
               <h2 className="text-xl font-bold text-gray-800 mb-6 flex items-center gap-2">
                 <Building2 className="w-5 h-5 text-[#800000]" />
                 Informasi Dasar
               </h2>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                {/* Nama Posisi */}
                 <div className="md:col-span-2">
                   <InputField
                     label="Nama Posisi"
@@ -137,7 +187,6 @@ export default function TambahLowongan() {
                   />
                 </div>
 
-                {/* Tipe Pekerjaan */}
                 <SelectField
                   label="Tipe Pekerjaan"
                   name="tipe_pekerjaan"
@@ -147,7 +196,6 @@ export default function TambahLowongan() {
                   icon={<Clock className="w-5 h-5 text-gray-400" />}
                 />
 
-                {/* Tingkat Pengalaman */}
                 <SelectField
                   label="Tingkat Pengalaman"
                   name="tingkat_pengalaman"
@@ -159,44 +207,39 @@ export default function TambahLowongan() {
               </div>
             </div>
 
-            {/* Section 2: Deskripsi & Kualifikasi */}
+            {/* SECTION 2 */}
             <div className="p-8 bg-gray-50 border-b border-gray-100">
               <h2 className="text-xl font-bold text-gray-800 mb-6 flex items-center gap-2">
                 <FileText className="w-5 h-5 text-[#800000]" />
                 Deskripsi & Kualifikasi
               </h2>
               <div className="space-y-6">
-                {/* Deskripsi Pekerjaan */}
                 <TextAreaField
                   label="Deskripsi Pekerjaan"
                   name="deskripsi_pekerjaan"
                   value={form.deskripsi_pekerjaan}
                   onChange={handleChange}
-                  placeholder="Tuliskan deskripsi pekerjaan secara rinci, tanggung jawab, dan benefit yang ditawarkan..."
+                  placeholder="Tuliskan deskripsi pekerjaan secara rinci..."
                   rows="5"
                 />
-
-                {/* Kualifikasi */}
                 <TextAreaField
                   label="Kualifikasi"
                   name="kualifikasi"
                   value={form.kualifikasi}
                   onChange={handleChange}
-                  placeholder="Contoh:&#10;• Minimal S1 Informatika/Sistem Informasi&#10;• Menguasai JavaScript, React, Node.js&#10;• Pengalaman minimal 2 tahun&#10;• Mampu bekerja dalam tim"
-                  icon={<GraduationCap className="w-5 h-5 text-gray-400" />}
+                  placeholder="Tuliskan kualifikasi yang dibutuhkan..."
                   rows="5"
                 />
               </div>
             </div>
 
-            {/* Section 3: Kompensasi & Lokasi */}
+            {/* SECTION 3 */}
             <div className="p-8">
               <h2 className="text-xl font-bold text-gray-800 mb-6 flex items-center gap-2">
                 <DollarSign className="w-5 h-5 text-[#800000]" />
                 Kompensasi & Lokasi
               </h2>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                {/* Range Gaji */}
                 <SelectField
                   label="Range Gaji (per bulan)"
                   name="gaji"
@@ -206,7 +249,6 @@ export default function TambahLowongan() {
                   icon={<DollarSign className="w-5 h-5 text-gray-400" />}
                 />
 
-                {/* Lokasi */}
                 <SelectField
                   label="Lokasi Kerja"
                   name="lokasi"
@@ -216,25 +258,20 @@ export default function TambahLowongan() {
                   icon={<MapPin className="w-5 h-5 text-gray-400" />}
                 />
 
-                 {/* web perusahaan*/}
-                  <div className="md:col-span-2">
-                    <label className="block text-sm font-semibold text-gray-700 mb-2">
-                      Link Eksternal (Opsional)
-                    </label>
-                    <input
-                      type="url"
-                      name="external_url"
-                      placeholder="https://website-perusahaan.com/career/it-support"
-                      className="w-full border-2 border-gray-200 rounded-xl px-4 py-3 focus:border-[#800000] focus:ring-2 focus:ring-[#800000]/20 outline-none transition-all hover:border-gray-300"
-                      value={form.external_url || ""}
-                      onChange={(e) => setForm({ ...form, external_url: e.target.value })}
-                    />
-                    <p className="text-xs text-gray-500 mt-1">
-                      Jika diisi, pelamar akan diarahkan ke link ini.
-                    </p>
-                  </div>
+                <div className="md:col-span-2">
+                  <label className="block text-sm font-semibold text-gray-700 mb-2">
+                    Link Eksternal (Opsional)
+                  </label>
+                  <input
+                    type="url"
+                    name="external_url"
+                    placeholder="https://website-perusahaan.com/career/it-support"
+                    className="w-full border-2 border-gray-200 rounded-xl px-4 py-3 text-gray-900 placeholder-gray-400 focus:border-[#800000] focus:ring-2 focus:ring-[#800000]/20 outline-none transition-all hover:border-gray-300"
+                    value={form.external_url || ""}
+                    onChange={handleChange}
+                  />
+                </div>
 
-                {/* Tanggal Penutupan */}
                 <div className="md:col-span-2">
                   <InputField
                     label="Tanggal Penutupan Pendaftaran"
@@ -248,15 +285,16 @@ export default function TambahLowongan() {
               </div>
             </div>
 
-            {/* Footer dengan tombol */}
+            {/* 🔹 Footer Buttons */}
             <div className="px-8 py-6 bg-gray-50 border-t border-gray-100 flex gap-4">
               <button
                 type="button"
-                onClick={() => router.back()}
-                className="flex-1 border-2 border-gray-300 hover:bg-gray-100 text-gray-700 py-3 rounded-xl font-semibold transition-all"
+                onClick={handleDelete}
+                className="flex-1 border-2 border-red-500 text-red-600 hover:bg-red-50 py-3 rounded-xl font-semibold transition-all"
               >
-                Batal
+                Hapus Lowongan
               </button>
+
               <button
                 type="submit"
                 disabled={isSubmitting}
@@ -268,54 +306,35 @@ export default function TambahLowongan() {
                     Menyimpan...
                   </span>
                 ) : (
-                  "Publikasikan Lowongan"
+                  <>
+                    <Save className="w-5 h-5 inline mr-1" /> Simpan Perubahan
+                  </>
                 )}
               </button>
             </div>
           </form>
-        </div>
-
-        {/* Tips Section */}
-        <div className="mt-6 bg-blue-50 border border-blue-200 rounded-xl p-6">
-          <h3 className="font-semibold text-blue-900 mb-2 flex items-center gap-2">
-            <FileText className="w-5 h-5" />
-            Tips Membuat Lowongan yang Menarik
-          </h3>
-          <ul className="text-sm text-blue-800 space-y-1 ml-7">
-            <li>• Tulis deskripsi pekerjaan yang jelas dan detail</li>
-            <li>• Sebutkan benefit dan keunggulan perusahaan</li>
-            <li>• Gunakan bahasa yang profesional namun ramah</li>
-            <li>• Cantumkan kualifikasi yang realistis</li>
-          </ul>
         </div>
       </div>
     </div>
   );
 }
 
-/* ==== Komponen Input Reusable ==== */
+/* ==== Komponen Reusable ==== */
 function InputField({ label, name, value, onChange, type = "text", placeholder, icon }) {
   return (
     <div>
-      <label className="block text-sm font-semibold text-gray-700 mb-2">
-        {label}
-      </label>
+      <label className="block text-sm font-semibold text-gray-700 mb-2">{label}</label>
       <div className="relative">
-        {icon && (
-          <div className="absolute left-4 top-1/2 -translate-y-1/2 z-10">
-            {icon}
-          </div>
-        )}
+        {icon && <div className="absolute left-4 top-1/2 -translate-y-1/2">{icon}</div>}
         <input
           type={type}
           name={name}
-          value={value}
+          value={value || ""}
           onChange={onChange}
           placeholder={placeholder}
-          required
           className={`w-full border-2 border-gray-200 rounded-xl px-4 py-3 ${
             icon ? "pl-12" : ""
-          } focus:border-[#800000] focus:ring-2 focus:ring-[#800000]/20 outline-none transition-all hover:border-gray-300`}
+          } text-gray-900 placeholder-gray-400 focus:border-[#800000] focus:ring-2 focus:ring-[#800000]/20 outline-none transition-all hover:border-gray-300`}
         />
       </div>
     </div>
@@ -325,65 +344,41 @@ function InputField({ label, name, value, onChange, type = "text", placeholder, 
 function SelectField({ label, name, value, onChange, options, icon }) {
   return (
     <div>
-      <label className="block text-sm font-semibold text-gray-700 mb-2">
-        {label}
-      </label>
+      <label className="block text-sm font-semibold text-gray-700 mb-2">{label}</label>
       <div className="relative">
-        {icon && (
-          <div className="absolute left-4 top-1/2 -translate-y-1/2 z-10">
-            {icon}
-          </div>
-        )}
+        {icon && <div className="absolute left-4 top-1/2 -translate-y-1/2">{icon}</div>}
         <select
           name={name}
-          value={value}
+          value={value || ""}
           onChange={onChange}
-          required
           className={`w-full border-2 border-gray-200 rounded-xl px-4 py-3 ${
             icon ? "pl-12" : ""
-          } focus:border-[#800000] focus:ring-2 focus:ring-[#800000]/20 outline-none transition-all hover:border-gray-300 appearance-none bg-white cursor-pointer`}
+          } text-gray-900 placeholder-gray-400 focus:border-[#800000] focus:ring-2 focus:ring-[#800000]/20 outline-none transition-all hover:border-gray-300 appearance-none bg-white cursor-pointer`}
         >
           <option value="">Pilih {label}</option>
-          {options.map((option, index) => (
-            <option key={index} value={option}>
+          {options.map((option, i) => (
+            <option key={i} value={option}>
               {option}
             </option>
           ))}
         </select>
-        <div className="absolute right-4 top-1/2 -translate-y-1/2 pointer-events-none">
-          <svg className="w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
-          </svg>
-        </div>
       </div>
     </div>
   );
 }
 
-function TextAreaField({ label, name, value, onChange, placeholder, icon, rows = "4" }) {
+function TextAreaField({ label, name, value, onChange, placeholder, rows = "4" }) {
   return (
     <div>
-      <label className="block text-sm font-semibold text-gray-700 mb-2">
-        {label}
-      </label>
-      <div className="relative">
-        {icon && (
-          <div className="absolute left-4 top-4 z-10">
-            {icon}
-          </div>
-        )}
-        <textarea
-          name={name}
-          value={value}
-          onChange={onChange}
-          required
-          rows={rows}
-          placeholder={placeholder}
-          className={`w-full border-2 border-gray-200 rounded-xl px-4 py-3 ${
-            icon ? "pl-12" : ""
-          } focus:border-[#800000] focus:ring-2 focus:ring-[#800000]/20 outline-none transition-all hover:border-gray-300 resize-none`}
-        />
-      </div>
+      <label className="block text-sm font-semibold text-gray-700 mb-2">{label}</label>
+      <textarea
+        name={name}
+        value={value || ""}
+        onChange={onChange}
+        rows={rows}
+        placeholder={placeholder}
+        className="w-full border-2 border-gray-200 rounded-xl px-4 py-3 text-gray-900 placeholder-gray-400 focus:border-[#800000] focus:ring-2 focus:ring-[#800000]/20 outline-none transition-all hover:border-gray-300 resize-none"
+      />
     </div>
   );
 }

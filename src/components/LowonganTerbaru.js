@@ -10,6 +10,26 @@ import {
 } from "lucide-react";
 import { useEffect, useState } from "react";
 
+// Fungsi untuk format tanggal Indonesia 
+function formatTanggal(tanggal) {
+  if (!tanggal) return "-";
+  try {
+    const date = new Date(tanggal);
+    if (isNaN(date)) return tanggal;
+
+    // Konversi ke WIB (+7 jam)
+    const localDate = new Date(date.getTime() + 7 * 60 * 60 * 1000);
+
+    // Format ke bahasa Indonesia
+    return localDate.toLocaleDateString("id-ID", {
+      day: "2-digit",
+      month: "long",
+      year: "numeric",
+    });
+  } catch (e) {
+    return tanggal;
+  }
+}
 export default function LowonganTerbaru() {
   const [lowongan, setLowongan] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -152,7 +172,7 @@ export default function LowonganTerbaru() {
                       <span className="text-gray-600">
                         Tutup:{" "}
                         <span className="font-medium text-gray-700">
-                          {job.tanggal_ditutup}
+                          {formatTanggal(job.tanggal_ditutup)}
                         </span>
                       </span>
                     </div>
