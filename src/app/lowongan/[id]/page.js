@@ -79,6 +79,41 @@ export default function DetailLowongan() {
       </div>
     );
 
+  const handleLamar = async () => {
+    const user = JSON.parse(localStorage.getItem("user"));
+
+    // Jika belum login → redirect
+    if (!user) {
+      alert("Silakan login terlebih dahulu untuk melamar.");
+      router.push("/loginMhs");
+      return;
+    }
+
+    try {
+      const res = await fetch("/api/lamar", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          id_lowongan: lowongan.id_lowongan,
+          id_pencari_kerja: user.nim,
+        }),
+      });
+
+      const data = await res.json();
+
+      if (data.success) {
+        alert("Lamaran berhasil dikirim!");
+      } else if (data.already) {
+        alert("Anda sudah melamar lowongan ini sebelumnya.");
+      } else {
+        alert("Gagal mengirim lamaran. Silakan coba lagi.");
+      }
+    } catch (error) {
+      console.error("Error melamar:", error);
+      alert("Terjadi kesalahan saat mengirim lamaran.");
+    }
+  };
+
   return (
     <div className="min-h-screen bg-gradient-to-br from-gray-50 via-white to-gray-50 py-8 px-4 sm:px-6 lg:px-8">
       <div className="max-w-4xl mx-auto">
@@ -183,7 +218,10 @@ export default function DetailLowongan() {
                 <ExternalLink className="w-5 h-5 group-hover:translate-x-1 transition-transform" />
               </a>
             ) : (
-              <button className="group relative w-full inline-flex items-center justify-center gap-2 bg-gradient-to-r from-[#800000] to-[#a00000] hover:from-[#5c0000] hover:to-[#800000] text-white py-4 px-8 rounded-2xl font-semibold text-lg shadow-lg hover:shadow-xl transition-all duration-300 transform hover:-translate-y-0.5">
+              <button
+                onClick={handleLamar}
+                className="group relative w-full inline-flex items-center justify-center gap-2 bg-gradient-to-r from-[#800000] to-[#a00000] hover:from-[#5c0000] hover:to-[#800000] text-white py-4 px-8 rounded-2xl font-semibold text-lg shadow-lg hover:shadow-xl transition-all duration-300 transform hover:-translate-y-0.5"
+              >
                 <span>Lamar Sekarang</span>
                 <ExternalLink className="w-5 h-5 group-hover:translate-x-1 transition-transform" />
               </button>
