@@ -2,61 +2,66 @@ import { NextResponse } from "next/server";
 import mysql from "mysql2/promise";
 
 export async function GET(req) {
-    let db;
-    try {
+  try {
     const { searchParams } = new URL(req.url);
+
     const keyword = searchParams.get("keyword") || "";
     const lokasi = searchParams.get("lokasi") || "";
-    const kategori = searchParams.get("kategori") || "";
+    const kategori = searchParams.get("kategori") || ""; // kategori dipakai sebagai tipe_pekerjaan
 
-    db = await mysql.createConnection({
-        host: "localhost",
-        user: "root",
-        password: "",
-        database: "getjob_db",
+    const db = await mysql.createConnection({
+      host: "localhost",
+      user: "root",
+      password: "",
+      database: "getjob_db",
     });
 
     let query = `
-        SELECT 
-        l.id_lowongan,
-        l.nama_posisi,
-        l.lokasi,
-        l.gaji,
-        l.tanggal_ditutup,
-        a.nama_perusahaan
-        FROM lowongan_kerja l
-        JOIN admin_perusahaan a ON l.id_admin = a.id_admin
-        WHERE 1=1
+      SELECT 
+        lk.*, 
+        ap.nama_perusahaan,
+        ap.logo_url
+      FROM lowongan_kerja lk
+      JOIN admin_perusahaan ap ON lk.id_admin = ap.id_admin
+      WHERE 1 = 1
     `;
-    const params = [];
 
+    let params = [];
+
+    // Filter Keyword -> cari di nama_posisi, deskripsi, kualifikasi
     if (keyword) {
-        query += ` AND (l.nama_posisi LIKE ? OR a.nama_perusahaan LIKE ?)`;
-        params.push(`%${keyword}%`, `%${keyword}%`);
+      query += ` 
+        AND (
+          lk.nama_posisi LIKE ?
+          OR lk.deskripsi_pekerjaan LIKE ?
+          OR lk.kualifikasi LIKE ?
+        )
+      `;
+      params.push(`%${keyword}%`, `%${keyword}%`, `%${keyword}%`);
     }
 
+    // Filter Lokasi
     if (lokasi && lokasi !== "Semua Lokasi") {
-        query += ` AND l.lokasi LIKE ?`;
-        params.push(`%${lokasi}%`);
+      query += ` AND lk.lokasi = ? `;
+      params.push(lokasi);
     }
 
+    // Filter Kategori -> sebenarnya = tipe_pekerjaan
     if (kategori && kategori !== "Semua Pekerjaan") {
-        query += ` AND l.nama_posisi LIKE ?`;
-        params.push(`%${kategori}%`);
+      query += ` AND lk.tipe_pekerjaan = ? `;
+      params.push(kategori);
     }
-
-    query += ` ORDER BY l.tanggal_ditutup ASC`;
 
     const [rows] = await db.execute(query, params);
+    await db.end();
 
     return NextResponse.json({ success: true, data: rows });
-    } catch (error) {
-    console.error("❌ Error /api/cariLowongan:", error);
+
+  } catch (error) {
+    console.error("API Cari Lowongan Error:", error);
     return NextResponse.json(
-        { success: false, message: "Gagal memuat data!", error: error.message },
-        { status: 500 }
+      { success: false, message: "Gagal memuat hasil pencarian.", error: error.message },
+      { status: 500 }
     );
-    } finally {
-    if (db) await db.end().catch(() => {});
-    }
+  }
 }

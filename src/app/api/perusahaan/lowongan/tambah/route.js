@@ -3,8 +3,8 @@ import mysql from "mysql2/promise";
 
 export async function POST(req) {
   try {
-    // Ambil data dari body JSON
     const body = await req.json();
+
     const {
       nama_posisi,
       deskripsi_pekerjaan,
@@ -12,17 +12,21 @@ export async function POST(req) {
       gaji,
       lokasi,
       tanggal_ditutup,
-      external_url, // ✅ tambahkan field baru
+      tipe_pekerjaan,
+      tingkat_pengalaman,
+      external_url,
     } = body;
 
-    // ✅ Validasi input wajib
+    // VALIDASI WAJIB
     if (
       !nama_posisi ||
       !deskripsi_pekerjaan ||
       !kualifikasi ||
       !gaji ||
       !lokasi ||
-      !tanggal_ditutup
+      !tanggal_ditutup ||
+      !tipe_pekerjaan ||
+      !tingkat_pengalaman
     ) {
       return NextResponse.json(
         { success: false, message: "Semua field wajib diisi." },
@@ -30,13 +34,13 @@ export async function POST(req) {
       );
     }
 
-    // ✅ Validasi URL (kalau diisi)
+    // VALIDASI URL (opsional)
     let linkFinal = null;
     if (external_url) {
       try {
         const parsed = new URL(external_url);
-        if (parsed.protocol !== "http:" && parsed.protocol !== "https:") {
-          throw new Error("URL tidak valid");
+        if (!["http:", "https:"].includes(parsed.protocol)) {
+          throw new Error("Invalid URL");
         }
         linkFinal = external_url;
       } catch {
@@ -47,23 +51,26 @@ export async function POST(req) {
       }
     }
 
-    // ✅ Koneksi ke database MySQL
     const db = await mysql.createConnection({
       host: "localhost",
       user: "root",
-      password: "", // isi kalau MySQL kamu pakai password
+      password: "",
       database: "getjob_db",
     });
 
-    // ✅ Data tambahan otomatis
-    const tanggal_dibuka = new Date().toISOString().split("T")[0]; // format YYYY-MM-DD
-    const id_admin = 1; // sementara, nanti ambil dari session login perusahaan
+    // auto generate tanggal dibuka
+    const tanggal_dibuka = new Date().toISOString().split("T")[0];
 
-    // ✅ Query INSERT (tambahkan kolom external_url)
+    // sementara (belum ambil dari session perusahaan)
+    const id_admin = 1;
+
+    // INSERT (sudah ditambahkan kolom baru)
     await db.query(
       `INSERT INTO lowongan_kerja 
-      (id_admin, nama_posisi, tanggal_dibuka, tanggal_ditutup, deskripsi_pekerjaan, kualifikasi, gaji, lokasi, external_url)
-      VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+        (id_admin, nama_posisi, tanggal_dibuka, tanggal_ditutup,
+         deskripsi_pekerjaan, kualifikasi, gaji, lokasi,
+         tipe_pekerjaan, tingkat_pengalaman, external_url)
+      VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
       [
         id_admin,
         nama_posisi,
@@ -73,7 +80,9 @@ export async function POST(req) {
         kualifikasi,
         gaji,
         lokasi,
-        linkFinal, // ✅ simpan link eksternal
+        tipe_pekerjaan,
+        tingkat_pengalaman,
+        linkFinal,
       ]
     );
 
@@ -81,7 +90,7 @@ export async function POST(req) {
 
     return NextResponse.json({
       success: true,
-      message: "✅ Lowongan berhasil ditambahkan!",
+      message: "Lowongan berhasil ditambahkan!",
     });
   } catch (err) {
     console.error("❌ Error tambah lowongan:", err);

@@ -5,7 +5,7 @@ import { FaEye, FaEyeSlash } from "react-icons/fa";
 import { ArrowLeft } from "lucide-react";
 
 export default function PengaturanPage() {
-  const { data: session, status, update } = useSession();
+  const { data: session, status} = useSession();
 
 
   const [formData, setFormData] = useState({

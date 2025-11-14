@@ -43,17 +43,20 @@ export default function Topbar() {
                 placeholder="Cari pekerjaan atau perusahaan"
                 value={keyword}
                 onChange={(e) => setKeyword(e.target.value)}
-                className="w-full pl-11 pr-4 py-2.5 border border-slate-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-red-500 focus:border-transparent transition bg-white hover:border-slate-400 text-sm"
+                className="w-full pl-11 pr-4 py-2.5 border border-slate-300 rounded-xl 
+                focus:outline-none focus:ring-2 focus:ring-red-500 
+                focus:border-transparent transition bg-white hover:border-slate-400 
+                text-sm text-gray-800 placeholder:text-gray-800"
               />
-            </div>
+          </div>
 
             {/* Location Filter */}
             <div className="relative hidden md:block min-w-[180px]">
-              <MapPin className="absolute left-3 top-1/2 transform -translate-y-1/2 w-5 h-5 text-gray-400" />
+              <MapPin className="absolute left-3 top-1/2 transform -translate-y-1/2 w-5 h-5 text-black" />
               <select
                 value={lokasi}
                 onChange={(e) => setLokasi(e.target.value)}
-                className="w-full pl-11 pr-4 py-2.5 border border-slate-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-red-500 focus:border-transparent transition bg-white hover:border-slate-400 appearance-none text-sm cursor-pointer"
+                className="w-full pl-11 pr-4 py-2.5 border border-slate-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-red-500 focus:border-transparent transition bg-white hover:border-slate-400 appearance-none text-sm cursor-pointer text-gray-700"
               >
                 <option>Semua Lokasi</option>
                 <option>Jakarta</option>
@@ -66,7 +69,7 @@ export default function Topbar() {
             </div>
 
             {/* Job Category Filter */}
-            <div className="relative hidden lg:block min-w-[200px]">
+            <div className="relative hidden lg:block min-w-[200px] text-gray-700">
               <Briefcase className="absolute left-3 top-1/2 transform -translate-y-1/2 w-5 h-5 text-gray-400" />
               <select
                 value={kategori}
