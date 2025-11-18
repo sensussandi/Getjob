@@ -19,7 +19,7 @@ export default function ClientLayout({ children }) {
     "/editProfileMHS",
     "/dashboardPerusahaan/pengaturan",
     "/dashboardPerusahaan/lowongan/tambah",
-    "/dashboardAdmin/pencaker/tambah",
+    "/dashboardAdmin/Pencaker/tambah",
     "/dashboardAdmin/perusahaan/tambah",
   ];
 

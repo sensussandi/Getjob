@@ -60,7 +60,7 @@ export default function TambahPerusahaanPage() {
           <h1 className="text-2xl font-bold text-gray-800">Tambah Data Perusahaan</h1>
           <button
             onClick={() => router.back()}
-            className="flex items-center gap-2 text-black-600 hover:text-[#800000]"
+            className="flex items-center gap-2 text-gray-600 hover:text-[#800000]"
           >
             <ArrowLeft className="w-4 h-4" /> Kembali
           </button>
@@ -108,7 +108,7 @@ function Input({ label, name, value, onChange, type = "text", required }) {
         value={value}
         onChange={onChange}
         required={required}
-        className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-[#800000] focus:border-[#800000] outline-none"
+        className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-[#800000] focus:border-[#800000] outline-none text-black placeholder:text-black"
       />
     </div>
   );

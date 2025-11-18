@@ -1,6 +1,7 @@
 "use client";
 import { useState } from "react";
 import { useRouter } from "next/navigation";
+import { ArrowLeft} from "lucide-react";
 import {
   Briefcase,
   MapPin,
@@ -184,7 +185,9 @@ export default function TambahLowongan() {
             </button>
           </div>
         </div>
-
+<button onClick={() => router.back()}
+            className="flex items-center gap-2 text-gray-600 hover:text-[#800000]">
+            <ArrowLeft className="w-4 h-4" /> Kembali </button>
         {/* Form Container */}
         <div className="bg-white shadow-xl rounded-2xl overflow-hidden">
           <form onSubmit={handleSubmit}>
@@ -194,7 +197,8 @@ export default function TambahLowongan() {
                 <Building2 className="w-5 h-5 text-[#800000]" />
                 Informasi Dasar
               </h2>
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6 text-black placeholder:text-black">
                 {/* Nama Posisi */}
                 <div className="md:col-span-2">
                   <InputField
@@ -239,8 +243,8 @@ export default function TambahLowongan() {
             </div>
 
             {/* Section 2: Deskripsi & Kualifikasi */}
-            <div className="p-8 bg-gray-50 border-b border-gray-100">
-              <h2 className="text-xl font-bold text-gray-800 mb-6 flex items-center gap-2">
+            <div className="p-8 bg-gray-50 border-b border-gray-100 text-black placeholder:text-black">
+              <h2 className="text-xl font-bold text-gray-800 mb-6 flex items-center gap-2 text-black placeholder:text-black">
                 <FileText className="w-5 h-5 text-[#800000]" />
                 Deskripsi & Kualifikasi
               </h2>
@@ -269,8 +273,8 @@ export default function TambahLowongan() {
             </div>
 
             {/* Section 3: Kompensasi & Lokasi */}
-            <div className="p-8">
-              <h2 className="text-xl font-bold text-gray-800 mb-6 flex items-center gap-2">
+            <div className="p-8 text-black placeholder:text-black">
+              <h2 className="text-xl font-bold text-gray-800 mb-6 flex items-center gap-2 text-black placeholder:text-black">
                 <DollarSign className="w-5 h-5 text-[#800000]" />
                 Kompensasi & Lokasi
               </h2>
