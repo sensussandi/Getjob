@@ -64,7 +64,7 @@ export default function LoginPerusahaan() {
                   placeholder="Masukkan email perusahaan"
                   value={form.email}
                   onChange={(e) => setForm({ ...form, email: e.target.value })}
-                  className="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-lg outline-none focus:border-[#7a0d0d] focus:ring-1 focus:ring-[#7a0d0d] transition-all"
+                  className="w-full pl-10 pr-4 py-3 border text-black placeholder-gray-300 rounded-lg outline-none focus:border-[#7a0d0d] focus:ring-1 focus:ring-[#7a0d0d] transition-all"
                   required
                 />
               </div>
@@ -82,7 +82,7 @@ export default function LoginPerusahaan() {
                   placeholder="Masukkan password"
                   value={form.password}
                   onChange={(e) => setForm({ ...form, password: e.target.value })}
-                  className="w-full pl-10 pr-12 py-3 border border-gray-300 rounded-lg outline-none focus:border-[#7a0d0d] focus:ring-1 focus:ring-[#7a0d0d] transition-all"
+                  className="w-full pl-10 pr-12 py-3 border text-black placeholder-gray-300 rounded-lg outline-none focus:border-[#7a0d0d] focus:ring-1 focus:ring-[#7a0d0d] transition-all"
                   required
                 />
                 <button

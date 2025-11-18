@@ -60,7 +60,7 @@ export default function TambahPerusahaanPage() {
           <h1 className="text-2xl font-bold text-gray-800">Tambah Data Perusahaan</h1>
           <button
             onClick={() => router.back()}
-            className="flex items-center gap-2 text-gray-600 hover:text-[#800000]"
+            className="flex items-center gap-2 text-black-600 hover:text-[#800000]"
           >
             <ArrowLeft className="w-4 h-4" /> Kembali
           </button>

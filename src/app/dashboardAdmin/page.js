@@ -37,7 +37,7 @@ export default function DashboardAdmin() {
         const [perusahaanRes, pencakerRes, lowonganRes] = await Promise.all([
           fetch("/api/admin/perusahaan").then((r) => r.json()),
           fetch("/api/admin/pencaker").then((r) => r.json()),
-          fetch("/api/admin/lowongan").then((r) => r.json()),
+          fetch("/api/lowongan").then((r) => r.json()),
         ]);
 
         const perusahaan = perusahaanRes.data || [];
@@ -232,7 +232,7 @@ function LowonganSection({ dataLowongan, router }) {
       <div className="flex justify-between items-center px-6 py-4 border-b border-gray-100 bg-gray-50">
         <h3 className="text-xl font-bold text-gray-800">Data Lowongan Kerja</h3>
         <button
-          onClick={() => router.push("/dashboardAdmin/lowongan/tambah")}
+          onClick={() => router.push("/dashboardPerusahaan/lowongan/tambah")}
           className="bg-[#800000] text-white px-4 py-2 rounded-lg hover:bg-[#a00000] flex items-center gap-2"
         >
           <Plus className="w-4 h-4" /> Tambah
