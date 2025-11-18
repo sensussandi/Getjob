@@ -26,6 +26,8 @@ function formatTanggal(tanggal) {
 
     // Sesuaikan zona waktu WIB (+7 jam)
     const localDate = new Date(date.getTime() + 7 * 60 * 60 * 1000);
+    const perusahaanLogin = JSON.parse(localStorage.getItem("perusahaan"));
+
 
     // Format ke bahasa Indonesia
     return localDate.toLocaleDateString("id-ID", {

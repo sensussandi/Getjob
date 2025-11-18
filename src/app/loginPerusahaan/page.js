@@ -23,7 +23,7 @@ export default function LoginPerusahaan() {
 
     if (res.ok && data.success) {
       // Simpan user ke localStorage
-      localStorage.setItem("user", JSON.stringify(data.data));
+      localStorage.setItem("perusahaan", "user", JSON.stringify(data.data));
       localStorage.setItem("isLoggedIn", "true");
 
       // Redirect sesuai role
