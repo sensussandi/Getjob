@@ -12,6 +12,7 @@ import {
   Users,
   X,
   Save,
+  Trash2,
 } from "lucide-react";
 
 export default function EditLowongan() {
@@ -29,25 +30,44 @@ export default function EditLowongan() {
     tipe_pekerjaan: "",
     tingkat_pengalaman: "",
     external_url: "",
+    prodi: "",
   });
 
   // 🔹 Ambil data lama dari database
   useEffect(() => {
+    if (!id) return;
+    
     const fetchData = async () => {
       try {
         const res = await fetch(`/api/lowongan/${id}`);
+        
+        if (!res.ok) {
+            throw new Error(`Gagal mengambil data. Status: ${res.status}`);
+        }
+
         const data = await res.json();
+        
         if (data.success && data.data) {
-          setForm(data.data);
+            const formattedData = {
+                ...data.data,
+                tanggal_ditutup: data.data.tanggal_ditutup ? new Date(data.data.tanggal_ditutup).toISOString().split('T')[0] : '',
+                external_url: data.data.external_url || '', 
+            };
+            setForm(formattedData);
+        } else {
+            alert("❌ Lowongan tidak ditemukan atau data kosong.");
+            router.push("/dashboardPerusahaan");
         }
       } catch (error) {
         console.error("Gagal mengambil data lowongan:", error);
+        alert("⚠️ Terjadi kesalahan saat memuat data.");
+        router.push("/dashboardPerusahaan");
       } finally {
         setLoading(false);
       }
     };
     fetchData();
-  }, [id]);
+  }, [id, router]);
 
   // 🔹 Update field
   const handleChange = (e) => {
@@ -59,21 +79,28 @@ export default function EditLowongan() {
   const handleSubmit = async (e) => {
     e.preventDefault();
     setIsSubmitting(true);
+    
+    const payload = {
+        ...form,
+        external_url: form.external_url.trim() === "" ? null : form.external_url,
+    };
+
     try {
       const res = await fetch(`/api/lowongan/update/${id}`, {
         method: "PUT",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(form),
+        body: JSON.stringify(payload),
       });
       const data = await res.json();
+      
       if (res.ok && data.success) {
         alert("✅ Lowongan berhasil diperbarui!");
         router.push("/dashboardPerusahaan");
       } else {
-        alert(data.message || "❌ Gagal memperbarui lowongan.");
+        alert(data.message || "❌ Gagal memperbarui lowongan. Silakan coba lagi.");
       }
     } catch (error) {
-      alert("⚠️ Terjadi kesalahan saat update.");
+      alert("⚠️ Terjadi kesalahan saat update data.");
       console.error(error);
     } finally {
       setIsSubmitting(false);
@@ -82,17 +109,18 @@ export default function EditLowongan() {
 
   // 🔹 Hapus lowongan
   const handleDelete = async () => {
-    if (confirm("⚠️ Apakah Anda yakin ingin menghapus lowongan ini?")) {
+    if (confirm(`⚠️ Anda yakin ingin menghapus lowongan "${form.nama_posisi}"? Aksi ini tidak bisa dibatalkan.`)) {
       try {
         const res = await fetch(`/api/lowongan/delete/${id}`, {
           method: "DELETE",
         });
         const data = await res.json();
+        
         if (res.ok && data.success) {
           alert("🗑️ Lowongan berhasil dihapus!");
           router.push("/dashboardPerusahaan");
         } else {
-          alert(data.message || "❌ Gagal menghapus lowongan.");
+          alert(data.message || "❌ Gagal menghapus lowongan. Silakan coba lagi.");
         }
       } catch (err) {
         console.error("Gagal menghapus:", err);
@@ -129,15 +157,73 @@ export default function EditLowongan() {
 
   const tipePekerjaan = ["Full-time", "Part-time", "Contract", "Internship", "Freelance"];
   const tingkatPengalaman = ["Entry Level", "Junior", "Mid Level", "Senior", "Lead/Manager"];
+  
+  // ⭐️ PROGRAM STUDI
+  const daftarProdi = [
+    // ====== D3 ======
+    "D3 Bahasa Inggris",
+    "D3 Sekretari",
+    "D3 Perpustakaan",
+    "D3 Teknik Elektronika",
 
+    // ====== S1 ======
+    "S1 Akuntansi",
+    "S1 Arsitektur",
+    "S1 Biologi",
+    "S1 Bimbingan dan Konseling",
+    "S1 Farmasi",
+    "S1 Fisika",
+    "S1 Ilmu Komunikasi",
+    "S1 Keperawatan",
+    "S1 Kimia",
+    "S1 Matematika",
+    "S1 Manajemen",
+    "S1 Pendidikan Akuntansi",
+    "S1 Pendidikan Bahasa Inggris",
+    "S1 Pendidikan Bahasa Jawa",
+    "S1 Pendidikan Bahasa dan Sastra Indonesia",
+    "S1 Pendidikan Biologi",
+    "S1 Pendidikan Fisika",
+    "S1 Pendidikan Guru SD (PGSD)",
+    "S1 Pendidikan Kimia",
+    "S1 Pendidikan Matematika",
+    "S1 Pendidikan Musik",
+    "S1 Pendidikan Sejarah",
+    "S1 Pendidikan Teologi",
+    "S1 Psikologi",
+    "S1 Sastra Inggris",
+    "S1 Sastra Indonesia",
+    "S1 Sastra Jepang",
+    "S1 Sistem Informasi",
+    "S1 Teknik Elektro",
+    "S1 Teknik Informatika",
+    "S1 Teknologi Pangan",
+    "S1 Teologi",
+
+    // ====== S2 ======
+    "S2 Kajian Bahasa Inggris",
+    "S2 Kajian Bahasa dan Budaya Indonesia",
+    "S2 Pendidikan Bahasa Inggris",
+    "S2 Ilmu Religi dan Budaya",
+    "S2 Pendidikan Teologi",
+    "S2 Manajemen Pendidikan",
+    "S2 Kajian Bahasa dan Budaya Jawa",
+
+    // ====== S3 ======
+    "S3 Kajian Ilmu Pendidikan",
+    "S3 Kajian Budaya",
+  ];
+    // AKHIR PROGRAM STUDI
+
+  // 🔹 Loading State
   if (loading)
     return (
-      <div className="flex flex-col items-center justify-center min-h-screen text-gray-600">
+      <div className="flex flex-col items-center justify-center min-h-screen text-gray-600 bg-gray-50">
         <div className="w-10 h-10 border-4 border-gray-200 border-t-[#800000] rounded-full animate-spin mb-3"></div>
         Memuat data lowongan...
       </div>
     );
-
+    
   return (
     <div className="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100 py-8 px-4">
       <div className="max-w-5xl mx-auto">
@@ -186,6 +272,19 @@ export default function EditLowongan() {
                     icon={<Briefcase className="w-5 h-5 text-gray-400" />}
                   />
                 </div>
+                
+                {/* ⭐️ FIELD PRODI BARU DITAMBAHKAN */}
+                <div className="md:col-span-2">
+                    <SelectField
+                    label="Latar Belakang Pendidikan"
+                    name="latar_belakang_pendidikan"
+                    value={form.prodi}
+                    onChange={handleChange}
+                    options={daftarProdi}
+                    icon={<FileText className="w-5 h-5 text-gray-400" />}
+                    />
+                </div>
+                {/* AKHIR FIELD PRODI BARU */}
 
                 <SelectField
                   label="Tipe Pekerjaan"
@@ -290,9 +389,9 @@ export default function EditLowongan() {
               <button
                 type="button"
                 onClick={handleDelete}
-                className="flex-1 border-2 border-red-500 text-red-600 hover:bg-red-50 py-3 rounded-xl font-semibold transition-all"
+                className="flex-1 border-2 border-red-500 text-red-600 hover:bg-red-50 py-3 rounded-xl font-semibold transition-all flex items-center justify-center gap-2"
               >
-                Hapus Lowongan
+                <Trash2 className="w-5 h-5" /> Hapus Lowongan
               </button>
 
               <button
@@ -319,7 +418,7 @@ export default function EditLowongan() {
   );
 }
 
-/* ==== Komponen Reusable ==== */
+/* ==== Komponen Reusable (Tidak ada perubahan) ==== */
 function InputField({ label, name, value, onChange, type = "text", placeholder, icon }) {
   return (
     <div>
