@@ -1,9 +1,9 @@
 import { NextResponse } from "next/server";
 import mysql from "mysql2/promise";
 
-export async function GET() {
+export async function GET(req) {
   try {
-    // ✅ 1. Koneksi database
+    // CONNECT DB
     const db = await mysql.createConnection({
       host: "localhost",
       user: "root",
@@ -11,21 +11,38 @@ export async function GET() {
       database: "getjob_db",
     });
 
-    // ✅ 2. Ambil profil perusahaan
-    const [adminRes] = await db.query(`
+    const { searchParams } = new URL(req.url);
+    const id_admin = searchParams.get("id_admin");
+
+    if (!id_admin) {
+      return NextResponse.json({ success: false, message: "ID admin wajib dikirim" });
+    }
+
+    // -------------------------
+    // 1. DATA ADMIN PERUSAHAAN
+    // -------------------------
+    const [adminRes] = await db.query(
+      `
       SELECT 
+        id_admin,
         nama_perusahaan,
         alamat_perusahaan,
         email_perusahaan AS email,
         tentang_perusahaan,
         logo_url
       FROM admin_perusahaan
-      LIMIT 1
-    `);
+      WHERE id_admin = ?
+      `,
+      [id_admin]
+    );
+
     const admin = adminRes[0];
 
-    // ✅ 3. Ambil data lowongan kerja
-    const [lowongan] = await db.query(`
+    // -------------------------
+    // 2. LOWONGAN PERUSAHAAN
+    // -------------------------
+    const [lowongan] = await db.query(
+      `
       SELECT 
         id_lowongan,
         nama_posisi,
@@ -33,35 +50,57 @@ export async function GET() {
         deskripsi_pekerjaan,
         tanggal_ditutup
       FROM lowongan_kerja
+      WHERE id_admin = ?
       ORDER BY id_lowongan DESC
-      LIMIT 10
-    `);
+      `,
+      [id_admin]
+    );
 
-    // ✅ 4. Ambil pelamar terbaru
-    const [pelamar] = await db.query(`
+    // -------------------------
+    // 3. PELAMAR TERBARU
+    // -------------------------
+    const [pelamar] = await db.query(
+      `
       SELECT 
-        id_pendaftaran AS id,
-        status_pendaftaran AS status,
-        tanggal_daftar AS tanggal_input
-      FROM mendaftar
-      ORDER BY tanggal_daftar DESC
+        m.id_pendaftaran AS id,
+        m.status_pendaftaran AS status,
+        m.tanggal_daftar AS tanggal_input,
+        p.nama_lengkap AS nama_pelamar,
+        l.nama_posisi
+      FROM mendaftar m
+      JOIN pencari_kerja p ON m.nim = p.nim
+      JOIN lowongan_kerja l ON m.id_lowongan = l.id_lowongan
+      WHERE l.id_admin = ?
+      ORDER BY m.tanggal_daftar DESC
       LIMIT 5
-    `);
+      `,
+      [id_admin]
+    );
 
-    // ✅ 5. Statistik sederhana
-    const [statsRes] = await db.query(`
+    // -------------------------
+    // 4. STATISTIK
+    // -------------------------
+    const [statsRes] = await db.query(
+      `
       SELECT
-        (SELECT COUNT(*) FROM lowongan_kerja) AS totalLowongan,
-        (SELECT COUNT(*) FROM lowongan_kerja) AS lowonganAktif,
-        (SELECT COUNT(*) FROM mendaftar) AS totalPelamar,
-        (SELECT COUNT(*) FROM mendaftar WHERE DATE(tanggal_daftar) = CURDATE()) AS pelamarBaru
-    `);
+        (SELECT COUNT(*) FROM lowongan_kerja WHERE id_admin = ?) AS totalLowongan,
+        (SELECT COUNT(*) FROM mendaftar m 
+          JOIN lowongan_kerja l 
+          ON m.id_lowongan = l.id_lowongan 
+          WHERE l.id_admin = ?) AS totalPelamar,
+        (SELECT COUNT(*) FROM mendaftar m 
+          JOIN lowongan_kerja l 
+          ON m.id_lowongan = l.id_lowongan 
+          WHERE l.id_admin = ? 
+          AND DATE(m.tanggal_daftar) = CURDATE()) AS pelamarBaru
+      `,
+      [id_admin, id_admin, id_admin]
+    );
+
     const stats = statsRes[0];
 
-    // ✅ 6. Tutup koneksi database
     await db.end();
 
-    // ✅ 7. Kirim semua hasil ke frontend
     return NextResponse.json({
       success: true,
       admin,
@@ -69,7 +108,6 @@ export async function GET() {
       pelamar,
       stats,
     });
-
   } catch (err) {
     console.error("❌ ERROR DASHBOARD:", err);
     return NextResponse.json(
