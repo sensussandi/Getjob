@@ -85,7 +85,7 @@ export async function GET(req) {
       SELECT
         (SELECT COUNT(*) FROM lowongan_kerja WHERE id_admin = ?) AS totalLowongan,
         -- Jumlah lowongan aktif (bisa disamakan, tapi disiapkan kalau nanti kamu ingin beda kriteria)
-        (SELECT COUNT(*) FROM lowongan_kerja WHERE tanggal_ditutup >= CURDATE() ) AS lowonganAktif,
+        (SELECT COUNT(*) FROM lowongan_kerja WHERE id_admin = ? AND tanggal_ditutup >= CURDATE() ) AS lowonganAktif,
         (SELECT COUNT(*) FROM mendaftar m 
           JOIN lowongan_kerja l 
           ON m.id_lowongan = l.id_lowongan 
@@ -96,7 +96,7 @@ export async function GET(req) {
           WHERE l.id_admin = ? 
           AND DATE(m.tanggal_daftar) = CURDATE()) AS pelamarBaru
       `,
-      [id_admin, id_admin, id_admin]
+      [id_admin, id_admin, id_admin, id_admin]
     );
 
     const stats = statsRes[0];
