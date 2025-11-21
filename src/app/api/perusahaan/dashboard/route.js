@@ -84,6 +84,8 @@ export async function GET(req) {
       `
       SELECT
         (SELECT COUNT(*) FROM lowongan_kerja WHERE id_admin = ?) AS totalLowongan,
+        -- Jumlah lowongan aktif (bisa disamakan, tapi disiapkan kalau nanti kamu ingin beda kriteria)
+        (SELECT COUNT(*) FROM lowongan_kerja WHERE tanggal_ditutup >= CURDATE() ) AS lowonganAktif,
         (SELECT COUNT(*) FROM mendaftar m 
           JOIN lowongan_kerja l 
           ON m.id_lowongan = l.id_lowongan 
