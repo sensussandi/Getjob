@@ -1,6 +1,7 @@
 "use client";
 import { useState } from "react";
 import { useRouter } from "next/navigation";
+import { ArrowLeft} from "lucide-react";
 import {
   Briefcase,
   MapPin,
@@ -25,6 +26,7 @@ export default function TambahLowongan() {
     tanggal_ditutup: "",
     tipe_pekerjaan: "Full-time",
     tingkat_pengalaman: "Entry Level",
+    prodi: "",
     external_url: "",
   });
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -85,9 +87,76 @@ export default function TambahLowongan() {
     "Remote",
   ];
 
-  const tipePekerjaan = ["Full-time", "Part-time", "Contract", "Internship", "Freelance"];
-  
-  const tingkatPengalaman = ["Entry Level", "Junior", "Mid Level", "Senior", "Lead/Manager"];
+  const tipePekerjaan = [
+    "Full-time",
+    "Part-time",
+    "Contract",
+    "Internship",
+    "Freelance",
+  ];
+
+  const tingkatPengalaman = [
+    "Entry Level",
+    "Junior",
+    "Mid Level",
+    "Senior",
+    "Lead/Manager",
+  ];
+
+  const daftarProdi = [
+    // ====== D3 ======
+    "D3 Bahasa Inggris",
+    "D3 Sekretari",
+    "D3 Perpustakaan",
+    "D3 Teknik Elektronika",
+
+    // ====== S1 ======
+    "S1 Akuntansi",
+    "S1 Arsitektur",
+    "S1 Biologi",
+    "S1 Bimbingan dan Konseling",
+    "S1 Farmasi",
+    "S1 Fisika",
+    "S1 Ilmu Komunikasi",
+    "S1 Keperawatan",
+    "S1 Kimia",
+    "S1 Matematika",
+    "S1 Manajemen",
+    "S1 Pendidikan Akuntansi",
+    "S1 Pendidikan Bahasa Inggris",
+    "S1 Pendidikan Bahasa Jawa",
+    "S1 Pendidikan Bahasa dan Sastra Indonesia",
+    "S1 Pendidikan Biologi",
+    "S1 Pendidikan Fisika",
+    "S1 Pendidikan Guru SD (PGSD)",
+    "S1 Pendidikan Kimia",
+    "S1 Pendidikan Matematika",
+    "S1 Pendidikan Musik",
+    "S1 Pendidikan Sejarah",
+    "S1 Pendidikan Teologi",
+    "S1 Psikologi",
+    "S1 Sastra Inggris",
+    "S1 Sastra Indonesia",
+    "S1 Sastra Jepang",
+    "S1 Sistem Informasi",
+    "S1 Teknik Elektro",
+    "S1 Teknik Informatika",
+    "S1 Teknologi Pangan",
+    "S1 Teologi",
+
+    // ====== S2 ======
+    "S2 Kajian Bahasa Inggris",
+    "S2 Kajian Bahasa dan Budaya Indonesia",
+    "S2 Pendidikan Bahasa Inggris",
+    "S2 Ilmu Religi dan Budaya",
+    "S2 Pendidikan Teologi",
+    "S2 Manajemen Pendidikan",
+    "S2 Kajian Bahasa dan Budaya Jawa",
+
+    // ====== S3 ======
+    "S3 Kajian Ilmu Pendidikan",
+    "S3 Kajian Budaya",
+  ];
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100 py-8 px-4">
@@ -102,7 +171,9 @@ export default function TambahLowongan() {
                 </div>
                 <div>
                   <h1 className="text-3xl font-bold">Buat Lowongan Baru</h1>
-                  <p className="text-white/90 text-sm mt-1">Lengkapi informasi lowongan pekerjaan Anda</p>
+                  <p className="text-white/90 text-sm mt-1">
+                    Lengkapi informasi lowongan pekerjaan Anda
+                  </p>
                 </div>
               </div>
             </div>
@@ -114,7 +185,9 @@ export default function TambahLowongan() {
             </button>
           </div>
         </div>
-
+<button onClick={() => router.back()}
+            className="flex items-center gap-2 text-gray-600 hover:text-[#800000]">
+            <ArrowLeft className="w-4 h-4" /> Kembali </button>
         {/* Form Container */}
         <div className="bg-white shadow-xl rounded-2xl overflow-hidden">
           <form onSubmit={handleSubmit}>
@@ -124,7 +197,8 @@ export default function TambahLowongan() {
                 <Building2 className="w-5 h-5 text-[#800000]" />
                 Informasi Dasar
               </h2>
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6 text-black placeholder:text-black">
                 {/* Nama Posisi */}
                 <div className="md:col-span-2">
                   <InputField
@@ -156,12 +230,21 @@ export default function TambahLowongan() {
                   options={tingkatPengalaman}
                   icon={<Users className="w-5 h-5 text-gray-400" />}
                 />
+
+                <SelectField
+                  label="Program Studi (Prodi)"
+                  name="prodi"
+                  value={form.prodi}
+                  onChange={handleChange}
+                  options={daftarProdi}
+                  icon={<GraduationCap className="w-5 h-5 text-gray-400" />}
+                />
               </div>
             </div>
 
             {/* Section 2: Deskripsi & Kualifikasi */}
-            <div className="p-8 bg-gray-50 border-b border-gray-100">
-              <h2 className="text-xl font-bold text-gray-800 mb-6 flex items-center gap-2">
+            <div className="p-8 bg-gray-50 border-b border-gray-100 text-black placeholder:text-black">
+              <h2 className="text-xl font-bold text-gray-800 mb-6 flex items-center gap-2 text-black placeholder:text-black">
                 <FileText className="w-5 h-5 text-[#800000]" />
                 Deskripsi & Kualifikasi
               </h2>
@@ -190,8 +273,8 @@ export default function TambahLowongan() {
             </div>
 
             {/* Section 3: Kompensasi & Lokasi */}
-            <div className="p-8">
-              <h2 className="text-xl font-bold text-gray-800 mb-6 flex items-center gap-2">
+            <div className="p-8 text-black placeholder:text-black">
+              <h2 className="text-xl font-bold text-gray-800 mb-6 flex items-center gap-2 text-black placeholder:text-black">
                 <DollarSign className="w-5 h-5 text-[#800000]" />
                 Kompensasi & Lokasi
               </h2>
@@ -216,23 +299,25 @@ export default function TambahLowongan() {
                   icon={<MapPin className="w-5 h-5 text-gray-400" />}
                 />
 
-                 {/* web perusahaan*/}
-                  <div className="md:col-span-2">
-                    <label className="block text-sm font-semibold text-gray-700 mb-2">
-                      Link Eksternal (Opsional)
-                    </label>
-                    <input
-                      type="url"
-                      name="external_url"
-                      placeholder="https://website-perusahaan.com/career/it-support"
-                      className="w-full border-2 border-gray-200 rounded-xl px-4 py-3 focus:border-[#800000] focus:ring-2 focus:ring-[#800000]/20 outline-none transition-all hover:border-gray-300"
-                      value={form.external_url || ""}
-                      onChange={(e) => setForm({ ...form, external_url: e.target.value })}
-                    />
-                    <p className="text-xs text-gray-500 mt-1">
-                      Jika diisi, pelamar akan diarahkan ke link ini.
-                    </p>
-                  </div>
+                {/* web perusahaan*/}
+                <div className="md:col-span-2">
+                  <label className="block text-sm font-semibold text-gray-700 mb-2">
+                    Link Eksternal (Opsional)
+                  </label>
+                  <input
+                    type="url"
+                    name="external_url"
+                    placeholder="https://website-perusahaan.com/career/it-support"
+                    className="w-full border-2 border-gray-200 rounded-xl px-4 py-3 focus:border-[#800000] focus:ring-2 focus:ring-[#800000]/20 outline-none transition-all hover:border-gray-300"
+                    value={form.external_url || ""}
+                    onChange={(e) =>
+                      setForm({ ...form, external_url: e.target.value })
+                    }
+                  />
+                  <p className="text-xs text-gray-500 mt-1">
+                    Jika diisi, pelamar akan diarahkan ke link ini.
+                  </p>
+                </div>
 
                 {/* Tanggal Penutupan */}
                 <div className="md:col-span-2">
@@ -294,7 +379,15 @@ export default function TambahLowongan() {
 }
 
 /* ==== Komponen Input Reusable ==== */
-function InputField({ label, name, value, onChange, type = "text", placeholder, icon }) {
+function InputField({
+  label,
+  name,
+  value,
+  onChange,
+  type = "text",
+  placeholder,
+  icon,
+}) {
   return (
     <div>
       <label className="block text-sm font-semibold text-gray-700 mb-2">
@@ -351,8 +444,18 @@ function SelectField({ label, name, value, onChange, options, icon }) {
           ))}
         </select>
         <div className="absolute right-4 top-1/2 -translate-y-1/2 pointer-events-none">
-          <svg className="w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+          <svg
+            className="w-5 h-5 text-gray-400"
+            fill="none"
+            stroke="currentColor"
+            viewBox="0 0 24 24"
+          >
+            <path
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              strokeWidth={2}
+              d="M19 9l-7 7-7-7"
+            />
           </svg>
         </div>
       </div>
@@ -360,18 +463,22 @@ function SelectField({ label, name, value, onChange, options, icon }) {
   );
 }
 
-function TextAreaField({ label, name, value, onChange, placeholder, icon, rows = "4" }) {
+function TextAreaField({
+  label,
+  name,
+  value,
+  onChange,
+  placeholder,
+  icon,
+  rows = "4",
+}) {
   return (
     <div>
       <label className="block text-sm font-semibold text-gray-700 mb-2">
         {label}
       </label>
       <div className="relative">
-        {icon && (
-          <div className="absolute left-4 top-4 z-10">
-            {icon}
-          </div>
-        )}
+        {icon && <div className="absolute left-4 top-4 z-10">{icon}</div>}
         <textarea
           name={name}
           value={value}

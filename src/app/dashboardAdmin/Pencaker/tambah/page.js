@@ -1,8 +1,11 @@
 "use client";
 import { useState } from "react";
+import { useRouter } from "next/navigation";
 import { FaEye, FaEyeSlash } from "react-icons/fa";
+import { ArrowLeft} from "lucide-react";
 
 export default function RegisterPage() {
+  const router = useRouter();
   const [formData, setFormData] = useState({
     nim: "",
     password: "",
@@ -44,7 +47,7 @@ export default function RegisterPage() {
 
       const result = await res.json();
       if (result.success) {
-        alert("Registrasi berhasil! Silakan login.");
+        alert("Berhasil tambahkan akun! Silakan login.");
         window.location.href = "/loginMhs";
       } else {
         alert("Gagal mendaftar: " + result.message);
@@ -59,19 +62,25 @@ export default function RegisterPage() {
     <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-red-900 to-red-700 p-6">
       <div className="bg-white rounded-2xl shadow-2xl w-full max-w-2xl p-8 space-y-6">
         <h1 className="text-3xl font-bold text-center text-red-900 mb-6">
-          Registrasi Akun Mahasiswa
+          Daftarkan Akun Mahasiswa
         </h1>
+        <button
+            onClick={() => router.back()}
+            className="flex items-center gap-2 text-gray-600 hover:text-[#800000]">
+            <ArrowLeft className="w-4 h-4" /> Kembali
+          </button>
 
-        <form onSubmit={handleSubmit} className="space-y-4">
+        <form onSubmit={handleSubmit} className="space-y-4 text-black">
+
           {/* NIM */}
           <div>
-            <label className="block font-medium mb-1">NIM</label>
+            <label className="block font-medium mb-1 text-black">NIM</label>
             <input
               type="text"
               name="nim"
               value={formData.nim}
               onChange={handleChange}
-              className="w-full border rounded-lg px-3 py-2"
+              className="w-full border rounded-lg px-3 py-2 text-black placeholder:text-gray"
               placeholder="Masukkan NIM"
               required
             />
@@ -79,13 +88,13 @@ export default function RegisterPage() {
 
           {/* Nama Lengkap */}
           <div>
-            <label className="block font-medium mb-1">Nama Lengkap</label>
+            <label className="block font-medium mb-1 text-black">Nama Lengkap</label>
             <input
               type="text"
               name="nama_lengkap"
               value={formData.nama_lengkap}
               onChange={handleChange}
-              className="w-full border rounded-lg px-3 py-2"
+              className="w-full border rounded-lg px-3 py-2 text-black placeholder:text-gray"
               placeholder="Masukkan nama lengkap"
               required
             />
@@ -93,22 +102,22 @@ export default function RegisterPage() {
 
           {/* Tanggal Lahir */}
           <div>
-            <label className="block font-medium mb-1">Tanggal Lahir</label>
+            <label className="block font-medium mb-1 text-black">Tanggal Lahir</label>
             <input
               type="date"
               name="tanggal_lahir"
               value={formData.tanggal_lahir}
               onChange={handleChange}
-              className="w-full border rounded-lg px-3 py-2"
+              className="w-full border rounded-lg px-3 py-2 text-black"
               required
             />
           </div>
 
           {/* Jenis Kelamin */}
           <div>
-            <label className="block font-medium mb-1">Jenis Kelamin</label>
-            <div className="flex gap-4">
-              <label className="flex items-center">
+            <label className="block font-medium mb-1 text-black">Jenis Kelamin</label>
+            <div className="flex gap-4 text-black">
+              <label className="flex items-center text-black">
                 <input
                   type="radio"
                   name="jenis_kelamin"
@@ -117,9 +126,10 @@ export default function RegisterPage() {
                   onChange={handleChange}
                   required
                 />
-                <span className="ml-2">Laki-laki</span>
+                <span className="ml-2 text-black">Laki-laki</span>
               </label>
-              <label className="flex items-center">
+
+              <label className="flex items-center text-black">
                 <input
                   type="radio"
                   name="jenis_kelamin"
@@ -128,19 +138,19 @@ export default function RegisterPage() {
                   onChange={handleChange}
                   required
                 />
-                <span className="ml-2">Perempuan</span>
+                <span className="ml-2 text-black">Perempuan</span>
               </label>
             </div>
           </div>
 
           {/* Alamat */}
           <div>
-            <label className="block font-medium mb-1">Alamat</label>
+            <label className="block font-medium mb-1 text-black">Alamat</label>
             <textarea
               name="alamat"
               value={formData.alamat}
               onChange={handleChange}
-              className="w-full border rounded-lg px-3 py-2"
+              className="w-full border rounded-lg px-3 py-2 text-black placeholder:text-gray"
               placeholder="Masukkan alamat lengkap"
               rows="3"
               required
@@ -149,13 +159,13 @@ export default function RegisterPage() {
 
           {/* Email */}
           <div>
-            <label className="block font-medium mb-1">Email</label>
+            <label className="block font-medium mb-1 text-black">Email</label>
             <input
               type="email"
               name="email"
               value={formData.email}
               onChange={handleChange}
-              className="w-full border rounded-lg px-3 py-2"
+              className="w-full border rounded-lg px-3 py-2 text-black placeholder:text-gray"
               placeholder="Masukkan email aktif"
               required
             />
@@ -163,13 +173,13 @@ export default function RegisterPage() {
 
           {/* No Telepon */}
           <div>
-            <label className="block font-medium mb-1">No Telepon</label>
+            <label className="block font-medium mb-1 text-black">No Telepon</label>
             <input
               type="text"
               name="no_telephone"
               value={formData.no_telephone}
               onChange={handleChange}
-              className="w-full border rounded-lg px-3 py-2"
+              className="w-full border rounded-lg px-3 py-2 text-black placeholder:text-gray"
               placeholder="Masukkan nomor telepon"
               required
             />
@@ -177,12 +187,12 @@ export default function RegisterPage() {
 
           {/* Program Studi */}
           <div>
-            <label className="block font-medium mb-1">Program Studi</label>
+            <label className="block font-medium mb-1 text-black">Program Studi</label>
             <select
               name="prodi"
               value={formData.prodi}
               onChange={handleChange}
-              className="w-full border rounded-lg px-3 py-2"
+              className="w-full border rounded-lg px-3 py-2 text-black"
               required
             >
               <option value="">Pilih Prodi</option>
@@ -195,58 +205,55 @@ export default function RegisterPage() {
 
           {/* Pendidikan Terakhir */}
           <div>
-            <label className="block font-medium mb-1">Pendidikan Terakhir</label>
+            <label className="block font-medium mb-1 text-black">Pendidikan Terakhir</label>
             <select
               name="pendidikan_terakhir"
               value={formData.pendidikan_terakhir}
               onChange={handleChange}
-              className="w-full border rounded-lg px-3 py-2"
+              className="w-full border rounded-lg px-3 py-2 text-black"
               required
             >
               <option value="">Pilih Pendidikan</option>
-              <option value="SDMI">SD / MI (Sekolah Dasar / Madrasah Ibtidaiyah)</option>
-              <option value="SMPMTs">SMP / MTs (Sekolah Menengah Pertama / Madrasah Tsanawiyah)</option>
-              <option value="SMAMA">SMA / MA (Sekolah Menengah Atas / Madrasah Aliyah)</option>
-              <option value="SMK">SMK (Sekolah Menengah Kejuruan)</option>
-              <option value="D1">D1 (Diploma 1)</option>
-              <option value="D2">D2 (Diploma 2)</option>
-              <option value="D3">D3 (Diploma 3 / Ahli Madya)</option>
-              <option value="D4">D4 / Sarjana Terapan</option>
-              <option value="S1">S1 (Strata 1)</option>
-              <option value="S2">S2 (Strata 2 / Magister)</option>
-              <option value="S3">S3 (Strata 3 / Doktor)</option>  
+              <option value="SDMI">SD / MI</option>
+              <option value="SMPMTs">SMP / MTs</option>
+              <option value="SMAMA">SMA / MA</option>
+              <option value="SMK">SMK</option>
+              <option value="D3">D3</option>
+              <option value="S1">S1</option>
+              <option value="S2">S2</option>
+              <option value="S3">S3</option>
             </select>
           </div>
 
           {/* LinkedIn */}
           <div>
-            <label className="block font-medium mb-1">LinkedIn</label>
+            <label className="block font-medium mb-1 text-black">LinkedIn</label>
             <input
               type="text"
               name="linkedin"
               value={formData.linkedin}
               onChange={handleChange}
-              className="w-full border rounded-lg px-3 py-2"
+              className="w-full border rounded-lg px-3 py-2 text-black placeholder:text-gray"
               placeholder="Masukkan URL LinkedIn (opsional)"
             />
           </div>
 
           {/* Password */}
           <div className="relative">
-            <label className="block font-medium mb-1">Password</label>
+            <label className="block font-medium mb-1 text-black">Password</label>
             <input
               type={showPassword ? "text" : "password"}
               name="password"
               value={formData.password}
               onChange={handleChange}
-              className="w-full border rounded-lg px-3 py-2"
+              className="w-full border rounded-lg px-3 py-2 text-black placeholder:text-gray"
               placeholder="Masukkan password"
               required
             />
             <button
               type="button"
               onClick={() => setShowPassword(!showPassword)}
-              className="absolute right-3 top-9 text-gray-500 hover:text-red-700"
+              className="absolute right-3 top-9 text-gray-600 hover:text-red-700"
             >
               {showPassword ? <FaEyeSlash /> : <FaEye />}
             </button>
@@ -260,16 +267,6 @@ export default function RegisterPage() {
             Daftar
           </button>
         </form>
-
-        <p className="text-center text-sm text-gray-600 mt-4">
-          Sudah punya akun?{" "}
-          <a
-            href="/loginMhs"
-            className="text-red-900 font-semibold hover:underline"
-          >
-            Login di sini
-          </a>
-        </p>
       </div>
     </div>
   );

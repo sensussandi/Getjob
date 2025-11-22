@@ -19,6 +19,8 @@ export default function ClientLayout({ children }) {
     "/editProfileMHS",
     "/dashboardPerusahaan/pengaturan",
     "/dashboardPerusahaan/lowongan/tambah",
+    "/dashboardAdmin/Pencaker/tambah",
+    "/dashboardAdmin/perusahaan/tambah",
   ];
 
   const isEditLowongan = pathname.startsWith(

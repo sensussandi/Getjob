@@ -85,7 +85,7 @@ export default function DashboardPerusahaan() {
           <div className="flex justify-between items-start">
             {/* Company Info */}
             <div className="flex items-start gap-4">
-              {/* LOGO PERUSAHAAN */}
+              {/* LOGO PERUSHAAN */}
               <div className="w-16 h-16 rounded-2xl overflow-hidden bg-gray-100 flex items-center justify-center shadow-lg">
                 {admin.logo_url ? (
                   <img
