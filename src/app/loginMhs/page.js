@@ -49,6 +49,7 @@ export default function LoginMhs() {
   // };
 
   // LOGIN menggunakan NextAuth
+
   const handleLogin = async (e) => {
     e.preventDefault();
 
@@ -57,31 +58,21 @@ export default function LoginMhs() {
       return;
     }
 
-    try {
-      const res = await signIn("credentials", {
-        redirect: false,
-        nim: formData.nim, // Mengirim NIM ke backend
-        password: formData.password, // Mengirim password ke backend
-        callbackUrl: "/dashboardMHS", // redirect ke halaman dashboard mhs setelah login
-      });
+    const res = await signIn("credentials", {
+      redirect: false,
+      nim: formData.nim,
+      password: formData.password,
+      callbackUrl: "/dashboardMHS",
+    });
 
-      if (res.ok) {
-        await fetch("/api/auth/session?update", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ rememberMe }),
-        });
-
-        alert("Login berhasil!");
-        window.location.href = "/dashboardMHS";
-      } else {
-        alert("NIM atau Password salah!");
-      }
-    } catch (error) {
-      console.error("Error:", error);
-      alert("Tidak bisa terhubung ke server!");
+    if (res.error) {
+      alert("NIM atau Password salah!");
+      return;
     }
+
+    window.location.href = "/dashboardMHS";
   };
+
 
   const handleForgotPassword = () => {
     const email = prompt("Masukkan email Anda untuk reset password:");

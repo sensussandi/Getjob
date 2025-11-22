@@ -1,26 +1,30 @@
 "use client";
 import { useEffect, useState } from "react";
+import { useSession } from "next-auth/react";
 
 export default function HasilRekomendasi() {
   const [lowongan, setLowongan] = useState([]);
   const [loading, setLoading] = useState(true);
+  const { data: session } = useSession();
 
   useEffect(() => {
+    if (!session?.user?.nim) return;
+
     const fetchRekomendasi = async () => {
       try {
-        const res = await fetch("/api/pencari_kerja/rekomendasi");
+        const res = await fetch(`/api/pencari_kerja/rekomendasi?nim=${session.user.nim}`);
         const data = await res.json();
-        if (data.success) {
-          setLowongan(data.lowongan);
-        }
+        setLowongan(data.lowongan || []);
       } catch (err) {
         console.error("Gagal memuat rekomendasi:", err);
       } finally {
         setLoading(false);
       }
     };
+
     fetchRekomendasi();
-  }, []);
+  }, [session]);
+
 
   if (loading) {
     return <p className="text-center text-gray-600 py-10">Memuat rekomendasi lowongan...</p>;

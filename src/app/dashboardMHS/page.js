@@ -8,14 +8,21 @@ export default function DashboardMHS() {
   const { data: session, status } = useSession();
   const [localUser, setLocalUser] = useState(null);
 
-  useEffect(() => {
-    if (typeof window !== "undefined") {
-      const stored = localStorage.getItem("user");
-      if (stored) setLocalUser(JSON.parse(stored));
-    }
-  }, []);
+  if (status === "loading") {
+    return <div>Memuat data...</div>;
+  }
 
-  const user = session?.user || localUser;
+  if (!session?.user?.nim) {
+    return (
+      <div className="flex flex-col items-center justify-center h-screen">
+        <p className="text-gray-600 mb-4">Anda belum login.</p>
+        <a href="/loginMhs" className="bg-red-900 text-white px-4 py-2 rounded-lg">Ke Halaman Login</a>
+      </div>
+    );
+  }
+
+  const user = session.user;
+
 
   if (status === "loading") {
     return (

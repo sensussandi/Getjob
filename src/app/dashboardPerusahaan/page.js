@@ -27,15 +27,20 @@ function formatTanggal(tanggal) {
     // Sesuaikan zona waktu WIB (+7 jam)
     const localDate = new Date(date.getTime() + 7 * 60 * 60 * 1000);
 
-    // Format ke bahasa Indonesia
-    return localDate.toLocaleDateString("id-ID", {
-      day: "2-digit",
-      month: "long",
-      year: "numeric",
-    });
+  //    const perusahaanLogin = JSON.parse(localStorage.getItem("perusahaan"));
+  //    if (!perusahaanLogin) {
+  //      router.push("/loginPerusahaan");
+  //      return;
+
+// Format ke bahasa Indonesia
+return localDate.toLocaleDateString("id-ID", {
+  day: "2-digit",
+  month: "long",
+  year: "numeric",
+});
   } catch (e) {
-    return tanggal;
-  }
+  return tanggal;
+}
 }
 
 export default function DashboardPerusahaan() {
@@ -45,17 +50,23 @@ export default function DashboardPerusahaan() {
   // ✅ Ambil data dari API Next.js (bukan dummy)
   useEffect(() => {
     const fetchData = async () => {
-      try {
-        const res = await fetch("/api/perusahaan/dashboard");
-        const result = await res.json();
-        if (result.success) {
-          setData(result);
-        } else {
-          console.error("Gagal ambil data dashboard");
-        }
-      } catch (err) {
-        console.error("Error:", err);
+      const id = localStorage.getItem("id_admin");
+
+      if (!id) {
+        console.error("ID admin tidak ditemukan di localStorage");
+        router.push("/loginPerusahaan");
+        return;
       }
+
+      const res = await fetch(`/api/perusahaan/dashboard?id_admin=${id}`);
+      const result = await res.json();
+
+      if (result.success) {
+        setData(result);
+      } else {
+        console.error(result.message);
+      }
+
     };
     fetchData();
   }, []);
@@ -87,16 +98,14 @@ export default function DashboardPerusahaan() {
             <div className="flex items-start gap-4">
               {/* LOGO PERUSHAAN */}
               <div className="w-16 h-16 rounded-2xl overflow-hidden bg-gray-100 flex items-center justify-center shadow-lg">
-                {admin.logo_url ? (
+                {admin && admin.logo_url ? (
                   <img
                     src={
                       admin.logo_url.startsWith("http")
                         ? admin.logo_url
-                        : admin.logo_url.startsWith("/")
-                        ? admin.logo_url
                         : "/" + admin.logo_url
                     }
-                    alt="Logo Perusahaan"
+                    alt="Logo Perusahaan  "
                     className="w-full h-full object-cover"
                   />
                 ) : (
@@ -107,7 +116,7 @@ export default function DashboardPerusahaan() {
               {/* INFORMASI PERUSAHAAN */}
               <div>
                 <h1 className="text-3xl font-bold text-gray-900 mb-1">
-                  {admin.nama_perusahaan}
+                  {admin?.nama_perusahaan || "Perusahaan"}
                 </h1>
                 <div className="flex items-center gap-4 text-sm text-gray-600 flex-wrap">
                   <span className="flex items-center gap-1">
@@ -312,11 +321,10 @@ export default function DashboardPerusahaan() {
 
                   <div className="flex justify-between items-center pt-3 border-t border-gray-100">
                     <span
-                      className={`text-xs px-3 py-1.5 rounded-full font-semibold ${
-                        p.status === "Baru"
-                          ? "bg-orange-100 text-orange-700"
-                          : "bg-[#800000] text-white"
-                      }`}
+                      className={`text-xs px-3 py-1.5 rounded-full font-semibold ${p.status === "Baru"
+                        ? "bg-orange-100 text-orange-700"
+                        : "bg-[#800000] text-white"
+                        }`}
                     >
                       {p.status}
                     </span>

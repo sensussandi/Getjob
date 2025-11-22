@@ -1,59 +1,88 @@
 import { NextResponse } from "next/server";
 import mysql from "mysql2/promise";
 
+// === KONFIGURASI DATABASE ===
+const dbConfig = {
+  host: "localhost",
+  user: "root",
+  password: "", // isi jika ada password MySQL kamu
+  database: "getjob", // ubah sesuai nama database
+};
+
+// === POST: Simpan data lowongan baru ===
 export async function POST(req) {
   try {
     const body = await req.json();
     const {
       nama_posisi,
-      tanggal_dibuka,
-      tanggal_ditutup,
       deskripsi_pekerjaan,
       kualifikasi,
       gaji,
       lokasi,
+      tanggal_ditutup,
+      id_admin, // id perusahaan yang pasang loker
     } = body;
 
-    // Validasi minimal
-    if (!nama_posisi || !tanggal_dibuka || !deskripsi_pekerjaan) {
+    // Validasi input wajib
+    if (
+      !nama_posisi ||
+      !deskripsi_pekerjaan ||
+      !kualifikasi ||
+      !gaji ||
+      !lokasi ||
+      !tanggal_ditutup ||
+      !id_admin
+    ) {
       return NextResponse.json(
-        { success: false, message: "Data tidak lengkap. Mohon isi semua field wajib." },
+        { success: false, message: "Semua field wajib diisi!" },
         { status: 400 }
       );
     }
 
-    // Koneksi ke database MySQL
-    const connection = await mysql.createConnection({
-      host: "localhost",
-      user: "root",
-      password: "",
-      database: "getjob_db",
-    });
+    // Koneksi ke database
+    const db = await mysql.createConnection(dbConfig);
 
-    // Query insert ke tabel lowongan_kerja
-    await connection.execute(
-      "INSERT INTO lowongan_kerja (nama_posisi, tanggal_dibuka, tanggal_ditutup, deskripsi_pekerjaan, kualifikasi, gaji, lokasi) VALUES (?, ?, ?, ?, ?, ?, ?)",
-      [
-        nama_posisi,
-        tanggal_dibuka,
-        tanggal_ditutup,
-        deskripsi_pekerjaan,
-        kualifikasi,
-        gaji,
-        lokasi,
-      ]
+    // Simpan data ke tabel lowongan_kerja
+    const [result] = await db.execute(
+      `INSERT INTO lowongan_kerja 
+      (nama_posisi, deskripsi_pekerjaan, kualifikasi, gaji, lokasi, tanggal_ditutup, id_admin)
+      VALUES (?, ?, ?, ?, ?, ?, ?)`,
+      [nama_posisi, deskripsi_pekerjaan, kualifikasi, gaji, lokasi, tanggal_ditutup, id_admin]
     );
 
-    await connection.end();
+    await db.end();
 
     return NextResponse.json({
       success: true,
-      message: "✅ Lowongan berhasil dipasang!",
+      message: "Lowongan berhasil ditambahkan!",
+      insertedId: result.insertId,
     });
   } catch (error) {
-    console.error("❌ ERROR:", error);
+    console.error("Error menambah loker:", error);
     return NextResponse.json(
-      { success: false, message: "Terjadi kesalahan saat memasang lowongan." },
+      { success: false, message: "Terjadi kesalahan server", error: error.message },
+      { status: 500 }
+    );
+  }
+}
+
+// === GET: Ambil semua lowongan yang sudah dipasang ===
+export async function GET() {
+  try {
+    const db = await mysql.createConnection(dbConfig);
+    const [rows] = await db.execute(
+      `SELECT l.*, a.nama_perusahaan 
+       FROM lowongan_kerja l 
+       JOIN admin_perusahaan a ON l.id_admin = a.id_admin
+       ORDER BY l.id_lowongan DESC`
+    );
+    await db.end();
+
+    return NextResponse.json({ success: true, data: rows });
+  } catch (error) {
+    console.error("Error mengambil data:", error);
+    return NextResponse.json(
+      { success: false, message: "Gagal mengambil data", error: error.message },
       { status: 500 }
     );
   }

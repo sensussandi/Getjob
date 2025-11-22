@@ -1,9 +1,8 @@
-import NextAuth from "next-auth";
 import CredentialsProvider from "next-auth/providers/credentials";
 import mysql from "mysql2/promise";
 import bcrypt from "bcryptjs";
 
-export const authOptions = {     // <= 🔥 INI BAGIAN PENTING
+export const authOptions = {
   providers: [
     CredentialsProvider({
       name: "Login Mahasiswa",
@@ -31,6 +30,7 @@ export const authOptions = {     // <= 🔥 INI BAGIAN PENTING
             "SELECT * FROM pencari_kerja WHERE nim = ?",
             [nim]
           );
+
           if (rows.length === 0) return null;
 
           const user = rows[0];
@@ -47,9 +47,6 @@ export const authOptions = {     // <= 🔥 INI BAGIAN PENTING
             foto: user.foto,
             no_telephone: user.no_telephone,
           };
-        } catch (err) {
-          console.error("Authorize Error:", err);
-          return null;
         } finally {
           if (db) await db.end();
         }
@@ -59,7 +56,6 @@ export const authOptions = {     // <= 🔥 INI BAGIAN PENTING
 
   session: {
     strategy: "jwt",
-    maxAge: 60 * 60 * 24 * 7,
   },
 
   callbacks: {
@@ -84,6 +80,7 @@ export const authOptions = {     // <= 🔥 INI BAGIAN PENTING
       session.user.foto = token.foto
         ? `/uploads/${token.foto}`
         : "/default-avatar.png";
+
       return session;
     },
   },
@@ -92,6 +89,3 @@ export const authOptions = {     // <= 🔥 INI BAGIAN PENTING
     signIn: "/loginMhs",
   },
 };
-
-const handler = NextAuth(authOptions);
-export { handler as GET, handler as POST };

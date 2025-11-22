@@ -6,7 +6,7 @@ export default function RekomendasiPage() {
   const [keahlian, setKeahlian] = useState([]);
   const [error, setError] = useState("");
 
-  // ✅ 26 Program Studi Universitas Sanata Dharma
+  // === 26 Prodi USD ===
   const daftarProdi = [
     "Informatika", "Teknik Elektro", "Fisika", "Matematika", "Biologi",
     "Farmasi", "Psikologi", "Ilmu Komunikasi", "Manajemen", "Akuntansi",
@@ -17,35 +17,27 @@ export default function RekomendasiPage() {
     "Ilmu Hukum", "Keperawatan", "Teknik Mesin", "Teknik Sipil"
   ];
 
-  // ✅ Lebih banyak keahlian & minat bakat
+  // === Keahlian & Minat Lengkap ===
   const daftarKeahlian = [
-    // Teknologi & IT
-    "Web Developer", "UI/UX Designer", "Mobile Developer", "Game Developer",
-    "Data Analyst", "Data Scientist", "Network Engineer", "Cyber Security",
-    "AI Engineer", "DevOps Engineer",
-
+    // IT
+    "Web Developer", "Mobile Developer", "UI/UX Designer", "Data Analyst",
+    "Data Scientist", "Game Developer", "Cyber Security", "AI Engineer", "DevOps Engineer",
     // Bisnis & Manajemen
-    "Marketing", "Digital Marketing", "Sales", "Entrepreneurship",
-    "Public Relations", "Customer Service", "Finance Analyst",
-    "Human Resource", "Business Analyst",
-
-    // Kreatif & Desain
-    "Graphic Designer", "Video Editor", "Content Creator", "Copywriter",
-    "Animator", "Photographer", "Brand Strategist", "Illustrator",
-
+    "Marketing", "Digital Marketing", "Sales", "Public Relations", "Business Analyst",
+    "Finance Analyst", "Entrepreneurship", "Human Resource", "Customer Service",
+    // Kreatif
+    "Graphic Designer", "Video Editor", "Content Creator", "Copywriter", "Photographer",
+    "Animator", "Brand Strategist", "Illustrator",
     // Pendidikan & Sosial
-    "Guru SD", "Guru Bahasa Inggris", "Psikolog", "Konselor",
-    "Peneliti", "Tutor Privat", "Penerjemah",
-
-    // Teknik & Lapangan
-    "Teknisi Listrik", "Teknisi Mesin", "Arsitek", "Drafter",
-    "Quality Control", "Surveyor", "Operator Produksi",
-
+    "Guru SD", "Guru Bahasa Inggris", "Tutor Privat", "Psikolog", "Konselor", "Peneliti",
+    "Penerjemah", "Trainer", "Instruktur",
+    // Teknik
+    "Teknisi Listrik", "Teknisi Mesin", "Arsitek", "Drafter", "Quality Control",
+    "Surveyor", "Operator Produksi", "Project Engineer",
     // Kesehatan
     "Perawat", "Apoteker", "Analis Kesehatan", "Laboran",
-
     // Umum
-    "Admin Kantor", "Barista", "Kasir", "Event Organizer"
+    "Admin Kantor", "Barista", "Kasir", "Event Organizer", "Customer Support"
   ];
 
   const handleKeahlianChange = (skill) => {
@@ -76,8 +68,8 @@ export default function RekomendasiPage() {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ prodi, keahlian }),
       });
-      const result = await res.json();
 
+      const result = await res.json();
       if (result.success) {
         alert("Data tersimpan! Menampilkan rekomendasi lowongan...");
         window.location.href = "/dashboardMHS/rekomendasi/hasil";
@@ -91,39 +83,10 @@ export default function RekomendasiPage() {
   };
 
   return (
-    <div className="min-h-screen flex bg-gray-50">
-      {/* === Sidebar Tetap di Kiri === */}
-      <aside className="w-64 bg-gradient-to-b from-red-900 to-red-700 text-white fixed top-0 left-0 h-full shadow-xl flex flex-col">
-        <div className="p-6 border-b border-red-800">
-          <h1 className="text-2xl font-bold tracking-wide">GetJob</h1>
-          <p className="text-sm text-red-200">Portal Karir Mahasiswa USD</p>
-        </div>
-
-        <nav className="flex-1 p-4 space-y-3">
-          <a href="/dashboardMHS" className="block px-3 py-2 rounded-lg hover:bg-red-800 transition">
-            Dashboard
-          </a>
-          <a href="/dashboardMHS/rekomendasi" className="block px-3 py-2 rounded-lg bg-red-800 font-semibold shadow">
-            Rekomendasi Loker
-          </a>
-          <a href="/lamaran" className="block px-3 py-2 rounded-lg hover:bg-red-800 transition">
-            Lamaran Saya
-          </a>
-          <a href="/statistik" className="block px-3 py-2 rounded-lg hover:bg-red-800 transition">
-            Statistik
-          </a>
-          <a href="/profil" className="block px-3 py-2 rounded-lg hover:bg-red-800 transition">
-            Profil
-          </a>
-          <a href="/pengaturan" className="block px-3 py-2 rounded-lg hover:bg-red-800 transition">
-            Pengaturan
-          </a>
-        </nav>
-      </aside>
-
-      {/* === Konten Utama === */}
+    <div className="flex min-h-screen bg-gray-50">
+      {/* === Konten utama (biar tidak menimpa sidebar) === */}
       <main className="flex-1 ml-64 p-10">
-        <div className="bg-white rounded-2xl shadow-lg p-8 max-w-4xl mx-auto">
+        <div className="bg-white rounded-2xl shadow-lg p-8 max-w-5xl mx-auto">
           <h1 className="text-3xl font-bold text-red-900 mb-6 text-center">
             Isi Profil Rekomendasi Loker
           </h1>
@@ -131,14 +94,14 @@ export default function RekomendasiPage() {
           <form onSubmit={handleSubmit} className="space-y-8">
             {/* === Prodi === */}
             <div>
-              <h2 className="text-lg font-semibold text-gray-800 mb-3">
+              <h2 className="text-lg font-semibold text-gray-900 mb-3">
                 1. Apa program studi Anda?
               </h2>
               <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
                 {daftarProdi.map((item) => (
                   <label
                     key={item}
-                    className="flex items-center space-x-2 text-gray-700 hover:text-red-900"
+                    className="flex items-center space-x-2 text-gray-800 hover:text-red-900 transition"
                   >
                     <input
                       type="radio"
@@ -156,14 +119,15 @@ export default function RekomendasiPage() {
 
             {/* === Keahlian === */}
             <div>
-              <h2 className="text-lg font-semibold text-gray-800 mb-3">
-                2. Apa keahlian dan minat bakat Anda? <span className="text-sm text-gray-500">(maks. 5)</span>
+              <h2 className="text-lg font-semibold text-gray-900 mb-3">
+                2. Apa keahlian dan minat bakat Anda?{" "}
+                <span className="text-sm text-gray-500">(maks. 5)</span>
               </h2>
               <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
                 {daftarKeahlian.map((item) => (
                   <label
                     key={item}
-                    className="flex items-center space-x-2 text-gray-700 hover:text-red-900"
+                    className="flex items-center space-x-2 text-gray-800 hover:text-red-900 transition"
                   >
                     <input
                       type="checkbox"

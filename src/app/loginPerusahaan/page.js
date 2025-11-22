@@ -25,6 +25,14 @@ export default function LoginPerusahaan() {
       // Simpan user ke localStorage
       localStorage.setItem("user", JSON.stringify(data.data));
       localStorage.setItem("isLoggedIn", "true");
+      if (data.data.id_admin) {
+        // perusahaan
+        localStorage.setItem("id_admin", data.data.id_admin);
+      } else if (data.data.id) {
+        // super admin
+        localStorage.setItem("admin_id", data.data.id);
+      }
+
 
       // Redirect sesuai role
       router.push(data.redirect);
