@@ -45,7 +45,7 @@ export default function TambahLowongan() {
       if (!id) {
         console.error("ID admin tidak ditemukan di localStorage");
         router.push("/loginPerusahaan");
-        return;
+         return;
       }
       const res = await fetch(`/api/perusahaan/lowongan/tambah?id_admin=${id}`, {
         method: "POST",
@@ -56,7 +56,7 @@ export default function TambahLowongan() {
       const data = await res.json();
       if (res.ok && data.success) {
         alert("✅ Lowongan berhasil dibuat!");
-        router.push("/dashboardPerusahaan");
+        // router.push("/dashboardPerusahaan");
       } else {
         alert(data.message || "❌ Gagal menambahkan lowongan.");
       }

@@ -1,13 +1,29 @@
 "use client";
 import { useEffect, useState } from "react";
-import { useRouter } from "next/navigation";
+import { useRouter, usePathname } from "next/navigation";
 
 export default function Header() {
   const [showHeader, setShowHeader] = useState(true);
   const [lastScrollY, setLastScrollY] = useState(0);
-  const router = useRouter();
 
-  // Deteksi arah scroll
+  const router = useRouter();
+  const pathname = usePathname();
+
+  // === ❌ SEMBUNYIKAN HEADER PADA HALAMAN DASHBOARD ===
+  const hiddenRoutes = [
+    "/dashboardMHS",
+    "/lamaran",
+    "/statistik",
+    "/profil",
+    "/pengaturan",
+  ];
+
+  // Jika path saat ini dimulai dengan salah satu route di atas → jangan tampilkan Header
+  if (hiddenRoutes.some((r) => pathname.startsWith(r))) {
+    return null;
+  }
+
+  // === DETEKSI SCROLL ===
   useEffect(() => {
     const handleScroll = () => {
       if (window.scrollY > lastScrollY) {
@@ -17,13 +33,14 @@ export default function Header() {
       }
       setLastScrollY(window.scrollY);
     };
+
     window.addEventListener("scroll", handleScroll);
     return () => window.removeEventListener("scroll", handleScroll);
   }, [lastScrollY]);
 
-  // Fungsi klik logo
+  // Klik logo → kembali ke halaman utama
   const handleLogoClick = () => {
-    router.push("/"); // arahkan ke halaman utama (home)
+    router.push("/");
   };
 
   return (
@@ -33,7 +50,7 @@ export default function Header() {
       }`}
     >
       <div className="max-w-screen-xl mx-auto flex items-center justify-between px-6 py-3">
-        {/* === KIRI: Logo + Menu Tengah === */}
+        {/* LEFT: Logo + Menu */}
         <div className="flex items-center space-x-10">
           {/* Logo */}
           <div
@@ -51,32 +68,23 @@ export default function Header() {
 
           {/* Menu Tengah */}
           <div className="hidden md:flex space-x-8 font-medium text-white">
-            <a
-              href="/pasang-loker"
-              className="hover:text-[#FFD700] transition-colors"
-            >
+            <a href="/pasang-loker" className="hover:text-[#FFD700]">
               Pasang Loker
             </a>
-            <a
-              href="/cari-loker"
-              className="hover:text-[#FFD700] transition-colors"
-            >
+            <a href="/cari-loker" className="hover:text-[#FFD700]">
               Cari Loker
             </a>
           </div>
         </div>
 
-        {/* === KANAN: Menu Registrasi / Perusahaan === */}
+        {/* RIGHT */}
         <div className="flex items-center space-x-4">
-          <a
-            href="/loginMhs"
-            className="text-white hover:text-[#FFD700] transition-colors"
-          >
+          <a href="/loginMhs" className="text-white hover:text-[#FFD700]">
             Login Mahasiswa
           </a>
           <a
             href="/loginPerusahaan"
-            className="bg-orange-600 text-white px-4 py-2 rounded-md font-medium hover:bg-orange-700 transition-colors"
+            className="bg-orange-600 text-white px-4 py-2 rounded-md"
           >
             Login Perusahaan
           </a>

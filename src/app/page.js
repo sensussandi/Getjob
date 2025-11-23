@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import HeroSection from "../components/HeroSection"; // import HeroSection  // import HeroSection 
+import HeroSection from "../components/HeroSection"; // import HeroSection  
 import LowonganTerbaru from "../components/LowonganTerbaru";
 
 export default function Home() {
@@ -13,3 +13,4 @@ export default function Home() {
     </div>
   );
 }
+             
