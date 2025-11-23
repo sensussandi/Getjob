@@ -21,6 +21,7 @@ export default function ClientLayout({ children }) {
     "/dashboardPerusahaan/lowongan/tambah",
     "/dashboardAdmin/Pencaker/tambah",
     "/dashboardAdmin/perusahaan/tambah",
+    "/dashboardAdmin/pengaturan",
   ];
 
   const isEditLowongan = pathname.startsWith(

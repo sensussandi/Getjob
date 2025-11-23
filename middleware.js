@@ -7,7 +7,7 @@ export function middleware(req) {
   const cookies = req.cookies;
   const idAdmin = cookies.get("id_admin")?.value;      // perusahaan
   const idMhs = cookies.get("id_mhs")?.value;          // mahasiswa
-  const idSuper = cookies.get("id_super")?.value;      // admin sistem
+  const idSuper = cookies.get("id")?.value;      // admin sistem
 
   // -------------------------
   // **Proteksi PERUSAHAAN**

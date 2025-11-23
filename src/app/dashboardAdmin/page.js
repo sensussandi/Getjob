@@ -9,6 +9,7 @@ import {
   Plus,
   Eye,
   Trash2,
+  Settings,
   MapPin,
   Calendar,
   Mail,
@@ -35,40 +36,26 @@ export default function DashboardAdmin() {
   // Ambil data dari backend
   useEffect(() => {
     const fetchData = async () => {
-      try {
-        const [perusahaanRes, pencakerRes, lowonganRes, pelamar, stats] = await Promise.all([
-          fetch("/api/admin/perusahaan").then((r) => r.json()),
-          fetch("/api/admin/pencaker").then((r) => r.json()),
-          fetch("/api/perusahaan/dashboard").then((r) => r.json()),
-        ]);
-        
-//        // untuk proteksi agar tidak bisa diakses sembarangan
-//        const id = localStorage.getItem("id");
+      const id = localStorage.getItem("id");
+      const res = await fetch(`/api/admin?id=${id}`);
+      const data = await res.json();
 
-//        if (!id) {
-//        console.warn("Akses ditolak");
-//        router.replace("/loginPerusahaan");
-//        return;
-//      }
-
-        const perusahaan = perusahaanRes.data || [];
-        const pencaker = pencakerRes.data || [];
-        const lowongan = lowonganRes.data || [];
-
-
-
-        setDataPerusahaan(perusahaan);
-        setDataPencariKerja(pencaker);
-        setDataLowongan(lowongan);
-        setStats({
-          totalPerusahaan: perusahaan.length,
-          totalPencariKerja: pencaker.length,
-          totalLowongan: lowongan.length,
-        });
-      } catch (error) {
-        console.error("Gagal memuat data:", error);
+      if (!data.success) {
+        console.error("API error");
+        return;
       }
+
+      setDataPerusahaan(data.adminPerusahaan || []);
+      setDataPencariKerja(data.pencaker || []);
+      setDataLowongan(data.lowongan || []);
+
+      setStats({
+        totalPerusahaan: data.adminPerusahaan?.length || 0,
+        totalPencariKerja: data.pencaker?.length || 0,
+        totalLowongan: data.lowongan?.length || 0
+      });
     };
+
     fetchData();
   }, []);
 
@@ -87,27 +74,36 @@ export default function DashboardAdmin() {
         {/* HEADER */}
         <div className="bg-gradient-to-r from-[#800000] to-[#b22222] text-white p-8 rounded-2xl shadow-lg mb-8 flex justify-between items-center">
           <div>
-            
+
             <h1 className="text-3xl font-bold">Dashboard Admin</h1>
             <p className="text-white/80 mt-2">Pantau seluruh aktivitas sistem GetJob</p>
           </div>
           <div className="bg-white/20 px-5 py-2 rounded-xl text-sm backdrop-blur-sm">
             <BarChart3 className="inline w-5 h-5 mr-2" /> Statistik Sistem
           </div>
+          {/* === TOMBOL Setting === */}
+          <button
+            onClick={() => router.push("/dashboardAdmin/pengaturan")}
+            className="px-5 py-3 border-2 border-gray-300 rounded-xl font-medium hover:bg-gray-50 transition-all flex items-center gap-2 text-black-700"
+          >
+            <Settings className="w-5 h-5" />
+            <span>Pengaturan</span>
+          </button>
+
           {/* === TOMBOL LOGOUT === */}
-              <button
-                onClick={handleLogout}
-                className="px-5 py-3 border-2 border-red-400 text-black-600 rounded-xl font-semibold hover:bg-red-50 transition-all flex items-center gap-2">
-                <span>Logout</span>
-              </button>
+          <button
+            onClick={handleLogout}
+            className="px-5 py-3 border-2 border-red-400 text-black-600 rounded-xl font-semibold hover:bg-red-50 transition-all flex items-center gap-2">
+            <span>Logout</span>
+          </button>
         </div>
 
-    
+
         {/* STATISTIK */}
         <div className="grid grid-cols-1 sm:grid-cols-3 gap-6 mb-10">
           <StatCard icon={<Building2 />} title="Total Perusahaan" value={stats.totalPerusahaan} color="from-blue-500 to-blue-600" />
           <StatCard icon={<Users />} title="Total Pencari Kerja" value={stats.totalPencariKerja} color="from-green-500 to-green-600" />
-          <StatCard icon={<Briefcase />} title="Total Lowongan Aktif" value={stats.totalLowongan} color="from-yellow-500 to-yellow-600" />
+          <StatCard icon={<Briefcase />} title="Total Lowongan" value={stats.totalLowongan} color="from-yellow-500 to-yellow-600" />
         </div>
 
         {/* === DATA PERUSAHAAN === */}
@@ -158,7 +154,7 @@ export default function DashboardAdmin() {
                     {/* Detail */}
                     <div className="text-sm text-gray-600 space-y-1 mb-3">
                       <p className="flex items-center gap-1.5"><Mail className="w-4 h-4 text-gray-400" /> {p.email_perusahaan}</p>
-                      <p className="flex items-center gap-1.5"><Phone className="w-4 h-4 text-gray-400" /> {p.no_telephone}</p>
+                      <p className="flex items-center gap-1.5"><Phone className="w-4 h-4 text-gray-400" /> {p.no_telepone}</p>
                       <p className="flex items-center gap-1.5"><Info className="w-4 h-4 text-gray-400" /> {p.alamat_perusahaan}</p>
                     </div>
 
