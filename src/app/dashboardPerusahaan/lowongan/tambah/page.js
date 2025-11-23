@@ -19,6 +19,15 @@ import {
 export default function TambahLowongan() {
   useProtectedAuth();  // ⬅ proteksi admin perusahaan dan super admin
   const router = useRouter();
+  const redirectByRole = () => {
+    const admin = localStorage.getItem("id");
+    const perusahaan = localStorage.getItem("id_admin");
+
+    if (admin) return router.push("/dashboardAdmin");
+    if (perusahaan) return router.push("/dashboardPerusahaan");
+
+    return router.push("/");
+  };
   const [form, setForm] = useState({
     nama_posisi: "",
     deskripsi_pekerjaan: "",
@@ -58,7 +67,7 @@ export default function TambahLowongan() {
       const data = await res.json();
       if (res.ok && data.success) {
         alert("✅ Lowongan berhasil dibuat!");
-        // router.push("/dashboardPerusahaan");
+        redirectByRole();
       } else {
         alert(data.message || "❌ Gagal menambahkan lowongan.");
       }

@@ -19,21 +19,27 @@ export default function ClientLayout({ children }) {
     "/editProfileMHS",
     "/dashboardPerusahaan/pengaturan",
     "/dashboardPerusahaan/lowongan/tambah",
-    "/dashboardAdmin/Pencaker/tambah",
+    "/dashboardAdmin/pencaker/tambah",
     "/dashboardAdmin/perusahaan/tambah",
     "/dashboardAdmin/pengaturan",
   ];
 
   const isEditLowongan = pathname.startsWith(
-    "/dashboardPerusahaan/lowongan/edit/"
-  );
+    "/dashboardPerusahaan/lowongan/edit/");
 
-  const isLowonganDetail = pathname.startsWith("/lowongan/");
+  const isLowonganDetail = pathname.startsWith(
+    "/lowongan/");
   
+  const isKelolaAdmin_Perusahaan = pathname.startsWith(
+    "/dashboardAdmin/perusahaan/kelola/");
+
+  const isKelolaPencaker = pathname.startsWith(
+    "/dashboardAdmin/pencaker/kelola/");
+
   const hideHeader =
   noHeaderPages.includes(pathname) ||
-  isLowonganDetail ||
-  isEditLowongan;
+  isLowonganDetail || isEditLowongan 
+  || isKelolaAdmin_Perusahaan || isKelolaPencaker;
   return (
     <> 
       {!hideHeader && <Header />}

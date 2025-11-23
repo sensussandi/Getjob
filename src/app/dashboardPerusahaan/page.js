@@ -47,6 +47,7 @@ function formatTanggal(tanggal) {
 export default function DashboardPerusahaan() {
   useAdminPerusahaanAuth();  // ⬅ proteksi admin Perusahaan
   const [data, setData] = useState(null);
+  const [showLogoutModal, setShowLogoutModal] = useState(false); // button logout
   const router = useRouter();
 
   // ✅ Ambil data dari API Next.js
@@ -54,11 +55,11 @@ export default function DashboardPerusahaan() {
     const fetchData = async () => {
       const id = localStorage.getItem("id_admin");
 
-//      if (!id) {
-//        console.warn("Akses ditolak");
-//        router.replace("/loginPerusahaan");
-//        return;
-//      }
+      //      if (!id) {
+      //        console.warn("Akses ditolak");
+      //        router.replace("/loginPerusahaan");
+      //        return;
+      //      }
 
       const res = await fetch(`/api/perusahaan/dashboard?id_admin=${id}`);
       const result = await res.json();
@@ -167,11 +168,39 @@ export default function DashboardPerusahaan() {
                 <span>Pengaturan</span>
               </button>
               {/* === TOMBOL LOGOUT === */}
-              <button
-                onClick={handleLogout}
-                className="px-5 py-3 border-2 border-red-400 text-red-600 rounded-xl font-semibold hover:bg-red-50 transition-all flex items-center gap-2">
-                <span>Logout</span>
-              </button>
+          <button
+            onClick={() => setShowLogoutModal(true)}
+            className="px-5 py-3 border-2 border-gray-300 text-gray-600 rounded-xl font-semibold hover:bg-red-50 transition-all flex items-center gap-2"
+          >
+            <span>Logout</span>
+          </button>
+          {showLogoutModal && (
+            <div className="fixed inset-0 bg-black/40 flex items-center justify-center z-50">
+              <div className="bg-white p-6 rounded-xl shadow-lg w-[340px]">
+                <h3 className="text-xl font-bold mb-2 text-gray-800">Konfirmasi Logout</h3>
+                <p className="text-gray-600 mb-5">Apakah Anda yakin ingin logout dari akun ini?</p>
+
+                <div className="flex justify-end gap-3">
+                  <button
+                    onClick={() => setShowLogoutModal(false)}
+                    className="px-4 py-2 text-black rounded-lg border border-gray-300 hover:bg-red-100"
+                  >
+                    Batal
+                  </button>
+
+                  <button
+                    onClick={() => {
+                      setShowLogoutModal(false);
+                      handleLogout();
+                    }}
+                    className="px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700"
+                  >
+                    Ya, Logout
+                  </button>
+                </div>
+              </div>
+            </div>
+          )}
             </div>
           </div>
         </div>

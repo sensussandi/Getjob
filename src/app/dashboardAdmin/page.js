@@ -23,6 +23,7 @@ import { useRouter } from "next/navigation";
 export default function DashboardAdmin() {
   useAdminAuth();  // ⬅ proteksi berjalan otomatis
   const router = useRouter();
+  const [showLogoutModal, setShowLogoutModal] = useState(false); // button logout
   const [stats, setStats] = useState({
     totalPerusahaan: 0,
     totalPencariKerja: 0,
@@ -92,12 +93,39 @@ export default function DashboardAdmin() {
 
           {/* === TOMBOL LOGOUT === */}
           <button
-            onClick={handleLogout}
-            className="px-5 py-3 border-2 border-red-400 text-black-600 rounded-xl font-semibold hover:bg-red-50 transition-all flex items-center gap-2">
+            onClick={() => setShowLogoutModal(true)}
+            className="px-5 py-3 border-2 border-black-400 text-black-600 rounded-xl font-semibold hover:bg-red-50 transition-all flex items-center gap-2"
+          >
             <span>Logout</span>
           </button>
-        </div>
+          {showLogoutModal && (
+            <div className="fixed inset-0 bg-black/40 flex items-center justify-center z-50">
+              <div className="bg-white p-6 rounded-xl shadow-lg w-[340px]">
+                <h3 className="text-xl font-bold mb-2 text-gray-800">Konfirmasi Logout</h3>
+                <p className="text-gray-600 mb-5">Apakah Anda yakin ingin logout dari akun ini?</p>
 
+                <div className="flex justify-end gap-3">
+                  <button
+                    onClick={() => setShowLogoutModal(false)}
+                    className="px-4 py-2 text-black rounded-lg border border-gray-300 hover:bg-red-100"
+                  >
+                    Batal
+                  </button>
+
+                  <button
+                    onClick={() => {
+                      setShowLogoutModal(false);
+                      handleLogout();
+                    }}
+                    className="px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700"
+                  >
+                    Ya, Logout
+                  </button>
+                </div>
+              </div>
+            </div>
+          )}
+        </div>
 
         {/* STATISTIK */}
         <div className="grid grid-cols-1 sm:grid-cols-3 gap-6 mb-10">
@@ -123,9 +151,9 @@ export default function DashboardAdmin() {
             {dataPerusahaan.length === 0 ? (
               <p className="text-center col-span-full text-gray-500 py-6">Tidak ada data perusahaan</p>
             ) : (
-              dataPerusahaan.map((p, i) => (
+              dataPerusahaan.map((p) => (
                 <div
-                  key={i}
+                  key={p.id_admin}
                   className="bg-white border border-gray-200 rounded-xl hover:border-[#800000]/40 hover:shadow-lg transition-all duration-300 overflow-hidden group"
                 >
                   <div className="p-5">
@@ -151,7 +179,7 @@ export default function DashboardAdmin() {
                       />
                     )}
 
-                    {/* Detail */}
+                    {/* kelola */}
                     <div className="text-sm text-gray-600 space-y-1 mb-3">
                       <p className="flex items-center gap-1.5"><Mail className="w-4 h-4 text-gray-400" /> {p.email_perusahaan}</p>
                       <p className="flex items-center gap-1.5"><Phone className="w-4 h-4 text-gray-400" /> {p.no_telepone}</p>
@@ -165,8 +193,10 @@ export default function DashboardAdmin() {
 
                     {/* Footer Aksi */}
                     <div className="flex justify-between items-center pt-3 border-t border-gray-100">
-                      <button className="text-sm font-medium text-[#800000] hover:underline flex items-center gap-1">
-                        <Eye className="w-4 h-4" /> Detail
+                      <button
+                        onClick={() => router.push(`/dashboardAdmin/perusahaan/kelola/${p.id_admin}`)}
+                        className="text-sm font-medium text-[#800000] hover:underline flex items-center gap-1">
+                        <Eye className="w-4 h-4" /> kelola
                       </button>
                       <button className="text-sm font-medium text-red-600 hover:underline flex items-center gap-1">
                         <Trash2 className="w-4 h-4" /> Hapus
@@ -184,7 +214,7 @@ export default function DashboardAdmin() {
           <div className="flex justify-between items-center px-6 py-4 border-b border-gray-100 bg-gray-50">
             <h3 className="text-xl font-bold text-gray-800">Data Pencari Kerja</h3>
             <button
-              onClick={() => router.push("/dashboardAdmin/Pencaker/tambah")}
+              onClick={() => router.push("/dashboardAdmin/pencaker/tambah")}
               className="bg-[#800000] text-white px-4 py-2 rounded-lg hover:bg-[#a00000] flex items-center gap-2"
             >
               <Plus className="w-4 h-4" /> Tambah
@@ -198,7 +228,7 @@ export default function DashboardAdmin() {
             ) : (
               dataPencariKerja.map((u, i) => (
                 <div
-                  key={i}
+                  key={u.nim}
                   className="bg-white border border-gray-200 rounded-xl hover:border-[#800000]/40 hover:shadow-lg transition-all duration-300 overflow-hidden group"
                 >
                   <div className="p-5">
@@ -217,8 +247,9 @@ export default function DashboardAdmin() {
                     </div>
                     <p className="text-sm text-gray-600 mb-4 line-clamp-3">{u.tentang_anda || "Belum ada deskripsi diri."}</p>
                     <div className="flex justify-between items-center pt-3 border-t border-gray-100">
-                      <button className="text-sm font-medium text-[#800000] hover:underline flex items-center gap-1">
-                        <Eye className="w-4 h-4" /> Detail
+                      <button onClick={() => router.push(`/dashboardAdmin/pencaker/kelola/${u.nim}`)}
+                        className="text-sm font-medium text-[#800000] hover:underline flex items-center gap-1">
+                        <Eye className="w-4 h-4" /> kelola
                       </button>
                       <button className="text-sm font-medium text-red-600 hover:underline flex items-center gap-1">
                         <Trash2 className="w-4 h-4" /> Hapus
@@ -268,8 +299,8 @@ function LowonganSection({ dataLowongan, router }) {
         {dataLowongan.length === 0 ? (
           <p className="text-center col-span-full text-gray-500 py-6">Tidak ada data lowongan</p>
         ) : (
-          dataLowongan.map((job, i) => (
-            <div key={i} className="bg-white border border-gray-200 rounded-xl hover:border-[#800000]/40 hover:shadow-lg transition-all duration-300 overflow-hidden group">
+          dataLowongan.map((job) => (
+            <div key={job.id_lowongan} className="bg-white border border-gray-200 rounded-xl hover:border-[#800000]/40 hover:shadow-lg transition-all duration-300 overflow-hidden group">
               <div className="p-5">
                 <div className="flex justify-between items-start mb-3">
                   <div>
@@ -301,9 +332,10 @@ function LowonganSection({ dataLowongan, router }) {
                   {job.deskripsi_pekerjaan || "Tidak ada deskripsi lowongan."}
                 </p>
                 <div className="flex justify-between items-center pt-3 border-t border-gray-100">
-                  <button className="text-sm font-medium text-[#800000] hover:underline flex items-center gap-1">
-                    <Eye className="w-4 h-4" /> Detail
-                  </button>
+                  <button onClick={() => router.push(`/dashboardPerusahaan/lowongan/edit/${job.id_lowongan}`)}
+                        className="text-sm font-medium text-[#800000] hover:underline flex items-center gap-1">
+                        <Eye className="w-4 h-4" /> kelola
+                      </button>
                   <button className="text-sm font-medium text-red-600 hover:underline flex items-center gap-1">
                     <Trash2 className="w-4 h-4" /> Hapus
                   </button>

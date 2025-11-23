@@ -1,13 +1,15 @@
 "use client";
 import useAdminAuth from "@/hooks/useAdminAuth";
-import { useState } from "react";
+import { useEffect, useState } from "react";
+import { useRouter, useParams } from "next/navigation";
 import { FaEye, FaEyeSlash } from "react-icons/fa";
-import { useRouter } from "next/navigation";
 import { ArrowLeft } from "lucide-react";
 
-export default function RegisterPage() {
-  useAdminAuth();  // ⬅ proteksi admin
+export default function DetailPerusahaan() {
+  useAdminAuth();
   const router = useRouter();
+  const { id } = useParams();
+
   const [formData, setFormData] = useState({
     nim: "",
     password: "",
@@ -21,46 +23,71 @@ export default function RegisterPage() {
     pendidikan_terakhir: "",
     linkedin: "",
   });
-      
-  const [showPassword, setShowPassword] = useState(false);
 
+  const [showPassword, setShowPassword] = useState(false);
+  const [loading, setLoading] = useState(true);
+  const [message, setMessage] = useState("");
+
+  // === FETCH DATA PERUSAHAAN ===
+  useEffect(() => {
+    if (!id) return;
+
+    const fetchData = async () => {
+      try {
+        const res = await fetch(`/api/admin/pencaker/kelola/${id}`);
+        const result = await res.json();
+
+        if (result.success) {
+          setFormData({
+          ...result.data, 
+          jenis_kelamin: String(result.data.jenis_kelamin),
+          });
+        } else {
+          console.error("Gagal memuat data:", result.message);
+        }
+      } catch (err) {
+        console.error("FETCH ERROR:", err);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchData();
+  }, [id]);
+
+  // HANDLE INPUT
   const handleChange = (e) => {
     const { name, value } = e.target;
     setFormData({ ...formData, [name]: value });
   };
 
+  // HANDLE SUBMIT EDIT
   const handleSubmit = async (e) => {
     e.preventDefault();
 
-    // Validasi field kosong
-    for (const key in formData) {
-      if (key !== "linkedin" && !formData[key]) {
-        alert(`Field ${key.replace("_", " ")} wajib diisi!`);
-        return;
-      }
-    }
-
     try {
-      const res = await fetch("/api/admin/pencaker/tambah", {
-        method: "POST",
+      const res = await fetch(`/api/admin/pencaker/kelola/${id}`, {
+        method: "PUT",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(formData),
       });
 
       const result = await res.json();
       if (result.success) {
-        alert("Berhasil menambahkan.");
+        setMessage("✅ Pencari Kerja berhasil diperbarui!");
+        setTimeout(() => router.push("/dashboardAdmin"), 1500);
       } else {
-        alert("Gagal menambahkan: " + result.message);
+        setMessage("❌ Gagal memperbarui data");
       }
-    } catch (err) {
-      console.error("Error:", err);
-      alert("Terjadi kesalahan server.");
+    } catch (error) {
+      setMessage("❌ Error server");
     }
   };
 
-  return (
+  if (loading) return <p className="text-center mt-10">Memuat...</p>;
 
+
+  return (
 
     <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-red-900 to-red-700 p-6">
       <div className="bg-white rounded-2xl shadow-2xl w-full max-w-2xl p-8 space-y-6">
@@ -117,6 +144,8 @@ export default function RegisterPage() {
           <div>
             <label className="block font-medium mb-1 text-black">Jenis Kelamin</label>
             <div className="flex gap-4">
+
+              {/* Laki-laki */}
               <label className="flex items-center">
                 <input
                   type="radio"
@@ -124,10 +153,11 @@ export default function RegisterPage() {
                   value="1"
                   checked={formData.jenis_kelamin === "1"}
                   onChange={handleChange}
-                  required
                 />
                 <span className="ml-2 text-black">Laki-laki</span>
               </label>
+
+              {/* Perempuan */}
               <label className="flex items-center">
                 <input
                   type="radio"
@@ -135,12 +165,13 @@ export default function RegisterPage() {
                   value="2"
                   checked={formData.jenis_kelamin === "2"}
                   onChange={handleChange}
-                  required
                 />
                 <span className="ml-2 text-black">Perempuan</span>
               </label>
+
             </div>
           </div>
+
 
           {/* Alamat */}
           <div>
@@ -270,11 +301,9 @@ export default function RegisterPage() {
             <input
               type={showPassword ? "text" : "password"}
               name="password"
-              value={formData.password}
               onChange={handleChange}
               className="w-full border rounded-lg px-3 py-2 text-black"
               placeholder="Masukkan password"
-              required
             />
             <button
               type="button"
