@@ -18,7 +18,6 @@ import {
 } from "lucide-react";
 import { useRouter } from "next/navigation";
 
-
 export default function DashboardAdmin() {
   const router = useRouter();
   const [stats, setStats] = useState({
@@ -40,6 +39,13 @@ export default function DashboardAdmin() {
           fetch("/api/admin/pencaker").then((r) => r.json()),
           fetch("/api/perusahaan/dashboard").then((r) => r.json()),
         ]);
+        const id = localStorage.getItem("id");
+
+        if (!id) {
+        console.warn("Akses ditolak");
+        router.replace("/loginPerusahaan");
+        return;
+      }
 
         const perusahaan = perusahaanRes.data || [];
         const pencaker = pencakerRes.data || [];
@@ -64,10 +70,11 @@ export default function DashboardAdmin() {
 
   const handleLogout = () => {
     // Hapus cookie
+    document.cookie = "id=; Max-Age=0; path=/; SameSite=Lax";
     document.cookie = "id_admin=; Max-Age=0; path=/; SameSite=Lax";
-
     // Hapus localStorage
     localStorage.removeItem("id");
+    localStorage.removeItem("id_admin");
     localStorage.removeItem("user");
     router.push("/loginPerusahaan");
   };
@@ -78,14 +85,22 @@ export default function DashboardAdmin() {
         {/* HEADER */}
         <div className="bg-gradient-to-r from-[#800000] to-[#b22222] text-white p-8 rounded-2xl shadow-lg mb-8 flex justify-between items-center">
           <div>
+            
             <h1 className="text-3xl font-bold">Dashboard Admin</h1>
             <p className="text-white/80 mt-2">Pantau seluruh aktivitas sistem GetJob</p>
           </div>
           <div className="bg-white/20 px-5 py-2 rounded-xl text-sm backdrop-blur-sm">
             <BarChart3 className="inline w-5 h-5 mr-2" /> Statistik Sistem
           </div>
+          {/* === TOMBOL LOGOUT === */}
+              <button
+                onClick={handleLogout}
+                className="px-5 py-3 border-2 border-red-400 text-black-600 rounded-xl font-semibold hover:bg-red-50 transition-all flex items-center gap-2">
+                <span>Logout</span>
+              </button>
         </div>
 
+    
         {/* STATISTIK */}
         <div className="grid grid-cols-1 sm:grid-cols-3 gap-6 mb-10">
           <StatCard icon={<Building2 />} title="Total Perusahaan" value={stats.totalPerusahaan} color="from-blue-500 to-blue-600" />

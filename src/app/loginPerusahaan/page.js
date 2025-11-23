@@ -32,7 +32,8 @@ export default function LoginPerusahaan() {
         localStorage.setItem("id_admin", data.data.id_admin);
       } else if (data.data.id) {
         // super admin
-        localStorage.setItem("admin_id", data.data.id);
+        document.cookie = `id=${data.data.id}; path=/; SameSite=Lax`;
+        localStorage.setItem("id", data.data.id);
       }
 
 
