@@ -1,9 +1,11 @@
 "use client";
+import useAdminPerusahaanAuth from "@/hooks/useAdminPerusahaanAuth";
 import React, { useState, useEffect } from "react";
 import { ArrowLeft, Upload, Building2, FileText, MapPin } from "lucide-react";
 import { useRouter } from "next/navigation";
 
 export default function PengaturanPage() {
+  useAdminPerusahaanAuth();  // ⬅ proteksi admin Perusahaan
   const router = useRouter();
 
   // State untuk data perusahaan
@@ -19,7 +21,8 @@ export default function PengaturanPage() {
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const res = await fetch("/api/perusahaan/pengaturan");
+        const id = localStorage.getItem("id_admin");
+        const res = await fetch(`/api/perusahaan/pengaturan?id_admin=${id}`);
         const result = await res.json();
         if (result.success) {
           setFormData({
@@ -62,7 +65,7 @@ export default function PengaturanPage() {
     if (formData.logo) data.append("logo", formData.logo);
 
     try {
-      const res = await fetch("/api/perusahaan/pengaturan", {
+      const res = await fetch(`/api/perusahaan/pengaturan?id_admin=${id}`, {
         method: "POST",
         body: data,
       });
@@ -146,7 +149,7 @@ export default function PengaturanPage() {
                 value={formData.nama_perusahaan}
                 onChange={handleChange}
                 placeholder="Masukkan nama perusahaan"
-                className="w-full border-gray-300 rounded-lg px-4 py-2 focus:ring-[#800000] focus:border-[#800000]"
+                className="w-full border-gray-300 rounded-lg px-4 py-2 focus:ring-[#800000] focus:border-[#800000] text-black "
               />
             </div>
 
@@ -161,7 +164,7 @@ export default function PengaturanPage() {
                 onChange={handleChange}
                 rows="4"
                 placeholder="Tuliskan deskripsi singkat tentang perusahaan..."
-                className="w-full border-gray-300 rounded-lg px-4 py-2 focus:ring-[#800000] focus:border-[#800000]"
+                className="w-full border-gray-300 rounded-lg px-4 py-2 focus:ring-[#800000] focus:border-[#800000] text-black "
               ></textarea>
             </div>
 
@@ -178,7 +181,7 @@ export default function PengaturanPage() {
                   onChange={handleChange}
                   rows="3"
                   placeholder="Masukkan alamat lengkap perusahaan"
-                  className="w-full border-gray-300 rounded-lg px-4 py-2 focus:ring-[#800000] focus:border-[#800000]"
+                  className="w-full border-gray-300 rounded-lg px-4 py-2 focus:ring-[#800000] focus:border-[#800000] text-black"
                 ></textarea>
               </div>
             </div>

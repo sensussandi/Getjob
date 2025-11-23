@@ -1,4 +1,5 @@
 "use client";
+import useAdminPerusahaanAuth from "@/hooks/useAdminPerusahaanAuth";
 import { useEffect, useState } from "react";
 import { useParams, useRouter } from "next/navigation";
 import {
@@ -16,6 +17,7 @@ import {
 } from "lucide-react";
 
 export default function EditLowongan() {
+  useAdminPerusahaanAuth();  // ⬅ proteksi admin Perusahaan
   const router = useRouter();
   const { id } = useParams();
   const [isSubmitting, setIsSubmitting] = useState(false);

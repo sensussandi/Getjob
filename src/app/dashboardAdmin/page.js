@@ -1,4 +1,5 @@
 "use client";
+import useAdminAuth from "@/hooks/useAdminAuth";
 import React, { useState, useEffect } from "react";
 import {
   Building2,
@@ -19,6 +20,7 @@ import {
 import { useRouter } from "next/navigation";
 
 export default function DashboardAdmin() {
+  useAdminAuth();  // ⬅ proteksi berjalan otomatis
   const router = useRouter();
   const [stats, setStats] = useState({
     totalPerusahaan: 0,
@@ -39,13 +41,15 @@ export default function DashboardAdmin() {
           fetch("/api/admin/pencaker").then((r) => r.json()),
           fetch("/api/perusahaan/dashboard").then((r) => r.json()),
         ]);
-        const id = localStorage.getItem("id");
+        
+//        // untuk proteksi agar tidak bisa diakses sembarangan
+//        const id = localStorage.getItem("id");
 
-        if (!id) {
-        console.warn("Akses ditolak");
-        router.replace("/loginPerusahaan");
-        return;
-      }
+//        if (!id) {
+//        console.warn("Akses ditolak");
+//        router.replace("/loginPerusahaan");
+//        return;
+//      }
 
         const perusahaan = perusahaanRes.data || [];
         const pencaker = pencakerRes.data || [];
@@ -71,10 +75,8 @@ export default function DashboardAdmin() {
   const handleLogout = () => {
     // Hapus cookie
     document.cookie = "id=; Max-Age=0; path=/; SameSite=Lax";
-    document.cookie = "id_admin=; Max-Age=0; path=/; SameSite=Lax";
     // Hapus localStorage
     localStorage.removeItem("id");
-    localStorage.removeItem("id_admin");
     localStorage.removeItem("user");
     router.push("/loginPerusahaan");
   };

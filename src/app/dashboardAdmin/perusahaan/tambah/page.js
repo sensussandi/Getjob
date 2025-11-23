@@ -1,10 +1,12 @@
 "use client";
+import useAdminAuth from "@/hooks/useAdminAuth";
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { ArrowLeft, Save } from "lucide-react";
 
 export default function TambahPerusahaanPage() {
-  const router = useRouter();
+  useAdminAuth();  // ⬅ proteksi admin
+  const router = useRouter();  
   const [formData, setFormData] = useState({
     nama_perusahaan: "",
     email_perusahaan: "",
@@ -15,7 +17,7 @@ export default function TambahPerusahaanPage() {
     no_telepone: "",
     role: "admin",
   });
-
+  
   const [loading, setLoading] = useState(false);
   const [message, setMessage] = useState("");
 

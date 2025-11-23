@@ -1,10 +1,12 @@
 "use client";
+import useAdminAuth from "@/hooks/useAdminAuth";
 import { useState } from "react";
 import { FaEye, FaEyeSlash } from "react-icons/fa";
 import { useRouter } from "next/navigation";
 import { ArrowLeft } from "lucide-react";
 
 export default function RegisterPage() {
+  useAdminAuth();  // ⬅ proteksi admin
   const router = useRouter();
   const [formData, setFormData] = useState({
     nim: "",
@@ -19,7 +21,7 @@ export default function RegisterPage() {
     pendidikan_terakhir: "",
     linkedin: "",
   });
-
+      
   const [showPassword, setShowPassword] = useState(false);
 
   const handleChange = (e) => {

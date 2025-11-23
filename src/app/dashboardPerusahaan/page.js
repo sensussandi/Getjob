@@ -1,4 +1,5 @@
 "use client";
+import useAdminPerusahaanAuth from "@/hooks/useAdminPerusahaanAuth";
 import React, { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import {
@@ -44,6 +45,7 @@ function formatTanggal(tanggal) {
 }
 
 export default function DashboardPerusahaan() {
+  useAdminPerusahaanAuth();  // ⬅ proteksi admin Perusahaan
   const [data, setData] = useState(null);
   const router = useRouter();
 
@@ -52,11 +54,11 @@ export default function DashboardPerusahaan() {
     const fetchData = async () => {
       const id = localStorage.getItem("id_admin");
 
-      if (!id) {
-        console.warn("Akses ditolak");
-        router.replace("/loginPerusahaan");
-        return;
-      }
+//      if (!id) {
+//        console.warn("Akses ditolak");
+//        router.replace("/loginPerusahaan");
+//        return;
+//      }
 
       const res = await fetch(`/api/perusahaan/dashboard?id_admin=${id}`);
       const result = await res.json();

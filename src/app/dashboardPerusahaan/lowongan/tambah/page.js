@@ -1,5 +1,6 @@
 "use client";
-import { useState } from "react";
+import useProtectedAuth from "@/hooks/useProtectedAuth";
+import { use, useState } from "react";
 import { useRouter } from "next/navigation";
 import { ArrowLeft } from "lucide-react";
 import {
@@ -16,6 +17,7 @@ import {
 } from "lucide-react";
 
 export default function TambahLowongan() {
+  useProtectedAuth();  // ⬅ proteksi admin perusahaan dan super admin
   const router = useRouter();
   const [form, setForm] = useState({
     nama_posisi: "",
