@@ -3,6 +3,18 @@ import mysql from "mysql2/promise";
 
 export async function POST(req) {
   try {
+    // Sementara ID admin hardcoded (nanti ambil dari session)
+    const { searchParams } = new URL(req.url);
+    const id_admin =  searchParams.get("id_admin");
+
+    if (!id_admin) {
+      return NextResponse.json(
+        { success: false, message: "ID admin wajib dikirim" },
+        { status: 400 }
+      );
+    }
+    console.log("ID ADMIN DITERIMA:", id_admin);
+
     const body = await req.json();
 
     const {
@@ -64,8 +76,6 @@ export async function POST(req) {
 
     const tanggal_dibuka = new Date().toISOString().split("T")[0];
 
-    // Sementara ID admin hardcoded (nanti ambil dari session)
-    const id_admin = 1;
 
     // Query lengkap INSERT
     const query = `

@@ -1,7 +1,7 @@
 "use client";
 import { useState } from "react";
 import { useRouter } from "next/navigation";
-import { ArrowLeft} from "lucide-react";
+import { ArrowLeft } from "lucide-react";
 import {
   Briefcase,
   MapPin,
@@ -40,7 +40,14 @@ export default function TambahLowongan() {
     e.preventDefault();
     setIsSubmitting(true);
     try {
-      const res = await fetch("/api/perusahaan/lowongan/tambah", {
+      const id = localStorage.getItem("id_admin");
+
+      if (!id) {
+        console.error("ID admin tidak ditemukan di localStorage");
+        router.push("/loginPerusahaan");
+        return;
+      }
+      const res = await fetch(`/api/perusahaan/lowongan/tambah?id_admin=${id}`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(form),
@@ -185,9 +192,9 @@ export default function TambahLowongan() {
             </button>
           </div>
         </div>
-<button onClick={() => router.back()}
-            className="flex items-center gap-2 text-gray-600 hover:text-[#800000]">
-            <ArrowLeft className="w-4 h-4" /> Kembali </button>
+        <button onClick={() => router.back()}
+          className="flex items-center gap-2 text-gray-600 hover:text-[#800000]">
+          <ArrowLeft className="w-4 h-4" /> Kembali </button>
         {/* Form Container */}
         <div className="bg-white shadow-xl rounded-2xl overflow-hidden">
           <form onSubmit={handleSubmit}>
@@ -406,9 +413,8 @@ function InputField({
           onChange={onChange}
           placeholder={placeholder}
           required
-          className={`w-full border-2 border-gray-200 rounded-xl px-4 py-3 ${
-            icon ? "pl-12" : ""
-          } focus:border-[#800000] focus:ring-2 focus:ring-[#800000]/20 outline-none transition-all hover:border-gray-300`}
+          className={`w-full border-2 border-gray-200 rounded-xl px-4 py-3 ${icon ? "pl-12" : ""
+            } focus:border-[#800000] focus:ring-2 focus:ring-[#800000]/20 outline-none transition-all hover:border-gray-300`}
         />
       </div>
     </div>
@@ -432,9 +438,8 @@ function SelectField({ label, name, value, onChange, options, icon }) {
           value={value}
           onChange={onChange}
           required
-          className={`w-full border-2 border-gray-200 rounded-xl px-4 py-3 ${
-            icon ? "pl-12" : ""
-          } focus:border-[#800000] focus:ring-2 focus:ring-[#800000]/20 outline-none transition-all hover:border-gray-300 appearance-none bg-white cursor-pointer`}
+          className={`w-full border-2 border-gray-200 rounded-xl px-4 py-3 ${icon ? "pl-12" : ""
+            } focus:border-[#800000] focus:ring-2 focus:ring-[#800000]/20 outline-none transition-all hover:border-gray-300 appearance-none bg-white cursor-pointer`}
         >
           <option value="">Pilih {label}</option>
           {options.map((option, index) => (
@@ -486,9 +491,8 @@ function TextAreaField({
           required
           rows={rows}
           placeholder={placeholder}
-          className={`w-full border-2 border-gray-200 rounded-xl px-4 py-3 ${
-            icon ? "pl-12" : ""
-          } focus:border-[#800000] focus:ring-2 focus:ring-[#800000]/20 outline-none transition-all hover:border-gray-300 resize-none`}
+          className={`w-full border-2 border-gray-200 rounded-xl px-4 py-3 ${icon ? "pl-12" : ""
+            } focus:border-[#800000] focus:ring-2 focus:ring-[#800000]/20 outline-none transition-all hover:border-gray-300 resize-none`}
         />
       </div>
     </div>

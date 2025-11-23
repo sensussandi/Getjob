@@ -18,6 +18,7 @@ import {
 } from "lucide-react";
 import { useRouter } from "next/navigation";
 
+
 export default function DashboardAdmin() {
   const router = useRouter();
   const [stats, setStats] = useState({
@@ -34,15 +35,17 @@ export default function DashboardAdmin() {
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const [perusahaanRes, pencakerRes, lowonganRes] = await Promise.all([
+        const [perusahaanRes, pencakerRes, lowonganRes, pelamar, stats] = await Promise.all([
           fetch("/api/admin/perusahaan").then((r) => r.json()),
           fetch("/api/admin/pencaker").then((r) => r.json()),
-          fetch("/api/lowongan").then((r) => r.json()),
+          fetch("/api/perusahaan/dashboard").then((r) => r.json()),
         ]);
 
         const perusahaan = perusahaanRes.data || [];
         const pencaker = pencakerRes.data || [];
         const lowongan = lowonganRes.data || [];
+
+
 
         setDataPerusahaan(perusahaan);
         setDataPencariKerja(pencaker);
@@ -58,6 +61,16 @@ export default function DashboardAdmin() {
     };
     fetchData();
   }, []);
+
+  const handleLogout = () => {
+    // Hapus cookie
+    document.cookie = "id_admin=; Max-Age=0; path=/; SameSite=Lax";
+
+    // Hapus localStorage
+    localStorage.removeItem("id");
+    localStorage.removeItem("user");
+    router.push("/loginPerusahaan");
+  };
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100 p-8">
@@ -264,10 +277,10 @@ function LowonganSection({ dataLowongan, router }) {
                     <Calendar className="w-4 h-4 text-gray-400" /> Tutup:{" "}
                     {job.tanggal_ditutup
                       ? new Date(job.tanggal_ditutup).toLocaleDateString("id-ID", {
-                          day: "2-digit",
-                          month: "short",
-                          year: "numeric",
-                        })
+                        day: "2-digit",
+                        month: "short",
+                        year: "numeric",
+                      })
                       : "-"}
                   </div>
                 </div>

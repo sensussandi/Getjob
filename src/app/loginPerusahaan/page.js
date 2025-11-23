@@ -27,6 +27,8 @@ export default function LoginPerusahaan() {
       localStorage.setItem("isLoggedIn", "true");
       if (data.data.id_admin) {
         // perusahaan
+        document.cookie = `id_admin=${data.data.id_admin}; path=/; SameSite=Lax`;
+
         localStorage.setItem("id_admin", data.data.id_admin);
       } else if (data.data.id) {
         // super admin

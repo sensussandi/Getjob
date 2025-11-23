@@ -27,34 +27,34 @@ function formatTanggal(tanggal) {
     // Sesuaikan zona waktu WIB (+7 jam)
     const localDate = new Date(date.getTime() + 7 * 60 * 60 * 1000);
 
-  //    const perusahaanLogin = JSON.parse(localStorage.getItem("perusahaan"));
-  //    if (!perusahaanLogin) {
-  //      router.push("/loginPerusahaan");
-  //      return;
+    //    const perusahaanLogin = JSON.parse(localStorage.getItem("perusahaan"));
+    //    if (!perusahaanLogin) {
+    //      router.push("/loginPerusahaan");
+    //      return;
 
-// Format ke bahasa Indonesia
-return localDate.toLocaleDateString("id-ID", {
-  day: "2-digit",
-  month: "long",
-  year: "numeric",
-});
+    // Format ke bahasa Indonesia
+    return localDate.toLocaleDateString("id-ID", {
+      day: "2-digit",
+      month: "long",
+      year: "numeric",
+    });
   } catch (e) {
-  return tanggal;
-}
+    return tanggal;
+  }
 }
 
 export default function DashboardPerusahaan() {
   const [data, setData] = useState(null);
   const router = useRouter();
 
-  // ✅ Ambil data dari API Next.js (bukan dummy)
+  // ✅ Ambil data dari API Next.js
   useEffect(() => {
     const fetchData = async () => {
       const id = localStorage.getItem("id_admin");
 
       if (!id) {
-        console.error("ID admin tidak ditemukan di localStorage");
-        router.push("/loginPerusahaan");
+        console.warn("Akses ditolak");
+        router.replace("/loginPerusahaan");
         return;
       }
 
@@ -84,6 +84,16 @@ export default function DashboardPerusahaan() {
         </p>
       </div>
     );
+  const handleLogout = () => {
+    // hapus cookie
+    document.cookie = "id_admin=; Max-Age=0; path=/; SameSite=Lax";
+
+    // hapus localStorage
+    localStorage.removeItem("id_admin");
+    localStorage.removeItem("user");
+
+    router.push("/loginPerusahaan");
+  };
 
   // ✅ Ambil data dari hasil API
   const { admin, lowongan, pelamar, stats } = data;
@@ -153,6 +163,12 @@ export default function DashboardPerusahaan() {
               >
                 <Settings className="w-5 h-5" />
                 <span>Pengaturan</span>
+              </button>
+              {/* === TOMBOL LOGOUT === */}
+              <button
+                onClick={handleLogout}
+                className="px-5 py-3 border-2 border-red-400 text-red-600 rounded-xl font-semibold hover:bg-red-50 transition-all flex items-center gap-2">
+                <span>Logout</span>
               </button>
             </div>
           </div>
