@@ -1,6 +1,6 @@
 import "./globals.css";
-import Providers from "./Providers"; // provider client
-import ClientLayout from "@/components/ClientLayout";
+import Providers from "./Providers";
+import Header from "@/components/Header";
 
 export const metadata = {
   title: "GetJob",
@@ -11,9 +11,9 @@ export default function RootLayout({ children }) {
   return (
     <html lang="en">
       <body className="antialiased">
-        {/* Provider client dibungkus di dalam Server layout */}
         <Providers>
-          <ClientLayout>{children}</ClientLayout>
+          <Header />
+          {children}
         </Providers>
       </body>
     </html>
