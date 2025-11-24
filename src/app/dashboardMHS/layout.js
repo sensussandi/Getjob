@@ -1,17 +1,16 @@
-import Sidebar from "@/components/Sidebar";
-import Topbar from "@/components/Topbar";
-
-export default function Layout({ children }) {
+export default function DashboardLayout({ children }) {
   return (
-    <div className="flex h-screen bg-gray-100">
-      {/* Sidebar kiri */}
-      <Sidebar />
-
-      {/* Area kanan */}
-      <div className="flex flex-col flex-1">
-        <Topbar />
-        <main className="flex-1 overflow-y-auto p-6">{children}</main>
+    <div className="flex min-h-screen bg-gray-100">
+      {/* Sidebar */}
+      <div className="w-64">
+        {/** Import Sidebar secara langsung */}
+        {require("@/components/Sidebar").default()}
       </div>
+
+      {/* Konten Halaman */}
+      <main className="flex-1 p-6">
+        {children}
+      </main>
     </div>
   );
 }
