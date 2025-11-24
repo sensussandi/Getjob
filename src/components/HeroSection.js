@@ -34,7 +34,7 @@ export default function HeroSection() {
   };
 
   return (
-    <section className="relative bg-gradient-to-br from-[#800000] via-[#900000] to-[#700000] text-white py-16 overflow-hidden">
+    <section className="relative bg-gradient-to-br from-[#800000] via-[#900000] to-[#700000] text-white py-16 overflow-visible">
       {/* Background Pattern */}
       <div className="absolute inset-0 opacity-10">
         <div className="absolute top-0 right-0 w-96 h-96 bg-white rounded-full blur-3xl animate-pulse"></div>
