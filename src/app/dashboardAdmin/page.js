@@ -60,6 +60,57 @@ export default function DashboardAdmin() {
     fetchData();
   }, []);
 
+  const handleDeletePerusahaan = async (id) => {
+    if (!confirm("Yakin ingin menghapus perusahaan ini?")) return;
+
+    const res = await fetch(`/api/admin/perusahaan/delete/${id}`, {
+      method: "DELETE",
+    });
+
+    const data = await res.json();
+
+    if (data.success) {
+      alert("Berhasil menghapus perusahaan.");
+      setDataPerusahaan(prev => prev.filter((p) => p.id_admin !== id)); // update UI
+    } else {
+      alert("Gagal menghapus perusahaan.");
+    }
+  };
+
+  const handleDeletePencaker = async (id) => {
+    if (!confirm("Yakin ingin menghapus pencari kerja ini?")) return;
+
+    const res = await fetch(`/api/admin/pencaker/delete/${id}`, {
+      method: "DELETE",
+    });
+
+    const data = await res.json();
+
+    if (data.success) {
+      alert("Berhasil menghapus pencari kerja.");
+      setDataPencariKerja(prev => prev.filter((u) => u.nim !== id)); // update UI
+    } else {
+      alert("Gagal menghapus pencari kerja.");
+    }
+  };
+
+  const handleDeleteLowongan = async (id) => {
+    if (!confirm("Yakin ingin menghapus loker ini?")) return;
+
+    const res = await fetch(`/api/lowongan/delete/${id}`, {
+      method: "DELETE",
+    });
+
+    const data = await res.json();
+
+    if (data.success) {
+      alert("Berhasil menghapus loker.");
+      setDataLowongan(prev => prev.filter((job) => job.id.lowongan !== id)); // update UI
+    } else {
+      alert("Gagal menghapus loker.");
+    }
+  };
+
   const handleLogout = () => {
     // Hapus cookie
     document.cookie = "id=; Max-Age=0; path=/; SameSite=Lax";
@@ -198,7 +249,10 @@ export default function DashboardAdmin() {
                         className="text-sm font-medium text-[#800000] hover:underline flex items-center gap-1">
                         <Eye className="w-4 h-4" /> kelola
                       </button>
-                      <button className="text-sm font-medium text-red-600 hover:underline flex items-center gap-1">
+                      <button
+                        onClick={() => handleDeletePerusahaan(p.id_admin)}
+                        className="text-sm font-medium text-red-600 hover:underline flex items-center gap-1"
+                      >
                         <Trash2 className="w-4 h-4" /> Hapus
                       </button>
                     </div>
@@ -251,7 +305,10 @@ export default function DashboardAdmin() {
                         className="text-sm font-medium text-[#800000] hover:underline flex items-center gap-1">
                         <Eye className="w-4 h-4" /> kelola
                       </button>
-                      <button className="text-sm font-medium text-red-600 hover:underline flex items-center gap-1">
+                      <button
+                        onClick={() => handleDeletePencaker(u.nim)}
+                        className="text-sm font-medium text-red-600 hover:underline flex items-center gap-1"
+                      >
                         <Trash2 className="w-4 h-4" /> Hapus
                       </button>
                     </div>
@@ -263,7 +320,8 @@ export default function DashboardAdmin() {
         </div>
 
         {/* === DATA LOWONGAN (TETAP PREMIUM) === */}
-        <LowonganSection dataLowongan={dataLowongan} router={router} />
+        <LowonganSection dataLowongan={dataLowongan} router={router} handleDeleteLowongan={handleDeleteLowongan} 
+/>
       </div>
     </div>
   );
@@ -283,7 +341,7 @@ function StatCard({ icon, title, value, color }) {
 }
 
 /* === KOMPONEN LOWONGAN === */
-function LowonganSection({ dataLowongan, router }) {
+function LowonganSection({ dataLowongan, router, handleDeleteLowongan}) {
   return (
     <div className="bg-white shadow-xl rounded-2xl overflow-hidden">
       <div className="flex justify-between items-center px-6 py-4 border-b border-gray-100 bg-gray-50">
@@ -333,10 +391,14 @@ function LowonganSection({ dataLowongan, router }) {
                 </p>
                 <div className="flex justify-between items-center pt-3 border-t border-gray-100">
                   <button onClick={() => router.push(`/dashboardPerusahaan/lowongan/edit/${job.id_lowongan}`)}
-                        className="text-sm font-medium text-[#800000] hover:underline flex items-center gap-1">
-                        <Eye className="w-4 h-4" /> kelola
-                      </button>
-                  <button className="text-sm font-medium text-red-600 hover:underline flex items-center gap-1">
+                    className="text-sm font-medium text-[#800000] hover:underline flex items-center gap-1">
+                    <Eye className
+                    ="w-4 h-4" /> kelola
+                  </button>
+                  <button
+                    onClick={() => handleDeleteLowongan(job.id_lowongan)}
+                    className="text-sm font-medium text-red-600 hover:underline flex items-center gap-1"
+                  >
                     <Trash2 className="w-4 h-4" /> Hapus
                   </button>
                 </div>
