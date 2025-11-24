@@ -21,7 +21,7 @@ export default function RegisterPage() {
     pendidikan_terakhir: "",
     linkedin: "",
   });
-      
+
   const [showPassword, setShowPassword] = useState(false);
 
   const handleChange = (e) => {
@@ -50,6 +50,29 @@ export default function RegisterPage() {
       const result = await res.json();
       if (result.success) {
         alert("Berhasil menambahkan.");
+        const confirmExit = confirm("Apakah Anda ingin keluar?");
+
+        if (confirmExit) {
+          router.push("/dashboardAdmin");
+        } else {
+          // RESET FORM SAJA
+          setFormData({
+            nim: "",
+            password: "",
+            nama_lengkap: "",
+            tanggal_lahir: "",
+            jenis_kelamin: "",
+            alamat: "",
+            email: "",
+            no_telephone: "",
+            prodi: "",
+            pendidikan_terakhir: "",
+            linkedin: "",
+          });
+
+          setShowPassword(false);
+        }
+
       } else {
         alert("Gagal menambahkan: " + result.message);
       }
