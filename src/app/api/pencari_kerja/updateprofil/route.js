@@ -1,9 +1,18 @@
 import mysql from "mysql2/promise";
 import { NextResponse } from "next/server";
 
-export async function POST(req) {
+export async function GET(req) {
   try {
+    const { searchParams } = new URL(req.url);
+    const nim = searchParams.get("nim");   // Pencari Kerja pakai "nim"
     // Ambil data dari body request
+    if (!nim) {
+      return NextResponse.json({
+        success: false,
+        message: "nim pencari kerja tidak ditemukan",
+      });
+    }
+
     const body = await req.json();
     const { prodi, keahlian } = body;
 
@@ -15,8 +24,7 @@ export async function POST(req) {
       });
     }
 
-    // Sementara hardcode nim user aktif (nanti bisa diganti dari session)
-    const nim = 235314020;
+    
 
     // Koneksi ke database
     const db = await mysql.createConnection({

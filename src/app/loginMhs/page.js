@@ -13,70 +13,37 @@ export default function LoginMhs() {
   const [formData, setFormData] = useState({
     nim: "",
     password: "",
-    nama_lengkap: "",
-    email: "",
-    no_telephone: "",
   });
-
-  const handleChange = (e) => {
-    setFormData({ ...formData, [e.target.name]: e.target.value });
-  };
-
-  // const handleLogin = async () => {
-  //   if (!formData.nim || !formData.password) {
-  //     alert("NIM dan Password harus diisi!");
-  //     return;
-  //   }
-
-  //   try {
-  //     const response = await fetch("/api/loginMhs", {
-  //       method: "POST",
-  //       headers: { "Content-Type": "application/json" },
-  //       body: JSON.stringify(formData),
-  //     });
-
-  //     const result = await response.json();
-
-  //     if (response.ok && result.success) {
-  //       // Simpan seluruh data user ke localStorage
-  //       localStorage.setItem("user", JSON.stringify(result.data));
-
-  //       alert("Login berhasil!");
-  //       window.location.href = "/dashboardMHS";
-  //     } else {
-  //       alert(result.message || "Login gagal!");
-  //     }
-  //   } catch (error) {
-  //     console.error("Error:", error);
-  //     alert("Tidak bisa terhubung ke server!");
-  //   }
-  // };
-
-  // LOGIN menggunakan NextAuth
 
   const handleLogin = async (e) => {
     e.preventDefault();
+    setError("");
 
-    if (!formData.nim || !formData.password) {
-      alert("NIM dan Password harus diisi!");
-      return;
-    }
-
+    // LOGIN MAHASISWA
     const res = await signIn("alumni", {
       redirect: false,
       nim: formData.nim,
       password: formData.password,
     });
 
-    if (res.error) {
-      alert("NIM atau Password salah!");
+    if (res?.error) {
+      setError("NIM atau password salah!");
       return;
     }
-    const session = await fetch("/api/auth/session").then(r => r.json());
-    // Redirect sesuai role
-    if (session?.user?.role === "alumni") {
+
+    // HARUS AMBIL SESSION BARU
+    const session = await fetch("/api/auth/session").then((r) => r.json());
+
+    if (!session?.user) {
+      setError("Gagal memuat sesi.");
+      return;
+    }
+
+    if (session.user.role === "alumni") {
       router.push("/dashboardMHS");
-    } 
+    } else {
+      setError("Akses tidak diizinkan.");
+    }
   };
 
   const handleForgotPassword = () => {
@@ -126,7 +93,7 @@ export default function LoginMhs() {
                   type="text"
                   name="nim"
                   value={formData.nim}
-                  onChange={handleChange}
+                  onChange={(e) => setFormData({ ...formData, nim: e.target.value })}
                   placeholder="Masukkan NIM"
                   className="w-full pl-12 pr-4 py-3 border text-black placeholder-gray-400 rounded-lg focus:ring-2 focus:ring-red-900 focus:border-transparent transition"
                 />
@@ -142,7 +109,7 @@ export default function LoginMhs() {
                   type={showPassword ? "text" : "password"}
                   name="password"
                   value={formData.password}
-                  onChange={handleChange}
+                  onChange={(e) => setFormData({ ...formData, password: e.target.value })}
                   placeholder="Masukkan Password"
                   className="w-full pl-12 pr-12 py-3 border text-black placeholder-gray-400 rounded-lg focus:ring-2 focus:ring-red-900 focus:border-transparent transition"
                 />
@@ -161,14 +128,6 @@ export default function LoginMhs() {
               <button type="button" onClick={handleForgotPassword} className="text-sm text-red-900 hover:text-red-700 font-medium transition">
                 Lupa Kata Sandi?
               </button>
-            </div>
-            <div className="text-center mt-6">
-              <p className="text-sm text-gray-600">
-                Belum punya akun?{" "}
-                <a href="/registrasiMHS" className="text-red-900 font-semibold hover:text-red-700 transition">
-                  Daftar di sini
-                </a>
-              </p>
             </div>
 
             {/* Login Button */}

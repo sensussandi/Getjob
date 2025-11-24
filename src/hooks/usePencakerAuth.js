@@ -10,16 +10,16 @@ export default function usePencakerAuth() {
   useEffect(() => {
     // Masih loading → jangan apa-apa dulu
     if (status === "loading") return;
-
+    
     // Tidak login → lempar ke login
     if (!session) {
-      router.replace("/loginMhs");
+      router.replace("/dashboardMHS");
       return;
     }
 
     // Login tapi bukan mahasiswa → tendang
     if (session.user.role !== "alumni") {
-      router.replace("/loginMhs");
+      router.replace("/dashboardMHS");
       return;
     }
 

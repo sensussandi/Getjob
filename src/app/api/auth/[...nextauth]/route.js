@@ -37,7 +37,7 @@ export const authOptions = {
 
         return {
           id: user.nim,
-          role: user.role,
+          role: "alumni",
           nim: user.nim,
           name: user.nama_lengkap,
           email: user.email,
@@ -109,41 +109,34 @@ export const authOptions = {
     }),
   ],
 
+// ======================================
+  // FIX SERVER-SIDE REDIRECT NEXTAUTH
+  // ======================================
+
   session: {
     strategy: "jwt",
+    maxAge:  60 * 60 * 24, // 24 jam
   },
 
   callbacks: {
-    async jwt({ token, user }) {
-      if (user) {
-        token.id = user.id;
-        token.role = user.role;
-        token.email = user.email;
-        token.name = user.name;
-        token.nim = user.nim;
-        token.foto = user.foto;
-        token.prodi = user.prodi;
-        token.no_telephone = user.no_telephone;
-        token.nama_perusahaan = user.nama_perusahaan;
+    async jwt({ token, user, trigger }) {
+      // 🔥 FIX PENTING: reset token saat login baru
+      if (trigger === "signIn" && user) {
+        token = {};     // ← hapus token lama
       }
+
+      if (user) {
+        Object.assign(token, user);
+      }
+
       return token;
     },
 
     async session({ session, token }) {
-      session.user = {
-        id: token.id,
-        role: token.role,
-        email: token.email,
-        name: token.name,
-        nim: token.nim,
-        foto: token.foto,
-        prodi: token.prodi,
-        no_telephone: token.no_telephone,
-        nama_perusahaan: token.nama_perusahaan,
-      };
+      session.user = { ...token};
       return session;
-    }
-  }
+    },
+  },
 };
 
 const handler = NextAuth(authOptions);

@@ -1,11 +1,35 @@
 "use client";
-import { useState } from "react";
+import usePencakerAuth from "@/hooks/usePencakerAuth";
+import React, { useState, useEffect } from "react";
+import { useSession } from "next-auth/react";
 
 export default function RekomendasiPage() {
+  usePencakerAuth();
   const [prodi, setProdi] = useState("");
   const [keahlian, setKeahlian] = useState([]);
   const [error, setError] = useState("");
 
+  // ⬅ ambil session paling atas
+  const { data: session, status } = useSession();
+
+  // ⬅ fetch data setelah session siap
+  useEffect(() => {
+    if (!session || session.user.role !== "nim") return;
+
+    const fetchData = async () => {
+      const res = await fetch(`/api/perusahaan/dashboard?nim=${session.user.nim}`);
+
+      const result = await res.json();
+
+      if (result.success) {
+        setData(result);
+      } else {
+        console.error(result.message);
+      }
+    };
+
+    fetchData();
+  }, [session]);
   // === 26 Prodi USD ===
   const daftarProdi = [
     "Informatika", "Teknik Elektro", "Fisika", "Matematika", "Biologi",

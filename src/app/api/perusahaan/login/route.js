@@ -78,16 +78,6 @@ export async function POST(req) {
     let redirect = "/";
     let role = user.role;
 
-    if (tableType === "admin_perusahaan" && role === "admin") {
-      redirect = "/dashboardPerusahaan";
-    } else if (tableType === "users" && role === "super_admin") {
-      redirect = "/dashboardAdmin";
-    } else {
-      return NextResponse.json(
-        { success: false, message: "Akses ditolak. Role tidak diizinkan." },
-        { status: 403 }
-      );
-    }
 
     // ✅ Login berhasil
     return NextResponse.json({
