@@ -1,12 +1,14 @@
 "use client";
 import useAdminAuth from "@/hooks/useAdminAuth";
 import { useState } from "react";
+import { FaEye, FaEyeSlash } from "react-icons/fa";
 import { useRouter } from "next/navigation";
 import { ArrowLeft, Save } from "lucide-react";
 
 export default function TambahPerusahaanPage() {
   useAdminAuth();  // ⬅ proteksi admin
-  const router = useRouter();  
+  const router = useRouter();
+  const [showPassword, setShowPassword] = useState(false);
   const [formData, setFormData] = useState({
     nama_perusahaan: "",
     email_perusahaan: "",
@@ -17,13 +19,14 @@ export default function TambahPerusahaanPage() {
     no_telepone: "",
     role: "admin",
   });
-  
+
   const [loading, setLoading] = useState(false);
   const [message, setMessage] = useState("");
 
   // handle perubahan input
   const handleChange = (e) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
+    setShowPassword(false);
   };
 
   // handle submit
@@ -72,7 +75,7 @@ export default function TambahPerusahaanPage() {
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <Input label="Nama Perusahaan" name="nama_perusahaan" value={formData.nama_perusahaan} onChange={handleChange} required />
             <Input label="Email Perusahaan" name="email_perusahaan" value={formData.email_perusahaan} onChange={handleChange} required />
-            <Input label="Password" name="password" type="password" value={formData.password} onChange={handleChange} required />
+            <Input label="Password" name="password" type={showPassword ? "text" : "password"} value={formData.password} onChange={handleChange} required togglePassword={() => setShowPassword(!showPassword)}/>
             <Input label="No. Telepon" name="no_telepone" value={formData.no_telepone} onChange={handleChange} />
             <Input label="Logo URL (opsional)" name="logo_url" value={formData.logo_url} onChange={handleChange} />
           </div>
@@ -100,18 +103,32 @@ export default function TambahPerusahaanPage() {
 }
 
 // === Komponen Input & Textarea ===
-function Input({ label, name, value, onChange, type = "text", required }) {
+function Input({ label, name, value, onChange, type = "text", required, showPassword, togglePassword }) {
   return (
-    <div>
+    <div className="relative">
       <label className="block text-sm font-medium text-gray-700 mb-1">{label}</label>
+
       <input
         type={type}
         name={name}
         value={value}
         onChange={onChange}
         required={required}
-        className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-[#800000] focus:border-[#800000] outline-none text-black placeholder:text-black"
+        className="w-full border border-gray-300 rounded-lg px-3 py-2 pr-10 
+                   focus:ring-2 focus:ring-[#800000] focus:border-[#800000] outline-none 
+                   text-black"
       />
+
+      {/* tombol show/hide untuk input password */}
+      {name === "password" && (
+        <button
+          type="button"
+          onClick={togglePassword}
+          className="absolute right-3 top-9 text-gray-500 hover:text-red-700"
+        >
+          {showPassword ? <FaEyeSlash /> : <FaEye />}
+        </button>
+      )}
     </div>
   );
 }

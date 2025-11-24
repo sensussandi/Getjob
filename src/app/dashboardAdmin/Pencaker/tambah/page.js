@@ -51,7 +51,6 @@ export default function RegisterPage() {
       if (result.success) {
         alert("Berhasil menambahkan.");
         const confirmExit = confirm("Apakah Anda ingin keluar?");
-
         if (confirmExit) {
           router.push("/dashboardAdmin");
         } else {
@@ -69,7 +68,6 @@ export default function RegisterPage() {
             pendidikan_terakhir: "",
             linkedin: "",
           });
-
           setShowPassword(false);
         }
 
