@@ -3,8 +3,50 @@ import CredentialsProvider from "next-auth/providers/credentials";
 import mysql from "mysql2/promise";
 import bcrypt from "bcryptjs";
 
+async function getDB() {
+  return mysql.createConnection({
+    host: "localhost",
+    user: "root",
+    password: "",
+    database: "getjob_db",
+  });
+}
+
 export const authOptions = {
   providers: [
+
+    //  PROVIDER 1 — LOGIN MAHASISWA
+    CredentialsProvider({
+      id: "alumni",
+      name: "Login Mahasiswa",
+      credentials: {},
+      async authorize(credentials) {
+        const db = await getDB();
+        const [rows] = await db.execute(
+          "SELECT * FROM pencari_kerja WHERE nim = ?",
+          [credentials.nim]
+        );
+
+        if (rows.length === 0) return null;
+
+        const user = rows[0];
+        const match = await bcrypt.compare(credentials.password, user.password);
+        if (!match) return null;
+
+        await db.end();
+
+        return {
+          id: user.nim,
+          role: user.role,
+          nim: user.nim,
+          name: user.nama_lengkap,
+          email: user.email,
+          prodi: user.prodi,
+          foto: user.foto,
+          no_telephone: user.no_telephone,
+        };
+      },
+    }),
 
     // ====================================================
     // ADMIN PERUSAHAAN
@@ -15,13 +57,7 @@ export const authOptions = {
       credentials: {},
 
       async authorize(credentials) {
-        const db = await mysql.createConnection({
-          host: "localhost",
-          user: "root",
-          password: "",
-          database: "getjob_db",
-        });
-
+        const db = await getDB();
         const [rows] = await db.execute(
           "SELECT * FROM admin_perusahaan WHERE email_perusahaan = ?",
           [credentials.email]
@@ -51,13 +87,7 @@ export const authOptions = {
       credentials: {},
 
       async authorize(credentials) {
-        const db = await mysql.createConnection({
-          host: "localhost",
-          user: "root",
-          password: "",
-          database: "getjob_db",
-        });
-
+        const db = await getDB();
         const [rows] = await db.execute(
           "SELECT * FROM users WHERE email = ? AND role = 'super_admin'",
           [credentials.email]
@@ -88,16 +118,32 @@ export const authOptions = {
       if (user) {
         token.id = user.id;
         token.role = user.role;
-        Object.assign(token, user);
+        token.email = user.email;
+        token.name = user.name;
+        token.nim = user.nim;
+        token.foto = user.foto;
+        token.prodi = user.prodi;
+        token.no_telephone = user.no_telephone;
+        token.nama_perusahaan = user.nama_perusahaan;
       }
       return token;
     },
 
     async session({ session, token }) {
-      session.user = token;
+      session.user = {
+        id: token.id,
+        role: token.role,
+        email: token.email,
+        name: token.name,
+        nim: token.nim,
+        foto: token.foto,
+        prodi: token.prodi,
+        no_telephone: token.no_telephone,
+        nama_perusahaan: token.nama_perusahaan,
+      };
       return session;
-    },
-  },
+    }
+  }
 };
 
 const handler = NextAuth(authOptions);

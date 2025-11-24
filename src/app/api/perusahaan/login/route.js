@@ -2,13 +2,6 @@ import mysql from "mysql2/promise";
 import { NextResponse } from "next/server";
 import bcrypt from "bcryptjs";
 
-async function verifyUser(email, password) {
-  // TODO: ganti dengan logika asli kamu (fetch ke backend atau query DB)
-  // Misal respon dari backend:
-  // { success: true, role: "admin", id: 1 } atau { role: "perusahaan", id_admin: 2 }
-  return null;
-}
-
 export async function POST(req) {
   try {
     const { email, password } = await req.json();
@@ -83,7 +76,7 @@ export async function POST(req) {
 
     // 🔹 Tentukan redirect sesuai role
     let redirect = "/";
-    let role = user.role || "guest";
+    let role = user.role;
 
     if (tableType === "admin_perusahaan" && role === "admin") {
       redirect = "/dashboardPerusahaan";

@@ -74,8 +74,8 @@ const {
     await db.execute(
       `INSERT INTO pencari_kerja 
   (nim, password, nama_lengkap, tanggal_lahir, jenis_kelamin, alamat, 
-   email, no_telephone, prodi, pendidikan_terakhir, linkedin, keahlian, foto, tentang_anda, cv)
-  VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+   email, no_telephone, prodi, pendidikan_terakhir, linkedin, keahlian, foto, tentang_anda, cv, role)
+  VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
   [
     nimNumber,
     hashedPassword,
@@ -92,6 +92,7 @@ const {
     null, // foto
     null, // tentang_anda
     null, // cv
+    "alumni", // role
   ]
 );
     await db.end();

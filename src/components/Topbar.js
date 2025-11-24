@@ -1,9 +1,11 @@
 "use client";
 import { useState } from 'react';
 import { Search, MapPin, Briefcase, Bell, HelpCircle, Menu } from 'lucide-react';
+import { useSession, signOut } from "next-auth/react";
 
 export default function Topbar() {
   const [showNotifications, setShowNotifications] = useState(false);
+  const [showLogoutModal, setShowLogoutModal] = useState(false); // button logout
   const [notifications] = useState([
     { id: 1, text: "Profil Anda telah dilihat 5 perusahaan", time: "2 jam lalu", unread: true },
     { id: 2, text: "Ada 3 lowongan baru sesuai keahlian Anda", time: "5 jam lalu", unread: true },
@@ -11,7 +13,12 @@ export default function Topbar() {
   ]);
 
   const unreadCount = notifications.filter(n => n.unread).length;
-
+  const handleLogout = () => {
+    signOut({
+      redirect: true,
+      callbackUrl: "/loginMhs",
+    });
+  };
   return (
     <header className="bg-white border-b border-slate-200 sticky top-0 z-50 backdrop-blur-lg bg-white/95">
       <div className="px-4 md:px-6 py-4">
@@ -29,7 +36,7 @@ export default function Topbar() {
               className="h-10 w-10 rounded-lg object-cover shadow"
             />
             <h1 className="text-xl font-bold text-red-900 tracking-wide">
-               <span className="text-orange-600">Get Job</span>
+              <span className="text-orange-600">USD Get Job</span>
             </h1>
           </div>
 
@@ -75,6 +82,40 @@ export default function Topbar() {
             </button>
           </div>
 
+          {/* === TOMBOL LOGOUT === */}
+          <button
+            onClick={() => setShowLogoutModal(true)}
+            className="px-5 py-3 border-2 border-gray-300 text-gray-600 rounded-xl font-semibold hover:bg-red-50 transition-all flex items-center gap-2"
+          >
+            <span>Logout</span>
+          </button>
+          {showLogoutModal && (
+            <div className="fixed inset-0 /40 flex items-center justify-center z-50">
+              <div className="bg-white p-6 rounded-xl shadow-lg w-[340px]">
+                <h3 className="text-xl font-bold mb-2 text-gray-800">Konfirmasi Logout</h3>
+                <p className="text-gray-600 mb-5">Apakah Anda yakin ingin logout dari akun ini?</p>
+
+                <div className="flex justify-end gap-3">
+                  <button
+                    onClick={() => setShowLogoutModal(false)}
+                    className="px-4 py-2 text-black rounded-lg border border-gray-300 hover:bg-red-100"
+                  >
+                    Batal
+                  </button>
+
+                  <button
+                    onClick={() => {
+                      setShowLogoutModal(false);
+                      handleLogout();
+                    }}
+                    className="px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700"
+                  >
+                    Ya, Logout
+                  </button>
+                </div>
+              </div>
+            </div>
+          )}
           {/* ================================
               BUTTON AKSI (NOTIF, HELP, MENU)
              ================================ */}

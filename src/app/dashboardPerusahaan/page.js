@@ -59,8 +59,7 @@ export default function DashboardPerusahaan() {
     if (!session || session.user.role !== "admin") return;
 
     const fetchData = async () => {
-      const res = await fetch(`/api/perusahaan/dashboard?id_admin=${session.user.id}`
-      );
+      const res = await fetch(`/api/perusahaan/dashboard?id_admin=${session.user.id}`);
 
       const result = await res.json();
 

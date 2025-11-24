@@ -1,28 +1,13 @@
 "use client";
-
-import { useEffect, useState } from "react";
-import { useSession, signOut } from "next-auth/react";
+import usePencakerAuth from "@/hooks/usePencakerAuth";
+import { useSession } from "next-auth/react";
 import { Mail, Phone } from "lucide-react";
+import { useRouter } from "next/navigation";
 
 export default function DashboardMHS() {
+  usePencakerAuth();
+  const router = useRouter();
   const { data: session, status } = useSession();
-  const [localUser, setLocalUser] = useState(null);
-
-  if (status === "loading") {
-    return <div>Memuat data...</div>;
-  }
-
-  if (!session?.user?.nim) {
-    return (
-      <div className="flex flex-col items-center justify-center h-screen">
-        <p className="text-gray-600 mb-4">Anda belum login.</p>
-        <a href="/loginMhs" className="bg-red-900 text-white px-4 py-2 rounded-lg">Ke Halaman Login</a>
-      </div>
-    );
-  }
-
-  const user = session.user;
-
 
   if (status === "loading") {
     return (
@@ -32,28 +17,19 @@ export default function DashboardMHS() {
     );
   }
 
-  if (!user) {
+    if (!session || session.user.role !== "alumni") {
     return (
       <div className="flex flex-col items-center justify-center h-screen">
         <p className="text-gray-600 mb-4">Anda belum login.</p>
-        <a
-          href="/loginMhs"
-          className="bg-red-900 text-white px-4 py-2 rounded-lg hover:bg-red-800"
-        >
+        <a href="/loginMhs" className="bg-red-900 text-white px-4 py-2 rounded-lg">
           Ke Halaman Login
         </a>
       </div>
     );
   }
 
-  const handleLogout = () => {
-    // Hapus cookie
-    document.cookie = "nim=; Max-Age=0; path=/; SameSite=Lax";
-    // Hapus localStorage
-    localStorage.removeItem("nim");
-    localStorage.removeItem("user");
-    router.push("/loginPerusahaan");
-  };
+  const user = session.user;
+
 
   return (
     <div className="min-h-screen bg-[#fff8f8] flex items-center justify-center py-12 px-4">
@@ -87,6 +63,7 @@ export default function DashboardMHS() {
               <Phone className="w-5 h-5 text-[#6b0000]" />
               <span>{user.no_telephone || "Nomor belum diisi"}</span>
             </div>
+
           </div>
         </div>
       </div>

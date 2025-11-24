@@ -32,10 +32,8 @@ export default function TambahLowongan() {
       return router.push("/");
     if (session.user.role === "super_admin")
       return router.push("/dashboardAdmin");
-
     if (session.user.role === "admin")
       return router.push("/dashboardPerusahaan");
-
     return router.push("/");
   };
 

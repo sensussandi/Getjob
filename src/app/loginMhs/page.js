@@ -1,11 +1,15 @@
 "use client";
 import { useState } from "react";
+import { useRouter } from "next/navigation";
 import { User, Lock, Eye, EyeOff, GraduationCap, X, Mail, Phone } from "lucide-react";
 import { signIn } from "next-auth/react";
 
 export default function LoginMhs() {
   const [showPassword, setShowPassword] = useState(false);
   const [rememberMe, setRememberMe] = useState(false); // State untuk checkbox "Ingat Saya"
+  const [error, setError] = useState("");
+  const [showForgotPassword, setShowForgotPassword] = useState(false);
+  const router = useRouter();
   const [formData, setFormData] = useState({
     nim: "",
     password: "",
@@ -58,21 +62,22 @@ export default function LoginMhs() {
       return;
     }
 
-    const res = await signIn("credentials", {
+    const res = await signIn("alumni", {
       redirect: false,
       nim: formData.nim,
       password: formData.password,
-      callbackUrl: "/dashboardMHS",
     });
 
     if (res.error) {
       alert("NIM atau Password salah!");
       return;
     }
-
-    window.location.href = "/dashboardMHS";
+    const session = await fetch("/api/auth/session").then(r => r.json());
+    // Redirect sesuai role
+    if (session?.user?.role === "alumni") {
+      router.push("/dashboardMHS");
+    } 
   };
-
 
   const handleForgotPassword = () => {
     const email = prompt("Masukkan email Anda untuk reset password:");
