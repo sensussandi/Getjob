@@ -1,19 +1,27 @@
 "use client";
 import { useEffect } from "react";
 import { useRouter } from "next/navigation";
+import { useSession } from "next-auth/react";
 
-export default function useProtectedAuth() {
+export default function useAdminPerusahaanAuth() {
+  const { data: session, status } = useSession();
   const router = useRouter();
 
   useEffect(() => {
-    const idSuperAdmin = localStorage.getItem("id"); // super_admin
-    const idAdminPerusahaan = localStorage.getItem("id_admin"); // perusahaan
+    // Masih loading → jangan apa-apa dulu
+    if (status === "loading") return;
 
-    // Jika dua-duanya tidak ada → tidak boleh masuk
-    if (!idSuperAdmin && !idAdminPerusahaan) {
+    // Tidak login → lempar ke login
+    if (!session) {
       router.replace("/loginPerusahaan");
+      return;
     }
-  }, []);
 
-  return null;
+    // Login tapi bukan perusahaan → tendang
+    if (session.user.role !== "super_admin" && session.user.role !== "admin") {
+      router.replace("/loginPerusahaan");
+      return;
+    }
+
+  }, [session, status, router]);
 }

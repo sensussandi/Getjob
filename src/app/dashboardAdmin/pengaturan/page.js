@@ -1,8 +1,9 @@
 "use client";
 import useAdminAuth from "@/hooks/useAdminAuth";
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { ArrowLeft, Building2 } from "lucide-react";
 import { useRouter } from "next/navigation";
+import { useSession } from "next-auth/react";
 
 export default function PengaturanPage() {
   useAdminAuth();
@@ -12,6 +13,29 @@ export default function PengaturanPage() {
     email: "",
     password: "",
   });
+
+
+  const { data: session, status } = useSession();
+
+  // ⬅ fetch data setelah session siap
+  useEffect(() => {
+    if (!session || session.user.role !== "super_admin") return;
+    const fetchData = async () => {
+      try {
+        const res = await fetch(`/api/admin/pengaturan?id=${session.user.id}`);
+        const result = await res.json();
+        if (result.success) {
+          setFormData({
+            email: result.data.email || "",
+            password: "",
+          })
+        }
+      } catch (err) {
+        console.error("Gagal memuat data perusahaan:", err);
+      }
+    };
+    fetchData();
+  }, []);
 
   const handleChange = (e) => {
     setFormData({
@@ -23,29 +47,27 @@ export default function PengaturanPage() {
   const handleSubmit = async (e) => {
     e.preventDefault();
 
-    const id = localStorage.getItem("id"); // SUPER_ADMIN
     const data = new FormData();
     data.append("email", formData.email);
     data.append("password", formData.password);
 
     try {
-      const res = await fetch(`/api/admin/pengaturan?id=${id}`, {
+      const res = await fetch(`/api/admin/pengaturan?id=${session.user.id}`, {
         method: "POST",
         body: data,
       });
 
       const result = await res.json();
-
       if (result.success) {
-        alert("Berhasil diperbarui!");
+        alert("Profil perusahaan berhasil diperbarui!");
+        router.push("/dashboardAdmin");
       } else {
-        alert(result.message);
+        alert("Gagal memperbarui profil perusahaan!");
       }
     } catch (err) {
-      alert("Terjadi kesalahan. Coba lagi.");
+      console.error("Error:", err);
     }
   };
-
 
   return (
     <div className="min-h-screen bg-gray-50">

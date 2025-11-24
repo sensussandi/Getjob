@@ -2,6 +2,7 @@
 import useAdminPerusahaanAuth from "@/hooks/useAdminPerusahaanAuth";
 import React, { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
+import { useSession, signOut } from "next-auth/react";
 import {
   Briefcase,
   Users,
@@ -45,23 +46,22 @@ function formatTanggal(tanggal) {
 }
 
 export default function DashboardPerusahaan() {
-  useAdminPerusahaanAuth();  // ⬅ proteksi admin Perusahaan
+  useAdminPerusahaanAuth();
   const [data, setData] = useState(null);
   const [showLogoutModal, setShowLogoutModal] = useState(false); // button logout
   const router = useRouter();
 
-  // ✅ Ambil data dari API Next.js
+  // ⬅ ambil session paling atas
+  const { data: session, status } = useSession();
+
+  // ⬅ fetch data setelah session siap
   useEffect(() => {
+    if (!session || session.user.role !== "admin") return;
+
     const fetchData = async () => {
-      const id = localStorage.getItem("id_admin");
+      const res = await fetch(`/api/perusahaan/dashboard?id_admin=${session.user.id}`
+      );
 
-      //      if (!id) {
-      //        console.warn("Akses ditolak");
-      //        router.replace("/loginPerusahaan");
-      //        return;
-      //      }
-
-      const res = await fetch(`/api/perusahaan/dashboard?id_admin=${id}`);
       const result = await res.json();
 
       if (result.success) {
@@ -69,10 +69,11 @@ export default function DashboardPerusahaan() {
       } else {
         console.error(result.message);
       }
-
     };
+
     fetchData();
-  }, []);
+  }, [session]);
+
 
   // ✅ Kalau data belum siap tampil loading
   if (!data)
@@ -85,18 +86,16 @@ export default function DashboardPerusahaan() {
         <p className="text-gray-600 text-lg font-medium mt-6">
           Memuat dashboard...
         </p>
-      </div>
+      </div>  
     );
+
   const handleLogout = () => {
-    // hapus cookie
-    document.cookie = "id_admin=; Max-Age=0; path=/; SameSite=Lax";
-
-    // hapus localStorage
-    localStorage.removeItem("id_admin");
-    localStorage.removeItem("user");
-
-    router.push("/loginPerusahaan");
+    signOut({
+      redirect: true,
+      callbackUrl: "/loginPerusahaan",
+    });
   };
+
 
   // ✅ Ambil data dari hasil API
   const { admin, lowongan, pelamar, stats } = data;
@@ -168,39 +167,39 @@ export default function DashboardPerusahaan() {
                 <span>Pengaturan</span>
               </button>
               {/* === TOMBOL LOGOUT === */}
-          <button
-            onClick={() => setShowLogoutModal(true)}
-            className="px-5 py-3 border-2 border-gray-300 text-gray-600 rounded-xl font-semibold hover:bg-red-50 transition-all flex items-center gap-2"
-          >
-            <span>Logout</span>
-          </button>
-          {showLogoutModal && (
-            <div className="fixed inset-0 bg-black/40 flex items-center justify-center z-50">
-              <div className="bg-white p-6 rounded-xl shadow-lg w-[340px]">
-                <h3 className="text-xl font-bold mb-2 text-gray-800">Konfirmasi Logout</h3>
-                <p className="text-gray-600 mb-5">Apakah Anda yakin ingin logout dari akun ini?</p>
+              <button
+                onClick={() => setShowLogoutModal(true)}
+                className="px-5 py-3 border-2 border-gray-300 text-gray-600 rounded-xl font-semibold hover:bg-red-50 transition-all flex items-center gap-2"
+              >
+                <span>Logout</span>
+              </button>
+              {showLogoutModal && (
+                <div className="fixed inset-0 bg-black/40 flex items-center justify-center z-50">
+                  <div className="bg-white p-6 rounded-xl shadow-lg w-[340px]">
+                    <h3 className="text-xl font-bold mb-2 text-gray-800">Konfirmasi Logout</h3>
+                    <p className="text-gray-600 mb-5">Apakah Anda yakin ingin logout dari akun ini?</p>
 
-                <div className="flex justify-end gap-3">
-                  <button
-                    onClick={() => setShowLogoutModal(false)}
-                    className="px-4 py-2 text-black rounded-lg border border-gray-300 hover:bg-red-100"
-                  >
-                    Batal
-                  </button>
+                    <div className="flex justify-end gap-3">
+                      <button
+                        onClick={() => setShowLogoutModal(false)}
+                        className="px-4 py-2 text-black rounded-lg border border-gray-300 hover:bg-red-100"
+                      >
+                        Batal
+                      </button>
 
-                  <button
-                    onClick={() => {
-                      setShowLogoutModal(false);
-                      handleLogout();
-                    }}
-                    className="px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700"
-                  >
-                    Ya, Logout
-                  </button>
+                      <button
+                        onClick={() => {
+                          setShowLogoutModal(false);
+                          handleLogout();
+                        }}
+                        className="px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700"
+                      >
+                        Ya, Logout
+                      </button>
+                    </div>
+                  </div>
                 </div>
-              </div>
-            </div>
-          )}
+              )}
             </div>
           </div>
         </div>

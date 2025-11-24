@@ -29,7 +29,7 @@ export default function Topbar() {
               className="h-10 w-10 rounded-lg object-cover shadow"
             />
             <h1 className="text-xl font-bold text-red-900 tracking-wide">
-              USD <span className="text-orange-600">Get Job</span>
+               <span className="text-orange-600">Get Job</span>
             </h1>
           </div>
 

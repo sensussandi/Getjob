@@ -14,7 +14,7 @@ export default function CariLoker() {
   const fetchLoker = async () => {
     setLoading(true);
     try {
-      const res = await fetch("/api/cari-loker");
+      const res = await fetch("/api/lowongan");
       const data = await res.json();
       if (data.success) {
         setLoker(data.data);

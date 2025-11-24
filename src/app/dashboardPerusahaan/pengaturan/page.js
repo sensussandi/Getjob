@@ -2,6 +2,7 @@
 import useAdminPerusahaanAuth from "@/hooks/useAdminPerusahaanAuth";
 import React, { useState, useEffect } from "react";
 import { ArrowLeft, Upload, Building2, FileText, MapPin } from "lucide-react";
+import { useSession} from "next-auth/react";
 import { useRouter } from "next/navigation";
 
 export default function PengaturanPage() {
@@ -16,13 +17,15 @@ export default function PengaturanPage() {
     logo: null,
     logoPreview: "",
   });
+  // ⬅ ambil session paling atas
+  const { data: session, status } = useSession();
 
-  // Ambil data perusahaan (bisa dari API kamu)
+  // ⬅ fetch data setelah session siap
   useEffect(() => {
+    if (!session || session.user.role !== "admin") return;
     const fetchData = async () => {
       try {
-        const id = localStorage.getItem("id_admin");
-        const res = await fetch(`/api/perusahaan/pengaturan?id_admin=${id}`);
+        const res = await fetch(`/api/perusahaan/pengaturan?id_admin=${session.user.id}`);
         const result = await res.json();
         if (result.success) {
           setFormData({

@@ -1,6 +1,7 @@
 "use client";
 import useAdminAuth from "@/hooks/useAdminAuth";
 import React, { useState, useEffect } from "react";
+import { useSession, signOut } from "next-auth/react";
 import {
   Building2,
   Users,
@@ -23,6 +24,7 @@ import { useRouter } from "next/navigation";
 export default function DashboardAdmin() {
   useAdminAuth();  // ⬅ proteksi berjalan otomatis
   const router = useRouter();
+  const [data, setData] = useState({});
   const [showLogoutModal, setShowLogoutModal] = useState(false); // button logout
   const [stats, setStats] = useState({
     totalPerusahaan: 0,
@@ -34,31 +36,37 @@ export default function DashboardAdmin() {
   const [dataPencariKerja, setDataPencariKerja] = useState([]);
   const [dataLowongan, setDataLowongan] = useState([]);
 
+
+  // ⬅ ambil session paling atas
+  const { data: session, status } = useSession();
+
+
   // Ambil data dari backend
   useEffect(() => {
+    if (!session || session.user.role !== "super_admin") return;
     const fetchData = async () => {
-      const id = localStorage.getItem("id");
-      const res = await fetch(`/api/admin?id=${id}`);
-      const data = await res.json();
+      const res = await fetch(`/api/admin?id=${session.user.id}`);
+      const result = await res.json();
 
-      if (!data.success) {
-        console.error("API error");
-        return;
+      if (result.success) {
+        setData(result);
+        setDataPerusahaan(result.adminPerusahaan || []);
+        setDataPencariKerja(result.pencaker || []);
+        setDataLowongan(result.lowongan || []);
+
+        setStats({
+          totalPerusahaan: result.adminPerusahaan?.length || 0,
+          totalPencariKerja: result.pencaker?.length || 0,
+          totalLowongan: result.lowongan?.length || 0
+        });
+      } else {
+        console.error(result.message);
       }
 
-      setDataPerusahaan(data.adminPerusahaan || []);
-      setDataPencariKerja(data.pencaker || []);
-      setDataLowongan(data.lowongan || []);
-
-      setStats({
-        totalPerusahaan: data.adminPerusahaan?.length || 0,
-        totalPencariKerja: data.pencaker?.length || 0,
-        totalLowongan: data.lowongan?.length || 0
-      });
     };
 
     fetchData();
-  }, []);
+  }, [session]);
 
   const handleDeletePerusahaan = async (id) => {
     if (!confirm("Yakin ingin menghapus perusahaan ini?")) return;
@@ -105,19 +113,17 @@ export default function DashboardAdmin() {
 
     if (data.success) {
       alert("Berhasil menghapus loker.");
-      setDataLowongan(prev => prev.filter((job) => job.id.lowongan !== id)); // update UI
+      setDataLowongan(prev => prev.filter((job) => job.id_lowongan !== id)); // update UI
     } else {
       alert("Gagal menghapus loker.");
     }
   };
 
   const handleLogout = () => {
-    // Hapus cookie
-    document.cookie = "id=; Max-Age=0; path=/; SameSite=Lax";
-    // Hapus localStorage
-    localStorage.removeItem("id");
-    localStorage.removeItem("user");
-    router.push("/loginPerusahaan");
+    signOut({
+      redirect: true,
+      callbackUrl: "/loginPerusahaan",
+    });
   };
 
   return (
@@ -320,8 +326,8 @@ export default function DashboardAdmin() {
         </div>
 
         {/* === DATA LOWONGAN (TETAP PREMIUM) === */}
-        <LowonganSection dataLowongan={dataLowongan} router={router} handleDeleteLowongan={handleDeleteLowongan} 
-/>
+        <LowonganSection dataLowongan={dataLowongan} router={router} handleDeleteLowongan={handleDeleteLowongan}
+        />
       </div>
     </div>
   );
@@ -341,7 +347,7 @@ function StatCard({ icon, title, value, color }) {
 }
 
 /* === KOMPONEN LOWONGAN === */
-function LowonganSection({ dataLowongan, router, handleDeleteLowongan}) {
+function LowonganSection({ dataLowongan, router, handleDeleteLowongan }) {
   return (
     <div className="bg-white shadow-xl rounded-2xl overflow-hidden">
       <div className="flex justify-between items-center px-6 py-4 border-b border-gray-100 bg-gray-50">
@@ -393,7 +399,7 @@ function LowonganSection({ dataLowongan, router, handleDeleteLowongan}) {
                   <button onClick={() => router.push(`/dashboardPerusahaan/lowongan/edit/${job.id_lowongan}`)}
                     className="text-sm font-medium text-[#800000] hover:underline flex items-center gap-1">
                     <Eye className
-                    ="w-4 h-4" /> kelola
+                      ="w-4 h-4" /> kelola
                   </button>
                   <button
                     onClick={() => handleDeleteLowongan(job.id_lowongan)}

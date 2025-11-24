@@ -2,6 +2,7 @@
 import useProtectedAuth from "@/hooks/useProtectedAuth";
 import { useEffect, useState } from "react";
 import { useParams, useRouter } from "next/navigation";
+import { useSession } from "next-auth/react";
 import {
   Briefcase,
   MapPin,
@@ -22,15 +23,18 @@ export default function EditLowongan() {
   const { id } = useParams();
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [loading, setLoading] = useState(true);
+  const { data: session, status } = useSession();
   const redirectByRole = () => {
-    const admin = localStorage.getItem("id");
-    const perusahaan = localStorage.getItem("id_admin");
 
-    if (admin) return router.push("/dashboardAdmin");
-    if (perusahaan) return router.push("/dashboardPerusahaan");
-
+    if (!session) 
+      return router.push("/");
+    if (session.user.role === "super_admin")
+      return router.push("/dashboardAdmin");
+    if (session.user.role === "admin")
+      return router.push("/dashboardPerusahaan");
     return router.push("/");
   };
+
   const [form, setForm] = useState({
     nama_posisi: "",
     deskripsi_pekerjaan: "",

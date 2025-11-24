@@ -3,6 +3,7 @@ import useProtectedAuth from "@/hooks/useProtectedAuth";
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { ArrowLeft } from "lucide-react";
+import { useSession } from "next-auth/react";
 import {
   Briefcase,
   MapPin,
@@ -22,19 +23,22 @@ import {
 
 export default function TambahLowongan() {
   useProtectedAuth();
-
   const router = useRouter();
   const [isSuperAdmin, setIsSuperAdmin] = useState(false);
-
+  const { data: session, status } = useSession();
   const redirectByRole = () => {
-    const admin = localStorage.getItem("id");
-    const perusahaan = localStorage.getItem("id_admin");
+    
+    if (!session) 
+      return router.push("/");
+    if (session.user.role === "super_admin")
+      return router.push("/dashboardAdmin");
 
-    if (admin) return router.push("/dashboardAdmin");
-    if (perusahaan) return router.push("/dashboardPerusahaan");
+    if (session.user.role === "admin")
+      return router.push("/dashboardPerusahaan");
 
     return router.push("/");
   };
+
 
   const [form, setForm] = useState({
     nama_posisi: "",
@@ -60,41 +64,54 @@ export default function TambahLowongan() {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    setIsSubmitting(true);
 
-    let idAdminFinal = localStorage.getItem("id_admin");
+    try {
+      let idAdminFinal = null;
 
-    if (!idAdminFinal) {
-      if (!form.id_admin) {
-        alert("❌ Super Admin wajib memilih perusahaan!");
-        return;
+      // Jika admin perusahaan → gunakan ID dari session.user.id
+      if (session.user.role === "admin") {
+        idAdminFinal = session.user.id;
       }
-      idAdminFinal = form.id_admin;
-    }
 
-    const res = await fetch(
-      `/api/perusahaan/lowongan/tambah?id_admin=${idAdminFinal}`,
-      {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(form),
+      // Jika super_admin → wajib pilih perusahaan manual
+      if (session.user.role === "super_admin") {
+        if (!form.id_admin) {
+          alert("❌ Super Admin wajib memilih perusahaan!");
+          setIsSubmitting(false);
+          return;
+        }
+        idAdminFinal = form.id_admin;
       }
-    );
 
-    const data = await res.json();
+      const res = await fetch(
+        `/api/perusahaan/lowongan/tambah?id_admin=${idAdminFinal}`,
+        {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(form),
+        }
+      );
 
-    if (res.ok && data.success) {
-      alert("✅ Lowongan berhasil dibuat!");
-      redirectByRole();
-    } else {
-      alert(data.message || "❌ Gagal menambahkan lowongan.");
+      const data = await res.json();
+
+      if (res.ok && data.success) {
+        alert("✅ Lowongan berhasil dibuat!");
+        redirectByRole(); // sudah benar
+      } else {
+        alert(data.message || "❌ Gagal menambahkan lowongan.");
+      }
+    } finally {
+      setIsSubmitting(false);
     }
   };
 
+
   // CEK ROLE SUPER ADMIN
   useEffect(() => {
-    const admin = typeof window !== "undefined" ? localStorage.getItem("id") : null;
+    if (!session) return;
 
-    if (admin) {
+    if (session.user.role === "super_admin") {
       setIsSuperAdmin(true);
 
       fetch("/api/admin/perusahaan/list")
@@ -103,7 +120,7 @@ export default function TambahLowongan() {
           if (data.success) setDaftarPerusahaan(data.data);
         });
     }
-  }, []);
+  }, [session]);
 
   // DATA DROPDOWN
   const rangeGaji = [

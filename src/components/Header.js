@@ -61,7 +61,7 @@ export default function Header() {
             <div>
               <span className="text-xl font-bold text-white">USD</span>
               <span className="ml-1 text-sm text-orange-500 font-semibold">
-                Get Job
+                Get
               </span>
             </div>
           </div>

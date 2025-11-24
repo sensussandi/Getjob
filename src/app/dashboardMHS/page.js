@@ -46,6 +46,15 @@ export default function DashboardMHS() {
     );
   }
 
+  const handleLogout = () => {
+    // Hapus cookie
+    document.cookie = "nim=; Max-Age=0; path=/; SameSite=Lax";
+    // Hapus localStorage
+    localStorage.removeItem("nim");
+    localStorage.removeItem("user");
+    router.push("/loginPerusahaan");
+  };
+
   return (
     <div className="min-h-screen bg-[#fff8f8] flex items-center justify-center py-12 px-4">
       <div className="w-full max-w-lg bg-white shadow-xl rounded-3xl overflow-hidden">
