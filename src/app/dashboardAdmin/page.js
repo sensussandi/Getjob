@@ -223,7 +223,7 @@ export default function DashboardAdmin() {
                         <p className="text-sm text-gray-500">{p.nama_admin}</p>
                       </div>
                       <span className="text-xs bg-blue-100 text-blue-700 px-3 py-1 rounded-full font-semibold">
-                        {p.role || "admin"}
+                        {p.role || "super_admin"}
                       </span>
                     </div>
 

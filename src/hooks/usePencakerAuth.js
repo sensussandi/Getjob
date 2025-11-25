@@ -1,4 +1,5 @@
 "use client";
+
 import { useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { useSession } from "next-auth/react";
@@ -6,7 +7,8 @@ import { useSession } from "next-auth/react";
 export default function usePencakerAuth() {
   const { data: session, status } = useSession();
   const router = useRouter();
-
+  console.log("usePencakerAuth session:", session);
+  
   useEffect(() => {
     // Masih loading → jangan apa-apa dulu
     if (status === "loading") return;

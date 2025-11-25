@@ -35,13 +35,9 @@ export const authOptions = {
 
         await db.end();
 
-        console.log(user.role);
-        
-
         return {
-          idMhs: user.nim,
+          id: user.nim,
           role: user.role,
-          nim: user.nim,
           name: user.nama_lengkap,
           email: user.email,
           prodi: user.prodi,
@@ -92,7 +88,7 @@ export const authOptions = {
       async authorize(credentials) {
         const db = await getDB();
         const [rows] = await db.execute(
-          "SELECT * FROM users WHERE email = ? AND role = 'super_admin'",
+          "SELECT * FROM users WHERE email = ?",
           [credentials.email]
         );
 
@@ -103,42 +99,31 @@ export const authOptions = {
         if (!passOK) return null;
 
         return {
-          id: user.id,
-          id: user.nim,
-          nim: user.nim,
-          role: user.role,  // super_admin
-          email: user.email,
-          name: user.nama_admin,
+          id: super_admin.id,
+          role: super_admin.role,  // super_admin
+          email: super_admin.email,
+          name: super_admin.nama_admin,
         };
       }
     }),
   ],
 
-// ======================================
-  // FIX SERVER-SIDE REDIRECT NEXTAUTH
-  // ======================================
-
   session: {
     strategy: "jwt",
-    maxAge:  60 * 60 * 24, // 24 jam
   },
 
   callbacks: {
-    async jwt({ token, user, trigger }) {
-      // 🔥 FIX PENTING: reset token saat login baru
-      if (trigger === "signIn" && user) {
-        token = {};     // ← hapus token lama
-      }
-
+    async jwt({ token, user }) {
       if (user) {
+        token.id = user.id;
+        token.role = user.role;
         Object.assign(token, user);
       }
-
       return token;
     },
 
     async session({ session, token }) {
-      session.user = { ...token};
+      session.user = token;
       return session;
     },
   },

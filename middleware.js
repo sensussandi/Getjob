@@ -8,7 +8,7 @@ export function middleware(req) {
   // ===== Ambil data dari localStorage API-like cookies =====
   const cookies = req.cookies;
   const idAdmin = cookies.get("id_admin")?.value;      // perusahaan
-  const role = cookies.get("alumni")?.value;          // mahasiswa
+  const idPencaker = cookies.get("nim")?.value;          // mahasiswa
   const idSuper = cookies.get("id")?.value;      // admin sistem
 
   // -------------------------
@@ -24,7 +24,7 @@ export function middleware(req) {
   // **Proteksi MAHASISWA**
   // -------------------------
   if (url.pathname.startsWith("/dashboardMHS")) {
-    if (!role) {
+    if (!idPencaker) {
       return NextResponse.redirect(new URL("/loginMhs", req.url));
     }
   }
