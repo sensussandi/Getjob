@@ -20,7 +20,7 @@ export default function LoginMhs() {
     setError("");
 
     // LOGIN MAHASISWA
-    const res = await signIn("alumni", {
+    let res = await signIn("alumni", {
       redirect: false,
       nim: formData.nim,
       password: formData.password,
@@ -30,16 +30,11 @@ export default function LoginMhs() {
       setError("NIM atau password salah!");
       return;
     }
-
+    
     // HARUS AMBIL SESSION BARU
     const session = await fetch("/api/auth/session").then((r) => r.json());
 
-    if (!session?.user) {
-      setError("Gagal memuat sesi.");
-      return;
-    }
-
-    if (session.user.role === "alumni") {
+    if (session?.user?.role === "alumni") {
       router.push("/dashboardMHS");
     } else {
       setError("Akses tidak diizinkan.");
@@ -53,6 +48,8 @@ export default function LoginMhs() {
       setShowForgotPassword(false);
     }
   };
+
+
 
   const handleCancel = () => {
     // Langsung redirect ke home tanpa konfirmasi

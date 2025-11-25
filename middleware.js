@@ -1,12 +1,14 @@
 import { NextResponse } from "next/server";
+import { useSession } from "next-auth/react";
 
 export function middleware(req) {
+  const { data: session, status } = useSession();
   const url = req.nextUrl;
 
   // ===== Ambil data dari localStorage API-like cookies =====
   const cookies = req.cookies;
   const idAdmin = cookies.get("id_admin")?.value;      // perusahaan
-  const idMhs = cookies.get("id_mhs")?.value;          // mahasiswa
+  const role = cookies.get("alumni")?.value;          // mahasiswa
   const idSuper = cookies.get("id")?.value;      // admin sistem
 
   // -------------------------
@@ -22,8 +24,8 @@ export function middleware(req) {
   // **Proteksi MAHASISWA**
   // -------------------------
   if (url.pathname.startsWith("/dashboardMHS")) {
-    if (!idMhs) {
-      return NextResponse.redirect(new URL("/loginMHS", req.url));
+    if (!role) {
+      return NextResponse.redirect(new URL("/loginMhs", req.url));
     }
   }
 
@@ -32,7 +34,7 @@ export function middleware(req) {
   // -------------------------
   if (url.pathname.startsWith("/dashboardAdmin")) {
     if (!idSuper) {
-      return NextResponse.redirect(new URL("/loginAdmin", req.url));
+      return NextResponse.redirect(new URL("/loginPerusahaan", req.url));
     }
   }
 

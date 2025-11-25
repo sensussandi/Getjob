@@ -130,8 +130,8 @@ export async function POST(req) {
       // === INSERT ===
       await db.execute(
         `INSERT INTO pencari_kerja 
-        (nim, nama_lengkap, password, tanggal_lahir, jenis_kelamin, alamat, email, no_telephone, prodi, pendidikan_terakhir, linkedin, keahlian, tentang_anda, foto, cv)
-        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+        (nim, nama_lengkap, password, tanggal_lahir, jenis_kelamin, alamat, email, no_telephone, prodi, pendidikan_terakhir, linkedin, keahlian, tentang_anda, foto, cv, role)
+        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
         [
           nim,
           nama_lengkap,
@@ -148,6 +148,7 @@ export async function POST(req) {
           tentang_anda || "",
           fotoFileName || null,
           cvFileName || null,
+          role || "",
         ]
       );
     } else {

@@ -35,8 +35,11 @@ export const authOptions = {
 
         await db.end();
 
+        console.log(user.role);
+        
+
         return {
-          id: user.nim,
+          idMhs: user.nim,
           role: user.role,
           nim: user.nim,
           name: user.nama_lengkap,
@@ -95,12 +98,14 @@ export const authOptions = {
 
         if (rows.length === 0) return null;
 
-        const user = rows[0];
-        const passOK = await bcrypt.compare(credentials.password, user.password);
+        const super_admin = rows[0];
+        const passOK = await bcrypt.compare(credentials.password, super_admin.password);
         if (!passOK) return null;
 
         return {
           id: user.id,
+          id: user.nim,
+          nim: user.nim,
           role: user.role,  // super_admin
           email: user.email,
           name: user.nama_admin,

@@ -72,7 +72,7 @@ export async function POST(request) {
           no_telephone: user.no_telephone,
           password: user.password,
           prodi: user.prodi,
-          role,
+          role: user.role,
         },
       });
     } else {

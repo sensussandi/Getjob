@@ -16,18 +16,7 @@ export default function Sidebar() {
   const [userName, setUserName] = useState("Memuat...");
   const [userRole, setUserRole] = useState("pencari_kerja");
 
-  const { data: session, status } = useSession();
 
-  useEffect(() => {
-    if (status === "loading") return;
-
-    if (status === "unauthenticated" || !session?.user?.nim) {
-      router.push("/loginMhs");
-      return;
-    }
-
-    setUserName(session.user.name || "Mahasiswa");
-  }, [session, status]);
 
   // 🔥 FIX ACTIVE MENU BERDASARKAN URL
   useEffect(() => {
@@ -57,10 +46,6 @@ export default function Sidebar() {
   const menuItems = [
     { id: "dashboard", icon: Home, label: "Dashboard", href: "/dashboardMHS" },
     { id: "loker", icon: Briefcase, label: "Rekomendasi Loker", href: "/dashboardMHS/rekomendasi" },
-    { id: "lamaran", icon: BookOpen, label: "Lamaran Saya", href: "/lamaran" },
-    { id: "statistik", icon: BarChart3, label: "Statistik", href: "/statistik" },
-    { id: "profil", icon: User, label: "Profil", href: "/profil" },
-    { id: "pengaturan", icon: Settings, label: "Pengaturan", href: "/pengaturan" },
     { id: "lihat_loker_saya", icon: BookOpen, label: "Lihat Loker Saya", href: "/lihatLokerSaya", badge: "3" },
     { id: "edit_profile", icon: Settings, label: "Edit Profile", href: "/editProfileMHS", badge: null },
   ];

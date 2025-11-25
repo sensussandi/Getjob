@@ -1,8 +1,10 @@
 "use client";
-import { useEffect, useState } from "react";
+import usePencakerAuth from "@/hooks/usePencakerAuth";
+import { use, useEffect, useState } from "react";
 import { useSession } from "next-auth/react";
 
 export default function HasilRekomendasi() {
+  usePencakerAuth();
   const [lowongan, setLowongan] = useState([]);
   const [loading, setLoading] = useState(true);
   const { data: session } = useSession();
