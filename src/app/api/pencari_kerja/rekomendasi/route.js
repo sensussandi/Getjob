@@ -1,10 +1,10 @@
 import mysql from "mysql2/promise";
 import { NextResponse } from "next/server";
 
-export async function GET() {
+export async function GET(req) {
   try {
-    const user = JSON.parse(localStorage.getItem("user"));
-    const nim = user?.nim;
+    const { searchParams } = new URL(req.url);
+    const nim = searchParams.get("nim");  
 
 
     const db = await mysql.createConnection({
@@ -40,7 +40,7 @@ export async function GET() {
     const [lowongan] = await db.query(`
       SELECT l.*, a.nama_perusahaan
       FROM lowongan_kerja l
-      JOIN admin_perusahaan a ON l.id_admin_perusahaan = a.id_admin
+      JOIN admin_perusahaan a ON l.id_admin = a.id_admin
     `);
 
     // 🔹 Hitung skor relevansi berdasarkan kecocokan keyword

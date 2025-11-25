@@ -8,16 +8,17 @@ export default function RekomendasiPage() {
   const [prodi, setProdi] = useState("");
   const [keahlian, setKeahlian] = useState([]);
   const [error, setError] = useState("");
+  const [data, setData] = useState(null);
 
   // ⬅ ambil session paling atas
   const { data: session, status } = useSession();
 
   // ⬅ fetch data setelah session siap
   useEffect(() => {
-    if (!session || session.user.role !== "nim") return;
+    if (!session || session.user.role !== "alumni") return;
 
     const fetchData = async () => {
-      const res = await fetch(`/api/perusahaan/dashboard?nim=${session.user.nim}`);
+      const res = await fetch(`/api/pencari_kerja/rekomendasi?nim=${session.user.nim}`);
 
       const result = await res.json();
 
@@ -90,7 +91,7 @@ export default function RekomendasiPage() {
       const res = await fetch("/api/pencari_kerja/updateprofil", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ prodi, keahlian }),
+        body: JSON.stringify({ nim: session.user.nim, prodi, keahlian }),
       });
 
       const result = await res.json();

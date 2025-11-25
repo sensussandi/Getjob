@@ -1,32 +1,25 @@
 import mysql from "mysql2/promise";
 import { NextResponse } from "next/server";
 
-export async function GET(req) {
+export async function POST(req) {
   try {
-    const { searchParams } = new URL(req.url);
-    const nim = searchParams.get("nim");   // Pencari Kerja pakai "nim"
-    // Ambil data dari body request
+    const body = await req.json();
+    const { nim, prodi, keahlian } = body;
+
     if (!nim) {
       return NextResponse.json({
         success: false,
-        message: "nim pencari kerja tidak ditemukan",
+        message: "NIM tidak ditemukan",
       });
     }
 
-    const body = await req.json();
-    const { prodi, keahlian } = body;
-
-    // Validasi input
     if (!prodi || !keahlian || keahlian.length === 0) {
       return NextResponse.json({
         success: false,
-        message: "Data prodi dan keahlian wajib diisi!",
+        message: "Prodi dan keahlian wajib diisi!",
       });
     }
 
-    
-
-    // Koneksi ke database
     const db = await mysql.createConnection({
       host: "localhost",
       user: "root",
@@ -34,17 +27,20 @@ export async function GET(req) {
       database: "getjob_db",
     });
 
-    // Pastikan user ada di tabel
-    const [checkUser] = await db.execute("SELECT * FROM pencari_kerja WHERE nim = ?", [nim]);
+    // cek user
+    const [user] = await db.execute(
+      "SELECT * FROM pencari_kerja WHERE nim = ?",
+      [nim]
+    );
 
-    if (checkUser.length === 0) {
-      // Jika user belum ada, buat data baru
+    if (user.length === 0) {
+      // insert baru
       await db.execute(
         "INSERT INTO pencari_kerja (nim, prodi, keahlian) VALUES (?, ?, ?)",
         [nim, prodi, keahlian.join(", ")]
       );
     } else {
-      // Jika sudah ada, update data
+      // update lama
       await db.execute(
         "UPDATE pencari_kerja SET prodi = ?, keahlian = ? WHERE nim = ?",
         [prodi, keahlian.join(", "), nim]
@@ -55,14 +51,14 @@ export async function GET(req) {
 
     return NextResponse.json({
       success: true,
-      message: "Data profil berhasil disimpan!",
+      message: "Profil berhasil disimpan!",
     });
-  } catch (error) {
-    console.error("❌ Error di updateProfil:", error);
+  } catch (err) {
+    console.error("❌ ERROR update profil:", err);
     return NextResponse.json({
       success: false,
-      message: "Terjadi kesalahan server.",
-      error: error.message,
+      message: "Server error",
+      error: err.message,
     });
   }
 }

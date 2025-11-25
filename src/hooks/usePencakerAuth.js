@@ -13,13 +13,13 @@ export default function usePencakerAuth() {
     
     // Tidak login → lempar ke login
     if (!session) {
-      router.replace("/dashboardMHS");
+      router.replace("/loginMhs");
       return;
     }
 
     // Login tapi bukan mahasiswa → tendang
     if (session.user.role !== "alumni") {
-      router.replace("/dashboardMHS");
+      router.replace("/loginMhs");
       return;
     }
 
