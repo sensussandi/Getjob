@@ -37,7 +37,7 @@ export const authOptions = {
 
         return {
           id: user.nim,
-          role: "alumni",
+          role: user.role,
           nim: user.nim,
           name: user.nama_lengkap,
           email: user.email,

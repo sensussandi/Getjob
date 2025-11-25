@@ -90,7 +90,7 @@ export default function DetailLowongan() {
     }
 
     try {
-      const res = await fetch("/api/lamar", {
+      const res = await fetch("/api/lowongan/lamar", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({

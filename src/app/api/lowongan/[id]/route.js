@@ -12,13 +12,6 @@ export async function GET(req, context) {
       port: 3306,          // ✅ port default MySQL
     });
 
-    const { searchParams } = new URL(req.url);
-    const id_admin = searchParams.get("id") || ("id_admin");
-    
-    if (!id_admin) {  
-      return NextResponse.json({ success: false, message: "ID admin wajib dikirim" });
-    }
-
     const [rows] = await db.query(
       `SELECT l.*, a.nama_perusahaan 
        FROM lowongan_kerja AS l 
