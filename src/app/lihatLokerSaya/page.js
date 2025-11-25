@@ -80,7 +80,10 @@ export default function LokerSaya() {
             ))}
             </div>
         )}
-        <button className="mt-8 w-full bg-red-700 text-white py-3 rounded-md hover:bg-red-800 transition">
+        <button
+            onClick={() => window.location.href = "/dashboardMHS"}
+            className="mt-8 w-full bg-red-700 text-white py-3 rounded-md hover:bg-red-800 transition"
+        >
             Kembali
         </button>
         </div>

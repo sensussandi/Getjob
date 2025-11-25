@@ -71,22 +71,22 @@ export default function Sidebar() {
         />
 
         <MenuItem
-          href="/loker"
+          href="/Rekomendasi"
           icon={Briefcase}
-          active={activeMenu === "loker"}
+          active={activeMenu === "Rekomendasi"}
           collapsed={isCollapsed}
           badge="12"
-          onClick={() => setActiveMenu("loker")}
+          onClick={() => setActiveMenu("Rekomendasi")}
           label="Rekomendasi Loker"
         />
 
         <MenuItem
-          href="/lamaran"
+          href="/lihatLokerSaya"
           icon={BookOpen}
-          active={activeMenu === "lamaran"}
+          active={activeMenu === "lihat_loker_saya"}
           collapsed={isCollapsed}
           badge="3"
-          onClick={() => setActiveMenu("lamaran")}
+          onClick={() => setActiveMenu("lihat_loker_saya")}
           label="Lamaran Saya"
         />
 

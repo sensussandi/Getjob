@@ -197,29 +197,29 @@ export default function PengaturanPage() {
           </div>
 
           {/* NIM */}
-          <input name="nim" value={formData.nim} readOnly className="border border-gray-300 p-2 w-full mb-3 rounded bg-gray-100 text-gray-500" />
+          <input name="nim" value={formData.nim} readOnly className="border border-gray-300 p-2 w-full mb-3 rounded bg-gray-100 text-gray-700" />
 
           {/* NAMA */}
-          <input name="nama_lengkap" value={formData.nama_lengkap} onChange={handleChange} placeholder="Nama Lengkap" className="border border-gray-300 p-2 w-full mb-3 rounded" />
+          <input name="nama_lengkap" value={formData.nama_lengkap} onChange={handleChange} placeholder="Nama Lengkap" className="border border-gray-400 p-2 w-full mb-3 rounded bg-white text-gray-900 placeholder-gray-500" />
 
           {/* TANGGAL LAHIR */}
-          <input type="date" name="tanggal_lahir" value={formData.tanggal_lahir} onChange={handleChange} className="border border-gray-300 p-2 w-full mb-3 rounded" />
+          <input type="date" name="tanggal_lahir" value={formData.tanggal_lahir} onChange={handleChange} className="border border-gray-400 p-2 w-full mb-3 rounded bg-white text-gray-900" />
 
           {/* JENIS KELAMIN */}
-          <select name="jenis_kelamin" value={formData.jenis_kelamin} onChange={handleChange} className="border border-gray-300 p-2 w-full mb-3 rounded">
+          <select name="jenis_kelamin" value={formData.jenis_kelamin} onChange={handleChange} className="border border-gray-400 p-2 w-full mb-3 rounded bg-white text-gray-900">
             <option value="">Pilih Jenis Kelamin</option>
             <option value="1">Laki-laki</option>
             <option value="2">Perempuan</option>
           </select>
 
           {/* ALAMAT */}
-          <textarea name="alamat" value={formData.alamat} onChange={handleChange} rows="2" placeholder="Alamat Lengkap" className="border border-gray-300 p-2 w-full mb-3 rounded" />
+          <textarea name="alamat" value={formData.alamat} onChange={handleChange} rows="2" placeholder="Alamat Lengkap" className="border border-gray-400 p-2 w-full mb-3 rounded bg-white text-gray-900 placeholder-gray-500" />
 
           {/* EMAIL */}
-          <input name="email" value={formData.email} onChange={handleChange} placeholder="Email" className="border border-gray-300 p-2 w-full mb-3 rounded" />
+          <input name="email" value={formData.email} onChange={handleChange} placeholder="Email" className="border border-gray-400 p-2 w-full mb-3 rounded bg-white text-gray-900 placeholder-gray-500" />
 
           {/* NO HP */}
-          <input name="no_telephone" value={formData.no_telephone} onChange={handleChange} placeholder="Nomor WhatsApp" className="border border-gray-300 p-2 w-full mb-3 rounded" />
+          <input name="no_telephone" value={formData.no_telephone} onChange={handleChange} placeholder="Nomor WhatsApp" className="border border-gray-400 p-2 w-full mb-3 rounded bg-white text-gray-900 placeholder-gray-500" />
 
           {/* PASSWORD */}
           <div className="relative w-full mb-3">
@@ -229,7 +229,7 @@ export default function PengaturanPage() {
               value={formData.password}
               onChange={handleChange}
               placeholder="Masukkan kata sandi baru (kosongkan jika tidak diubah)"
-              className="border border-gray-300 p-2 w-full pr-10 rounded bg-[#fffaf0]"
+              className="border border-gray-400 p-2 w-full mb-3 rounded bg-white text-gray-900 placeholder-gray-500"
             />
             <button type="button" onClick={() => setShowPassword(!showPassword)} className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-500 hover:text-[#6b0000]">
               {showPassword ? <FaEyeSlash /> : <FaEye />}
@@ -237,7 +237,7 @@ export default function PengaturanPage() {
           </div>
 
           {/* PRODI */}
-          <select name="prodi" value={formData.prodi} onChange={handleChange} className="border border-gray-300 p-2 w-full mb-3 rounded">
+          <select name="prodi" value={formData.prodi} onChange={handleChange} className="border border-gray-400 p-2 w-full mb-3 rounded bg-white text-gray-900">
             <option value="">Pilih Program Studi</option>
             <option value="Informatika">Informatika</option>
             <option value="TM">Teknik Mesin</option>
@@ -246,7 +246,7 @@ export default function PengaturanPage() {
           </select>
 
           {/* PENDIDIKAN TERAKHIR */}
-          <select name="pendidikan_terakhir" value={formData.pendidikan_terakhir} onChange={handleChange} className="border border-gray-300 p-2 w-full mb-3 rounded">
+          <select name="pendidikan_terakhir" value={formData.pendidikan_terakhir} onChange={handleChange} className="border border-gray-400 p-2 w-full mb-3 rounded bg-white text-gray-900">
             <option value="">Pendidikan Terakhir</option>
             <option value="SDMI">SD / MI</option>
             <option value="SMPMTs">SMP / MTs</option>
@@ -262,13 +262,13 @@ export default function PengaturanPage() {
           </select>
 
           {/* LINKEDIN */}
-          <input name="linkedin" value={formData.linkedin} onChange={handleChange} placeholder="Link Profil LinkedIn (opsional)" className="border border-gray-300 p-2 w-full mb-3 rounded" />
+          <input name="linkedin" value={formData.linkedin} onChange={handleChange} placeholder="Link Profil LinkedIn (opsional)" className="border border-gray-400 p-2 w-full mb-3 rounded bg-white text-gray-900" />
 
           {/* KEAHLIAN */}
-          <textarea name="keahlian" value={formData.keahlian} onChange={handleChange} rows="2" placeholder="Keahlian atau kemampuan Anda" className="border border-gray-300 p-2 w-full mb-3 rounded" />
+          <textarea name="keahlian" value={formData.keahlian} onChange={handleChange} rows="2" placeholder="Keahlian atau kemampuan Anda" className="border border-gray-400 p-2 w-full mb-3 rounded bg-white text-gray-900 placeholder-gray-500" />
 
           {/* TENTANG ANDA */}
-          <textarea name="tentang_anda" value={formData.tentang_anda} onChange={handleChange} rows="3" placeholder="Tulis tentang Anda..." className="border border-gray-300 p-2 w-full mb-3 rounded" />
+          <textarea name="tentang_anda" value={formData.tentang_anda} onChange={handleChange} rows="3" placeholder="Tulis tentang Anda..." className="border border-gray-400 p-2 w-full mb-3 rounded bg-white text-gray-900 placeholder-gray-500" />
 
           {/* CV */}
           <div className="w-full mt-3 text-center">
