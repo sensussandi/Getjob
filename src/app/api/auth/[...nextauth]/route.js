@@ -6,9 +6,7 @@ import bcrypt from "bcryptjs";
 export const authOptions = {
   secret: process.env.NEXTAUTH_SECRET,
 
-  session: {
-    strategy: "jwt",
-  },
+  session: { strategy: "jwt" },
 
   providers: [
     CredentialsProvider({
@@ -25,7 +23,10 @@ export const authOptions = {
           database: "getjob_db",
         });
 
-        const [rows] = await db.query("SELECT * FROM pencari_kerja WHERE nim=?", [nim]);
+        const [rows] = await db.query(
+          "SELECT * FROM pencari_kerja WHERE nim=?",
+          [nim]
+        );
         await db.end();
 
         if (rows.length === 0) return null;
@@ -34,21 +35,33 @@ export const authOptions = {
         const valid = await bcrypt.compare(password, user.password);
         if (!valid) return null;
 
+        // 🔥 RETURN semua data user
         return {
           nim: user.nim,
           nama_lengkap: user.nama_lengkap,
           email: user.email,
+          foto: user.foto,                   // NEW
+          no_telephone: user.no_telephone,   // NEW
+          prodi: user.prodi,                 // NEW
+          tanggal_lahir: user.tanggal_lahir, // NEW
+          jenis_kelamin: user.jenis_kelamin, // NEW
         };
       },
     }),
   ],
 
+  // 🔥 CALLBACKS HARUS DITARUH DI DALAM OBJEK INI
   callbacks: {
     async jwt({ token, user }) {
       if (user) {
         token.nim = user.nim;
         token.nama_lengkap = user.nama_lengkap;
         token.email = user.email;
+        token.foto = user.foto || null;
+        token.no_telephone = user.no_telephone || null;
+        token.prodi = user.prodi || null;
+        token.tanggal_lahir = user.tanggal_lahir || null;
+        token.jenis_kelamin = user.jenis_kelamin || null;
       }
       return token;
     },
@@ -57,6 +70,14 @@ export const authOptions = {
       session.user.nim = token.nim;
       session.user.nama_lengkap = token.nama_lengkap;
       session.user.email = token.email;
+
+      // 🔥 tambahan data user ke session
+      session.user.foto = token.foto;
+      session.user.no_telephone = token.no_telephone;
+      session.user.prodi = token.prodi;
+      session.user.tanggal_lahir = token.tanggal_lahir;
+      session.user.jenis_kelamin = token.jenis_kelamin;
+
       return session;
     },
   },
