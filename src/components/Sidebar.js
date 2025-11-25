@@ -61,6 +61,8 @@ export default function Sidebar() {
     { id: "statistik", icon: BarChart3, label: "Statistik", href: "/statistik" },
     { id: "profil", icon: User, label: "Profil", href: "/profil" },
     { id: "pengaturan", icon: Settings, label: "Pengaturan", href: "/pengaturan" },
+    { id: "lihat_loker_saya", icon: BookOpen, label: "Lihat Loker Saya", href: "/lihatLokerSaya", badge: "3" },
+    { id: "edit_profile", icon: Settings, label: "Edit Profile", href: "/editProfileMHS", badge: null },
   ];
 
   return (
