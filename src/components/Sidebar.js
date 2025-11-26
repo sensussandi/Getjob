@@ -36,7 +36,7 @@ export default function Sidebar() {
       }
     };
     if (!pathname) return;
-
+    
     if (pathname.startsWith("/dashboardMHS/rekomendasi")) {
       setActiveMenu("loker");
     } else if (pathname.startsWith("/dashboardMHS")) {

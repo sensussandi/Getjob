@@ -63,10 +63,10 @@ export default function DetailLowongan() {
 
       if (data.success) {
         alert("Lamaran berhasil dikirim!");
-        router.push("/dashboardMHS/rekomendasi/hasil");
+        router.push("/dashboardMHS/rekomendasi");
       } else if (data.already) {
         alert("Anda sudah melamar lowongan ini.");
-        router.push("/dashboardMHS/rekomendasi/hasil");
+        router.push("/dashboardMHS/rekomendasi");
       } else {
         alert("Gagal mengirim lamaran.");
       }

@@ -1,183 +1,123 @@
 "use client";
 import usePencakerAuth from "@/hooks/usePencakerAuth";
-import React, { useState, useEffect } from "react";
+import { useEffect, useState } from "react";
 import { useSession } from "next-auth/react";
+import { useRouter } from "next/navigation";
 
-export default function RekomendasiPage() {
+export default function HasilRekomendasi() {
   usePencakerAuth();
-  const [prodi, setProdi] = useState("");
-  const [keahlian, setKeahlian] = useState([]);
-  const [error, setError] = useState("");
-  const [data, setData] = useState(null);
+  const [lowongan, setLowongan] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState("");  // State untuk error
+  const [resetting, setResetting] = useState(false); // State untuk tombol reset
+  const { data: session } = useSession();
+  const router = useRouter();
 
-  // ⬅ ambil session paling atas
-  const { data: session, status } = useSession();
-
-  // ⬅ fetch data setelah session siap
   useEffect(() => {
     if (!session || session.user.role !== "alumni") return;
 
-    const fetchData = async () => {
-      const res = await fetch(`/api/pencari_kerja/rekomendasi?nim=${session.user.id}`);
+    const fetchRekomendasi = async () => {
+      try {
+        const res = await fetch(`/api/pencari_kerja/rekomendasi?nim=${session.user.id}`);
+        const data = await res.json();
 
-      const result = await res.json();
+        if (data.emptySkill) {
+          router.push("/dashboardMHS/rekomendasi/rekomendasiLoker");  // Mengarahkan ke halaman rekomendasi
+          return;
+        }
 
-      if (result.success) {
-        setData(result);
-      } else {
-        console.error(result.message);
+        setLowongan(data.lowongan || []);
+      } catch (err) {
+        console.error("Gagal memuat rekomendasi:", err);
+        setError("Terjadi kesalahan saat memuat rekomendasi.");
+      } finally {
+        setLoading(false);
       }
     };
 
-    fetchData();
-  }, [session]);
-  // === 26 Prodi USD ===
-  const daftarProdi = [
-    "Informatika", "Teknik Elektro", "Fisika", "Matematika", "Biologi",
-    "Farmasi", "Psikologi", "Ilmu Komunikasi", "Manajemen", "Akuntansi",
-    "Ekonomi", "Pendidikan Bahasa Inggris", "Pendidikan Bahasa Indonesia",
-    "Pendidikan Fisika", "Pendidikan Biologi", "Pendidikan Guru SD",
-    "Bimbingan dan Konseling", "Arsitektur", "Sastra Inggris",
-    "Sastra Indonesia", "Sastra Jerman", "Sastra Prancis",
-    "Ilmu Hukum", "Keperawatan", "Teknik Mesin", "Teknik Sipil"
-  ];
+    fetchRekomendasi();
+  }, [session, router]);
 
-  // === Keahlian & Minat Lengkap ===
-  const daftarKeahlian = [
-    // IT
-    "Web Developer", "Mobile Developer", "UI/UX Designer", "Data Analyst",
-    "Data Scientist", "Game Developer", "Cyber Security", "AI Engineer", "DevOps Engineer",
-    // Bisnis & Manajemen
-    "Marketing", "Digital Marketing", "Sales", "Public Relations", "Business Analyst",
-    "Finance Analyst", "Entrepreneurship", "Human Resource", "Customer Service",
-    // Kreatif
-    "Graphic Designer", "Video Editor", "Content Creator", "Copywriter", "Photographer",
-    "Animator", "Brand Strategist", "Illustrator",
-    // Pendidikan & Sosial
-    "Guru SD", "Guru Bahasa Inggris", "Tutor Privat", "Psikolog", "Konselor", "Peneliti",
-    "Penerjemah", "Trainer", "Instruktur",
-    // Teknik
-    "Teknisi Listrik", "Teknisi Mesin", "Arsitek", "Drafter", "Quality Control",
-    "Surveyor", "Operator Produksi", "Project Engineer",
-    // Kesehatan
-    "Perawat", "Apoteker", "Analis Kesehatan", "Laboran",
-    // Umum
-    "Admin Kantor", "Barista", "Kasir", "Event Organizer", "Customer Support"
-  ];
-
-  const handleKeahlianChange = (skill) => {
-    if (keahlian.includes(skill)) {
-      setKeahlian(keahlian.filter((k) => k !== skill));
-    } else if (keahlian.length < 5) {
-      setKeahlian([...keahlian, skill]);
-    } else {
-      setError("Maksimal pilih 5 keahlian!");
-    }
-  };
-
-  const handleSubmit = async (e) => {
-    e.preventDefault();
-    setError("");
-    if (!prodi) {
-      setError("Silakan pilih program studi terlebih dahulu!");
-      return;
-    }
-    if (keahlian.length === 0) {
-      setError("Pilih minimal satu keahlian!");
-      return;
-    }
-
+  const handleResetKeahlian = async () => {
+    setResetting(true);
     try {
-      const res = await fetch("/api/pencari_kerja/updateprofil", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ nim: session?.user?.nim, prodi, keahlian }),
+      const res = await fetch(`/api/pencari_kerja/rekomendasi?nim=${session.user.id}`, {
+        method: 'POST',
       });
-
-      const result = await res.json();
-      if (result.success) {
-        alert("Data tersimpan! Menampilkan rekomendasi lowongan...");
-        window.location.href = "/dashboardMHS/rekomendasi/hasil";
+      const data = await res.json();
+      if (data.success) {
+        setError('Keahlian berhasil direset.');
+        // Mengarahkan kembali ke halaman rekomendasi
+        router.push('/dashboardMHS/rekomendasi/rekomendasiLoker');
       } else {
-        alert("Gagal menyimpan data!");
+        setError('Gagal mereset keahlian.');
       }
     } catch (err) {
-      console.error(err);
-      setError("Terjadi kesalahan server!");
+      setError('Terjadi kesalahan saat mereset keahlian.');
+    } finally {
+      setResetting(false);
     }
   };
 
+  if (loading) {
+    return <p className="text-center text-gray-600 py-10">Memuat rekomendasi lowongan...</p>;
+  }
+
+  if (error) {
+    return <p className="text-center text-red-600 py-10">{error}</p>;  // Menampilkan error jika ada
+  }
+
+  if (lowongan.length === 0) {
+    return (
+      <div className="text-center py-20 text-gray-700">
+        <h2 className="text-xl font-semibold mb-2">Belum ada rekomendasi lowongan 😔</h2>
+        <p>Silakan periksa kembali keahlian dan minat Anda.</p>
+      </div>
+    );
+  }
+
   return (
-    <div className="flex min-h-screen bg-gray-50">
-      {/* === Konten utama (biar tidak menimpa sidebar) === */}
-      <main className="flex-1 ml-64 p-10">
-        <div className="bg-white rounded-2xl shadow-lg p-8 max-w-5xl mx-auto">
-          <h1 className="text-3xl font-bold text-red-900 mb-6 text-center">
-            Isi Profil Rekomendasi Loker
-          </h1>
+    <div className="min-h-screen bg-gray-50 py-10 px-6">
+      <h1 className="text-3xl font-bold text-red-900 mb-6 text-center">
+        💼 Rekomendasi Lowongan Untuk Anda
+      </h1>
 
-          <form onSubmit={handleSubmit} className="space-y-8">
-            {/* === Prodi === */}
-            <div>
-              <h2 className="text-lg font-semibold text-gray-900 mb-3">
-                1. Apa program studi Anda?
-              </h2>
-              <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
-                {daftarProdi.map((item) => (
-                  <label
-                    key={item}
-                    className="flex items-center space-x-2 text-gray-800 hover:text-red-900 transition"
-                  >
-                    <input
-                      type="radio"
-                      name="prodi"
-                      value={item}
-                      checked={prodi === item}
-                      onChange={() => setProdi(item)}
-                      className="accent-red-800"
-                    />
-                    <span>{item}</span>
-                  </label>
-                ))}
-              </div>
-            </div>
+      <button
+        onClick={handleResetKeahlian}
+        className="mb-6 px-4 py-2 bg-yellow-500 text-white rounded-lg hover:bg-yellow-400 transition"
+        disabled={resetting}
+      >
+        {resetting ? 'Mengatur ulang...' : 'Reset Rekomendasi Loker'}
+      </button>
 
-            {/* === Keahlian === */}
-            <div>
-              <h2 className="text-lg font-semibold text-gray-900 mb-3">
-                2. Apa keahlian dan minat bakat Anda?{" "}
-                <span className="text-sm text-gray-500">(maks. 5)</span>
-              </h2>
-              <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
-                {daftarKeahlian.map((item) => (
-                  <label
-                    key={item}
-                    className="flex items-center space-x-2 text-gray-800 hover:text-red-900 transition"
-                  >
-                    <input
-                      type="checkbox"
-                      value={item}
-                      checked={keahlian.includes(item)}
-                      onChange={() => handleKeahlianChange(item)}
-                      className="accent-red-800"
-                    />
-                    <span>{item}</span>
-                  </label>
-                ))}
-              </div>
-            </div>
-
-            {/* === Error & Submit === */}
-            {error && <p className="text-red-600 font-medium">{error}</p>}
-            <button
-              type="submit"
-              className="w-full bg-gradient-to-r from-red-900 to-red-700 hover:opacity-90 text-white py-3 rounded-xl font-semibold text-lg shadow-lg transition-all"
+      <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
+        {lowongan.map((job) => (
+          <div
+            key={job.id_lowongan}
+            className="bg-white shadow-lg rounded-xl p-6 hover:shadow-2xl transition"
+          >
+            <h2 className="text-xl font-bold text-red-800 mb-2">{job.nama_posisi}</h2>
+            <p className="text-gray-700 text-sm mb-3">
+              <strong>Perusahaan:</strong> {job.nama_perusahaan}
+            </p>
+            <p className="text-gray-600 text-sm mb-3 line-clamp-3">
+              {job.deskripsi_pekerjaan}
+            </p>
+            <p className="text-gray-600 text-sm mb-2">
+              <strong>Lokasi:</strong> {job.lokasi}
+            </p>
+            <p className="text-gray-600 text-sm mb-4">
+              <strong>Gaji:</strong> {job.gaji}
+            </p>
+            <a
+              href={`/lowongan/${job.id_lowongan}`}
+              className="inline-block bg-red-800 hover:bg-red-700 text-white px-4 py-2 rounded-lg font-semibold transition"
             >
-              Simpan & Lihat Rekomendasi
-            </button>
-          </form>
-        </div>
-      </main>
+              Lihat Detail
+            </a>
+          </div>
+        ))}
+      </div>
     </div>
   );
 }

@@ -64,7 +64,6 @@ export default function LoginPerusahaan() {
 
     // Ambil session
     const currentsession = await fetch("/api/auth/session").then(r => r.json());
-    localStorage.removeItem("rememberMeMHS");
     // Redirect sesuai role
     if (currentsession?.user?.role === "admin") {
       if (rememberMe) {

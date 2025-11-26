@@ -1,11 +1,11 @@
 import mysql from "mysql2/promise";
 import { NextResponse } from "next/server";
 
+// GET method untuk rekomendasi lowongan
 export async function GET(req) {
   try {
     const { searchParams } = new URL(req.url);
-    const nim = searchParams.get("nim");  
-
+    const nim = searchParams.get("nim");
 
     const db = await mysql.createConnection({
       host: "localhost",
@@ -14,7 +14,7 @@ export async function GET(req) {
       database: "getjob_db",
     });
 
-    // 🔹 Ambil data user (prodi & keahlian)
+    // Ambil data user (prodi & keahlian)
     const [userRows] = await db.execute(
       "SELECT prodi, keahlian FROM pencari_kerja WHERE nim = ?",
       [nim]
@@ -29,32 +29,43 @@ export async function GET(req) {
     }
 
     const { prodi, keahlian } = userRows[0];
+
+    // Cek apakah keahlian kosong atau tidak
+    if (!keahlian || keahlian.trim() === "") {
+      await db.end();
+      return NextResponse.json({
+        success: false,
+        emptySkill: true,  // Kirim tanda khusus
+      });
+    }
+
     const skillsArray = keahlian
       ? keahlian.split(",").map((s) => s.trim().toLowerCase())
       : [];
 
-    // 🔹 Gabungkan prodi + keahlian menjadi keyword
     const searchKeywords = [...skillsArray, prodi?.toLowerCase()].filter(Boolean);
 
-    // 🔹 Ambil semua lowongan kerja beserta nama perusahaan
     const [lowongan] = await db.query(`
       SELECT l.*, a.nama_perusahaan
       FROM lowongan_kerja l
       JOIN admin_perusahaan a ON l.id_admin = a.id_admin
     `);
 
-    // 🔹 Hitung skor relevansi berdasarkan kecocokan keyword
     const hasilRekomendasi = lowongan.map((job) => {
-      const teksGabungan = `${job.nama_posisi} ${job.deskripsi_pekerjaan} ${job.kualifikasi}`
-        .toLowerCase();
+      const teksGabungan = `${job.nama_posisi} ${job.deskripsi_pekerjaan} ${job.kualifikasi}`.toLowerCase();
       let skor = 0;
+
+      // Pencarian sequential berdasarkan kata kunci (keahlian dan prodi)
       searchKeywords.forEach((key) => {
-        if (teksGabungan.includes(key)) skor += 1;
+        if (teksGabungan.includes(key)) {
+          skor += 1; // Tambah skor jika kata kunci ditemukan
+        }
       });
+
       return { ...job, skor };
     });
 
-    // 🔹 Urutkan dari skor tertinggi ke terendah
+
     hasilRekomendasi.sort((a, b) => b.skor - a.skor);
 
     await db.end();
@@ -66,6 +77,48 @@ export async function GET(req) {
     });
   } catch (error) {
     console.error("❌ Error rekomendasi:", error);
+    return NextResponse.json({
+      success: false,
+      message: "Terjadi kesalahan server.",
+      error: error.message,
+    });
+  }
+}
+
+// POST method untuk mereset keahlian
+export async function POST(req) {
+  try {
+    const { searchParams } = new URL(req.url);
+    const nim = searchParams.get("nim");
+
+    const db = await mysql.createConnection({
+      host: "localhost",
+      user: "root",
+      password: "",
+      database: "getjob_db",
+    });
+
+    // Reset keahlian menjadi kosong (null)
+    const [result] = await db.execute(
+      "UPDATE pencari_kerja SET keahlian = ? WHERE nim = ?",
+      [null, nim]
+    );
+
+    await db.end();
+
+    if (result.affectedRows === 0) {
+      return NextResponse.json({
+        success: false,
+        message: "User tidak ditemukan atau keahlian gagal direset.",
+      });
+    }
+
+    return NextResponse.json({
+      success: true,
+      message: "Keahlian berhasil direset.",
+    });
+  } catch (error) {
+    console.error("❌ Error mereset keahlian:", error);
     return NextResponse.json({
       success: false,
       message: "Terjadi kesalahan server.",
