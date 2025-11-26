@@ -7,7 +7,7 @@ import { useSession, signIn } from "next-auth/react";
 
 export default function LoginMhs() {
   const [showPassword, setShowPassword] = useState(false);
-  const [rememberMe, setRememberMe] = useState(false); // State untuk checkbox "Ingat Saya"
+  const [rememberMeMHS, setRememberMeMHS] = useState(false); // State untuk checkbox "Ingat Saya"
   const [error, setError] = useState("");
   const [showForgotPassword, setShowForgotPassword] = useState(false);
   const router = useRouter();
@@ -27,13 +27,13 @@ export default function LoginMhs() {
 
   useEffect(() => {
     // Ambil data remember me
-    const saved = JSON.parse(localStorage.getItem("rememberMeData"));
+    const saved = JSON.parse(localStorage.getItem("rememberMeMHSNIM"));
     if (saved) {
       setFormData({
-        email: saved.email,
+        nim: saved.nim,
         password: saved.password,
       });
-      setRememberMe(true);
+      setRememberMeMHS(true);
     }
   }, []);
 
@@ -46,7 +46,7 @@ export default function LoginMhs() {
       redirect: false,
       nim: formData.nim,
       password: formData.password,
-      rememberMe: rememberMe,
+      rememberMeMHS: rememberMeMHS,
     });
 
     if (res?.error) {
@@ -58,18 +58,17 @@ export default function LoginMhs() {
     const currentsession = await fetch("/api/auth/session").then((r) => r.json());
 
     if (currentsession?.user?.role === "alumni") {
-      if (rememberMe) {
+      if (rememberMeMHS) {
         localStorage.setItem(
-          "rememberMePerusahaan",
+          "rememberMeMHSNIM",
           JSON.stringify({
             nim: formData.nim,
             password: formData.password,
           })
         );
       } else {
-        localStorage.removeItem("rememberMeData");
+        localStorage.removeItem("rememberMeMHSNIM");
       }
-      
       router.push("/dashboardMHS");
     } else {
       setError("Akses tidak diizinkan.");
@@ -154,7 +153,7 @@ export default function LoginMhs() {
             {/* Forgot Password Link */}
             <div className="flex items-center justify-between mb-6">
               <label className="flex items-center cursor-pointer">
-                <input type="checkbox" checked={rememberMe} onChange={(e) => setRememberMe(e.target.checked)} className="w-4 h-4 text-red-900 border-gray-300 rounded focus:ring-2 focus:ring-red-900" />
+                <input type="checkbox" checked={rememberMeMHS} onChange={(e) => setRememberMeMHS(e.target.checked)} className="w-4 h-4 text-red-900 border-gray-300 rounded focus:ring-2 focus:ring-red-900" />
                 <span className="ml-2 text-sm text-gray-700">Ingat Saya</span>
               </label>
               <button type="button" onClick={handleForgotPassword} className="text-sm text-red-900 hover:text-red-700 font-medium transition">
