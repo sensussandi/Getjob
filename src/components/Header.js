@@ -13,7 +13,7 @@ export default function Header() {
   const hiddenRoutes = [
     "/dashboardMHS",
     "/lamaran",
-    "/statistik",
+    "/lihatLokerSaya",
     "/profil",
     "/pengaturan",
   ];

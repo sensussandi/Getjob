@@ -47,8 +47,8 @@ export default function PengaturanPage() {
         }
 
         // Jika belum ada draft, ambil dari database
-        if (!session?.user?.nim) return;
-        const res = await fetch(`/api/editProfileMHS?nim=${session.user.nim}`);
+        if (!session || session.user.role !== "alumni") return;
+        const res = await fetch(`/api/editProfileMHS?nim=${session.user.id}`);
         const data = await res.json();
 
         if (data.success && data.user) {

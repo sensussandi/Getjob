@@ -2,16 +2,19 @@
 import { useEffect, useState } from "react";
 import { useSession } from "next-auth/react";
 import { Briefcase, Building2, CalendarDays, Clock } from "lucide-react";
+import { ArrowLeft } from "lucide-react";
+import { useRouter } from "next/navigation";
 
 // Halaman untuk menampilkan lowongan yang sudah didaftarkan oleh user
 export default function LokerSaya() {
     const { data: session, status } = useSession();
     const [data, setData] = useState([]);
+    const router = useRouter();
     const [loading, setLoading] = useState(true);
 
     useEffect(() => {
-    if (status === "authenticated" && session?.user?.nim) {
-        fetch(`/api/lihatLokerSaya?nim=${session.user.nim}`)
+    if (status === "authenticated" && session?.user?.id) {
+        fetch(`/api/lihatLokerSaya?nim=${session.user.id}`)
         .then((res) => res.json())
         .then((result) => {
             if (result.success) setData(result.data);
@@ -80,9 +83,8 @@ export default function LokerSaya() {
             ))}
             </div>
         )}
-        <button className="mt-8 w-full bg-red-700 text-white py-3 rounded-md hover:bg-red-800 transition">
-            Kembali
-        </button>
+        <button onClick={() => router.back()} className="mt-8 w-full bg-red-700 text-white py-3 rounded-md hover:bg-red-800 transition">
+           Kembali </button>
         </div>
     </div>
     );

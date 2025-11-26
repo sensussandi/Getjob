@@ -18,7 +18,7 @@ export default function RekomendasiPage() {
     if (!session || session.user.role !== "alumni") return;
 
     const fetchData = async () => {
-      const res = await fetch(`/api/pencari_kerja/rekomendasi?nim=${session.user.nim}`);
+      const res = await fetch(`/api/pencari_kerja/rekomendasi?nim=${session.user.id}`);
 
       const result = await res.json();
 
@@ -91,7 +91,7 @@ export default function RekomendasiPage() {
       const res = await fetch("/api/pencari_kerja/updateprofil", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ nim: session.user.nim, prodi, keahlian }),
+        body: JSON.stringify({ nim: session?.user?.nim, prodi, keahlian }),
       });
 
       const result = await res.json();

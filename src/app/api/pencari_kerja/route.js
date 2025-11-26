@@ -3,6 +3,7 @@ import mysql from "mysql2/promise";
 
 export async function GET(req) {
   try {
+    // CONNECT DB
     const db = await mysql.createConnection({
       host: "localhost",
       user: "root",
@@ -17,21 +18,25 @@ export async function GET(req) {
       return NextResponse.json({ success: false, message: "nim wajib dikirim" });
     }
 
-    // 1. PROFIL
-    const [profilRes] = await db.query(
-      `SELECT * FROM pencari_kerja WHERE nim = ? LIMIT 1`,
+    const [rows] = await db.query(
+      `
+      SELECT *
+      FROM pencari_kerja
+      WHERE nim = ?
+      LIMIT 1
+        `,
       [nim]
     );
-    const profil = profilRes[0];
+
 
     await db.end();
 
     return NextResponse.json({
       success: true,
-      profil
+      data: rows[0] || null,
     });
   } catch (err) {
-    console.error("❌ ERROR DASHBOARD MHS:", err);
+    console.error("❌ ERROR DASHBOARD:", err);
     return NextResponse.json(
       {
         success: false,

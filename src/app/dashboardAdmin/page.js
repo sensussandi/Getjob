@@ -186,9 +186,9 @@ export default function DashboardAdmin() {
 
         {/* STATISTIK */}
         <div className="grid grid-cols-1 sm:grid-cols-3 gap-6 mb-10">
-          <StatCard icon={<Building2 />} title="Total Perusahaan" value={stats.totalPerusahaan} color="from-blue-500 to-blue-600" />
-          <StatCard icon={<Users />} title="Total Pencari Kerja" value={stats.totalPencariKerja} color="from-green-500 to-green-600" />
-          <StatCard icon={<Briefcase />} title="Total Lowongan" value={stats.totalLowongan} color="from-yellow-500 to-yellow-600" />
+          <StatCard icon={<Building2 />} title="Total Perusahaan" value={stats.totalPerusahaan} color="from-blue-500 to-blue-600" onClick={() => router.push("/dashboardAdmin/perusahaan/page/1")}/>
+          <StatCard icon={<Users />} title="Total Pencari Kerja" value={stats.totalPencariKerja} color="from-green-500 to-green-600" onClick={() => router.push("/dashboardAdmin/pencaker/page/1")}/>
+          <StatCard icon={<Briefcase />} title="Total Lowongan" value={stats.totalLowongan} color="from-yellow-500 to-yellow-600" onClick={() => router.push("/dashboardAdmin/lowongan/page/1")}/>
         </div>
 
         {/* === DATA PERUSAHAAN === */}
@@ -334,17 +334,22 @@ export default function DashboardAdmin() {
 }
 
 /* === KOMPONEN STAT CARD === */
-function StatCard({ icon, title, value, color }) {
+function StatCard({ icon, title, value, color, onClick }) {
   return (
-    <div className={`bg-gradient-to-r ${color} p-6 rounded-2xl shadow-lg text-white flex items-center justify-between`}>
+    <button
+      onClick={onClick}
+      className={`bg-gradient-to-r ${color} p-6 rounded-2xl shadow-lg text-white 
+      flex items-center justify-between w-full text-left hover:opacity-90 transition`}
+    >
       <div>
         <p className="text-white/80 text-sm">{title}</p>
         <h2 className="text-3xl font-bold">{value}</h2>
       </div>
       <div className="bg-white/30 p-3 rounded-full">{icon}</div>
-    </div>
+    </button>
   );
 }
+
 
 /* === KOMPONEN LOWONGAN === */
 function LowonganSection({ dataLowongan, router, handleDeleteLowongan }) {

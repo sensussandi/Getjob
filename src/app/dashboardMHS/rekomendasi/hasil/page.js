@@ -10,11 +10,11 @@ export default function HasilRekomendasi() {
   const { data: session } = useSession();
 
   useEffect(() => {
-    if (!session?.user?.nim) return;
+    if (!session || session.user.role !== "alumni") return;
 
     const fetchRekomendasi = async () => {
       try {
-        const res = await fetch(`/api/pencari_kerja/rekomendasi?nim=${session.user.nim}`);
+        const res = await fetch(`/api/pencari_kerja/rekomendasi?nim=${session.user.id}`);
         const data = await res.json();
         setLowongan(data.lowongan || []);
       } catch (err) {
