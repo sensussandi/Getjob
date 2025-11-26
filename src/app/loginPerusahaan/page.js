@@ -1,6 +1,7 @@
 "use client";
 import { useState } from "react";
 import { useRouter } from "next/navigation";
+import { signIn } from "next-auth/react";
 import { Building2, User, Lock, Eye, EyeOff } from "lucide-react";
 
 export default function LoginPerusahaan() {
@@ -13,27 +14,47 @@ export default function LoginPerusahaan() {
     e.preventDefault();
     setError("");
 
-    const res = await fetch("/api/perusahaan/login", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(form),
+    // LOGIN ADMIN PERUSAHAAN
+    let res = await signIn("admin", {
+      redirect: false,
+      email: form.email,
+      password: form.password,
     });
 
-    const data = await res.json();
+    // Jika gagal admin → coba super_admin
+    if (res?.error) {
+      res = await signIn("super_admin", {
+        redirect: false,
+        email: form.email,
+        password: form.password,
+      });
+    }
 
-    if (res.ok && data.success) {
-      // Store data using state management instead of localStorage for Claude.ai compatibility
-      // In production: localStorage.setItem("perusahaan", JSON.stringify(data.perusahaan));
+    if (res?.error) {
+      setError("Email atau password salah!");
+      return;
+    }
+
+    // Ambil session
+    const session = await fetch("/api/auth/session").then(r => r.json());
+
+    // Redirect sesuai role
+    if (session?.user?.role === "admin") {
       router.push("/dashboardPerusahaan");
-    } else {
-      setError(data.message || "Login gagal. Coba lagi.");
+    }
+    else if (session?.user?.role === "super_admin") {
+      router.push("/dashboardAdmin");
+    }
+    else {
+      setError("Akses tidak diizinkan.");
     }
   };
 
   return (
     <div className="min-h-screen flex justify-center items-center bg-gradient-to-br from-[#7a0d0d] via-[#8b0000] to-[#b22222]">
       <div className="w-full max-w-md px-4">
-        {/* === Header === */}
+
+        {/* HEADER */}
         <div className="flex flex-col items-center mb-6 text-white">
           <div className="bg-white p-4 rounded-full mb-4">
             <Building2 className="text-[#7a0d0d] w-10 h-10" />
@@ -44,11 +65,14 @@ export default function LoginPerusahaan() {
           </p>
         </div>
 
-        {/* === Form Card === */}
+        {/* CARD FORM */}
         <div className="bg-white rounded-2xl shadow-2xl p-8">
-          <h2 className="text-2xl font-bold text-gray-800 text-center mb-6">Login</h2>
-          
+          <h2 className="text-2xl font-bold text-gray-800 text-center mb-6">
+            Login
+          </h2>
+
           <form onSubmit={handleLogin} className="space-y-4">
+
             {/* Email */}
             <div>
               <label className="block text-gray-700 text-sm font-medium mb-2">
@@ -61,7 +85,7 @@ export default function LoginPerusahaan() {
                   placeholder="Masukkan email perusahaan"
                   value={form.email}
                   onChange={(e) => setForm({ ...form, email: e.target.value })}
-                  className="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-lg outline-none focus:border-[#7a0d0d] focus:ring-1 focus:ring-[#7a0d0d] transition-all"
+                  className="w-full pl-10 pr-4 py-3 border text-black placeholder-gray-300 rounded-lg outline-none focus:border-[#7a0d0d] focus:ring-1 focus:ring-[#7a0d0d] transition-all"
                   required
                 />
               </div>
@@ -79,7 +103,7 @@ export default function LoginPerusahaan() {
                   placeholder="Masukkan password"
                   value={form.password}
                   onChange={(e) => setForm({ ...form, password: e.target.value })}
-                  className="w-full pl-10 pr-12 py-3 border border-gray-300 rounded-lg outline-none focus:border-[#7a0d0d] focus:ring-1 focus:ring-[#7a0d0d] transition-all"
+                  className="w-full pl-10 pr-12 py-3 border text-black placeholder-gray-300 rounded-lg outline-none focus:border-[#7a0d0d] focus:ring-1 focus:ring-[#7a0d0d] transition-all"
                   required
                 />
                 <button
@@ -87,7 +111,11 @@ export default function LoginPerusahaan() {
                   onClick={() => setShowPassword(!showPassword)}
                   className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600"
                 >
-                  {showPassword ? <EyeOff className="w-5 h-5" /> : <Eye className="w-5 h-5" />}
+                  {showPassword ? (
+                    <EyeOff className="w-5 h-5" />
+                  ) : (
+                    <Eye className="w-5 h-5" />
+                  )}
                 </button>
               </div>
             </div>
@@ -131,9 +159,7 @@ export default function LoginPerusahaan() {
         {/* Footer */}
         <p className="text-center text-sm mt-6 text-white">
           Butuh bantuan? Hubungi{" "}
-          <span className="font-semibold underline">
-            admin@getjob.co.id
-          </span>
+          <span className="font-semibold underline">admin@getjob.co.id</span>
         </p>
       </div>
     </div>

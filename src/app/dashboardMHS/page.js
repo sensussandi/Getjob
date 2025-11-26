@@ -1,23 +1,36 @@
 "use client";
-
+import usePencakerAuth from "@/hooks/usePencakerAuth";
+import React, { useEffect, useState } from "react";
 import { useSession } from "next-auth/react";
 import { Mail, Phone } from "lucide-react";
+import { useRouter } from "next/navigation";
 
 export default function DashboardMHS() {
+  usePencakerAuth();
+  const [data, setData] = useState(null);
+  const router = useRouter();
   const { data: session, status } = useSession();
+    
 
-  if (status === "loading") {
-    return (
-      <div className="flex items-center justify-center h-screen text-red-900">
-        Memuat...
-      </div>
-    );
-  }
+  // ⬅ fetch data setelah session siap
+  useEffect(() => {
+    if (!session || session.user.role !== "alumni") return;
+    const fetchData = async () => {
+      const res = await fetch(`/api/pencari_kerja?nim=${session.user.id}`);
+      
+      const result = await res.json();
 
-  if (status === "unauthenticated") {
-    window.location.href = "/loginMhs";
-    return null;
-  }
+      if (result.success) {
+        setData(result);  
+
+      }
+    };
+
+    fetchData();
+  }, [session]);
+
+  const user = session?.user;
+  console.log("user", user)
 
   const user = session.user;
 
@@ -28,7 +41,7 @@ export default function DashboardMHS() {
         {/* Header */}
         <div className="bg-gradient-to-r from-[#6b0000] to-[#b22c2c] text-white p-6 text-center">
           <h1 className="text-3xl font-bold">
-            Selamat Datang, {user.nama_lengkap} 👋
+            Selamat Datang, {user?.name || user?.nama_lengkap} 👋
           </h1>
         </div>
 
@@ -46,6 +59,12 @@ export default function DashboardMHS() {
             alt="Foto Profil"
             onError={(e) => (e.currentTarget.src = "/default-avatar.jpg")}
           />
+          <h2 className="text-2xl font-semibold text-gray-800">
+            {user?.name || "Mahasiswa"}
+          </h2>
+          <p className="text-gray-600">
+            {user?.prodi || "Program Studi Tidak Diketahui"}
+          </p>
 
           <h2 className="text-2xl font-semibold text-gray-800 mt-4">
             {user.nama_lengkap}
@@ -56,13 +75,13 @@ export default function DashboardMHS() {
           <div className="w-full px-6 mt-4 space-y-2">
             <p className="flex items-center gap-2 text-gray-700">
               <Mail className="w-5 h-5 text-[#6b0000]" />
-              {user.email}
-            </p>
-
-            <p className="flex items-center gap-2 text-gray-700">
+              <span>{user?.email || "Email belum diisi"}</span>
+            </div>
+            <div className="flex items-center gap-2 text-gray-700">
               <Phone className="w-5 h-5 text-[#6b0000]" />
-              {user.no_telephone || "Nomor belum diisi"}
-            </p>
+              <span>{user?.no_telephone || "Nomor belum diisi"}</span>
+            </div>
+
           </div>
         </div>
 

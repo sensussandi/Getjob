@@ -1,10 +1,17 @@
 "use client";
+<<<<<<< HEAD
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { Search, MapPin, Briefcase, Bell, HelpCircle, Menu } from "lucide-react";
+=======
+import { useState } from 'react';
+import { Search, MapPin, Briefcase, Bell, HelpCircle, Menu } from 'lucide-react';
+import { useSession, signOut } from "next-auth/react";
+>>>>>>> 393efcda7be7908201688a197012410847e54ced
 
 export default function Topbar() {
   const [showNotifications, setShowNotifications] = useState(false);
+  
   const [notifications] = useState([
     { id: 1, text: "Profil Anda telah dilihat 5 perusahaan", time: "2 jam lalu", unread: true },
     { id: 2, text: "Ada 3 lowongan baru sesuai keahlian Anda", time: "5 jam lalu", unread: true },
@@ -32,26 +39,56 @@ export default function Topbar() {
   return (
     <header className="bg-white border-b border-slate-200 sticky top-0 z-50 backdrop-blur-lg bg-white/95">
       <div className="px-4 md:px-6 py-4">
+
+        {/* BAGIAN ATAS HEADER */}
         <div className="flex items-center justify-between gap-4">
+<<<<<<< HEAD
           {/* Search Section */}
           <div className="flex-1 flex items-center gap-3 max-w-4xl">
+=======
+
+          {/* ================================
+              LOGO + BRANDING (PERBAIKAN)
+             ================================ */}
+          <div className="flex items-center gap-3 mr-4 shrink-0">
+            <img
+              src="/logo.jpg"
+              alt="Logo"
+              className="h-10 w-10 rounded-lg object-cover shadow"
+            />
+            <h1 className="text-xl font-bold text-red-900 tracking-wide">
+              <span className="text-orange-600">USD Get Job</span>
+            </h1>
+          </div>
+
+          {/* ================================
+              SEARCH BAR + FILTER
+             ================================ */}
+          <div className="flex-1 flex items-center gap-3 max-w-4xl">
+
+>>>>>>> 393efcda7be7908201688a197012410847e54ced
             {/* Keyword Search */}
             <div className="relative flex-1 min-w-[200px]">
-              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 w-5 h-5 text-gray-400" />
+              <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" />
               <input
                 type="text"
                 placeholder="Cari pekerjaan atau perusahaan"
+<<<<<<< HEAD
                 value={keyword}
                 onChange={(e) => setKeyword(e.target.value)}
                 className="w-full pl-11 pr-4 py-2.5 border border-slate-300 rounded-xl 
                 focus:outline-none focus:ring-2 focus:ring-red-500 
                 focus:border-transparent transition bg-white hover:border-slate-400 
                 text-sm text-gray-800 placeholder:text-gray-800"
+=======
+                className="w-full pl-11 pr-4 py-2.5 border border-slate-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-red-500 hover:border-slate-400 text-sm bg-white"
+>>>>>>> 393efcda7be7908201688a197012410847e54ced
               />
           </div>
 
-            {/* Location Filter */}
+            {/* Lokasi */}
             <div className="relative hidden md:block min-w-[180px]">
+<<<<<<< HEAD
               <MapPin className="absolute left-3 top-1/2 transform -translate-y-1/2 w-5 h-5 text-black" />
               <select
                 value={lokasi}
@@ -76,25 +113,42 @@ export default function Topbar() {
                 onChange={(e) => setKategori(e.target.value)}
                 className="w-full pl-11 pr-4 py-2.5 border border-slate-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-red-500 focus:border-transparent transition bg-white hover:border-slate-400 appearance-none text-sm cursor-pointer"
               >
-                <option>Semua Pekerjaan</option>
-                <option>IT/Software Development</option>
-                <option>Marketing</option>
-                <option>Design</option>
-                <option>Finance</option>
-                <option>Human Resources</option>
-                <option>Sales</option>
+=======
+              <MapPin className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" />
+              <select className="w-full pl-11 pr-4 py-2.5 border border-slate-300 rounded-xl focus:ring-2 focus:ring-red-500 hover:border-slate-400 text-sm appearance-none bg-white cursor-pointer">
+                <option>Semua Lokasi</option>
+                <option>Jakarta</option><option>Bandung</option>
+                <option>Surabaya</option><option>Yogyakarta</option>
               </select>
             </div>
 
+            {/* Kategori Pekerjaan */}
+            <div className="relative hidden lg:block min-w-[180px]">
+              <Briefcase className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" />
+              <select className="w-full pl-11 pr-4 py-2.5 border border-slate-300 rounded-xl focus:ring-2 focus:ring-red-500 hover:border-slate-400 text-sm appearance-none bg-white cursor-pointer">
+>>>>>>> 393efcda7be7908201688a197012410847e54ced
+                <option>Semua Pekerjaan</option>
+                <option>IT/Software Development</option>
+                <option>Marketing</option><option>Design</option>
+                <option>Finance</option><option>HR</option>
+              </select>
+            </div>
+
+<<<<<<< HEAD
             {/* Search Button */}
             <button
               onClick={handleSearch}
               className="hidden md:flex items-center justify-center bg-gradient-to-r from-red-900 to-red-700 text-white px-6 py-2.5 rounded-xl hover:from-red-800 hover:to-red-600 transition-all shadow-md hover:shadow-lg font-medium"
             >
+=======
+            {/* Tombol Cari */}
+            <button className="hidden md:flex items-center justify-center bg-gradient-to-r from-red-900 to-red-700 text-white px-6 py-2.5 rounded-xl hover:from-red-800 hover:to-red-600 transition shadow-md hover:shadow-lg font-medium">
+>>>>>>> 393efcda7be7908201688a197012410847e54ced
               Cari
             </button>
           </div>
 
+<<<<<<< HEAD
           {/* Right Section (notifikasi dll) */}
           <div className="flex items-center gap-2">
             <button
@@ -106,9 +160,57 @@ export default function Topbar() {
                 <span className="absolute top-1 right-1 w-5 h-5 bg-red-500 text-white text-xs font-bold rounded-full flex items-center justify-center animate-pulse">
                   {unreadCount}
                 </span>
+=======
+          
+          {/* ================================
+              BUTTON AKSI (NOTIF, HELP, MENU)
+             ================================ */}
+          <div className="flex items-center gap-2">
+
+            {/* Notifikasi */}
+            <div className="relative">
+              <button
+                onClick={() => setShowNotifications(!showNotifications)}
+                className="relative p-2.5 rounded-xl hover:bg-slate-100 transition"
+              >
+                <Bell className="w-5 h-5 text-gray-600 hover:text-red-900" />
+                {unreadCount > 0 && (
+                  <span className="absolute top-1 right-1 w-5 h-5 bg-red-500 text-white text-xs font-bold rounded-full flex items-center justify-center animate-pulse">
+                    {unreadCount}
+                  </span>
+                )}
+              </button>
+
+              {/* Dropdown Notifikasi */}
+              {showNotifications && (
+                <div className="absolute right-0 mt-2 w-80 bg-white rounded-2xl shadow-2xl border border-slate-200 overflow-hidden z-50">
+                  <div className="p-4 bg-gradient-to-r from-red-900 to-red-700 text-white">
+                    <h3 className="font-bold text-lg">Notifikasi</h3>
+                    <p className="text-sm text-red-100">{unreadCount} belum dibaca</p>
+                  </div>
+
+                  <div className="max-h-96 overflow-y-auto">
+                    {notifications.map(n => (
+                      <div key={n.id} className={`p-4 border-b hover:bg-slate-50 transition ${n.unread ? "bg-red-50/30" : ""}`}>
+                        <p className={`text-sm ${n.unread ? "font-semibold text-gray-900" : "text-gray-700"}`}>
+                          {n.text}
+                        </p>
+                        <p className="text-xs text-gray-500 mt-1">{n.time}</p>
+                      </div>
+                    ))}
+                  </div>
+
+                  <div className="p-3 bg-slate-50 text-center">
+                    <button className="text-sm text-red-900 font-medium hover:underline">
+                      Lihat Semua Notifikasi
+                    </button>
+                  </div>
+                </div>
+>>>>>>> 393efcda7be7908201688a197012410847e54ced
               )}
             </button>
 
+<<<<<<< HEAD
             <button className="p-2.5 rounded-xl hover:bg-slate-100 transition-colors group">
               <HelpCircle className="w-5 h-5 text-gray-600 group-hover:text-red-900 transition" />
             </button>
@@ -118,6 +220,38 @@ export default function Topbar() {
             </button>
           </div>
         </div>
+=======
+            {/* Help */}
+            <button className="p-2.5 rounded-xl hover:bg-slate-100 transition">
+              <HelpCircle className="w-5 h-5 text-gray-600 hover:text-red-900" />
+            </button>
+
+            {/* Mobile Menu */}
+            <button className="md:hidden p-2.5 rounded-xl hover:bg-slate-100 transition">
+              <Menu className="w-6 h-6 text-gray-600 hover:text-red-900" />
+            </button>
+          </div>
+        </div>
+
+        {/* FILTER MOBILE */}
+        <div className="md:hidden mt-3 flex gap-2">
+          <div className="relative flex-1">
+            <MapPin className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
+            <select className="w-full pl-10 pr-3 py-2 border border-slate-300 rounded-xl focus:ring-2 focus:ring-red-500 text-sm bg-white">
+              <option>Lokasi</option>
+              <option>Jakarta</option><option>Bandung</option>
+            </select>
+          </div>
+          <div className="relative flex-1">
+            <Briefcase className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
+            <select className="w-full pl-10 pr-3 py-2 border border-slate-300 rounded-xl focus:ring-2 focus:ring-red-500 text-sm bg-white">
+              <option>Kategori</option>
+              <option>IT</option><option>Marketing</option>
+            </select>
+          </div>
+        </div>
+
+>>>>>>> 393efcda7be7908201688a197012410847e54ced
       </div>
     </header>
   );

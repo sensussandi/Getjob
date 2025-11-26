@@ -7,7 +7,7 @@ export default function ClientLayout({ children }) {
   const pathname = usePathname();
 
   // Halaman tanpa header
-    const noHeaderPages = [
+  const noHeaderPages = [
     "/loginMhs",
     "/dashboardMHS",
     "/loginPerusahaan",
@@ -15,25 +15,46 @@ export default function ClientLayout({ children }) {
     "/profil",
     "/lengkapiDataMHS",
     "/dashboardPerusahaan",
+    "/dashboardAdmin",
     "/editProfileMHS",
     "/dashboardPerusahaan/pengaturan",
     "/dashboardPerusahaan/lowongan/tambah",
+    "/dashboardAdmin/pencaker/tambah",
+    "/dashboardAdmin/perusahaan/tambah",
+    "/dashboardAdmin/pengaturan",
     "/lihatLokerSaya",
     "/hasilCariKerja",
   ];
 
   const isEditLowongan = pathname.startsWith(
-    "/dashboardPerusahaan/lowongan/edit/"
-  );
+    "/dashboardPerusahaan/lowongan/edit/");
 
-  const isLowonganDetail = pathname.startsWith("/lowongan/");
-  
+  const isLowonganDetail = pathname.startsWith(
+    "/lowongan/");
+
+  const isKelolaAdmin_Perusahaan = pathname.startsWith(
+    "/dashboardAdmin/perusahaan/kelola/");
+
+  const isKelolaPencaker = pathname.startsWith(
+    "/dashboardAdmin/pencaker/kelola/");
+
+  const paginationPerusahaan = pathname.startsWith(
+    "/dashboardAdmin/perusahaan/page/");
+
+  const paginationPencaker = pathname.startsWith(
+    "/dashboardAdmin/pencari_kerja/page/");
+
+  const paginationLowongan = pathname.startsWith(
+    "/dashboardAdmin/Lowongan/page/");
+
   const hideHeader =
-  noHeaderPages.includes(pathname) ||
-  isLowonganDetail ||
-  isEditLowongan;
+    noHeaderPages.includes(pathname) ||
+    isLowonganDetail || isEditLowongan
+    || isKelolaAdmin_Perusahaan || isKelolaPencaker
+    || paginationPerusahaan || paginationPencaker
+    || paginationLowongan;
   return (
-    <> 
+    <>
       {!hideHeader && <Header />}
       <main>{children}</main>
     </>

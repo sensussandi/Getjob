@@ -9,7 +9,7 @@ export async function GET() {
       password: "", // isi jika pakai password
       database: "getjob_db",
     });
-
+    
     const [rows] = await db.query(`
       SELECT 
         l.id_lowongan,

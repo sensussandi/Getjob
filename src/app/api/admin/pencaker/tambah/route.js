@@ -68,13 +68,14 @@ const {
 
     // 🔹 Enkripsi password
     const hashedPassword = await bcrypt.hash(password.toString(), 10);
+    const savelinkedin = linkedin ?? null;
 
     // 🔹 Insert data baru
     await db.execute(
       `INSERT INTO pencari_kerja 
   (nim, password, nama_lengkap, tanggal_lahir, jenis_kelamin, alamat, 
-   email, no_telephone, prodi, pendidikan_terakhir, linkedin, foto, tentang_anda, cv)
-  VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+   email, no_telephone, prodi, pendidikan_terakhir, linkedin, keahlian, foto, tentang_anda, cv, role)
+  VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
   [
     nimNumber,
     hashedPassword,
@@ -86,10 +87,12 @@ const {
     no_telephone,
     prodi,
     pendidikan_terakhir,
-    linkedin,
+    savelinkedin,
+    null, // keahlian
     null, // foto
     null, // tentang_anda
     null, // cv
+    "alumni", // role
   ]
 );
     await db.end();

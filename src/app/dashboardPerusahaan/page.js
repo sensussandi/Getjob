@@ -1,6 +1,8 @@
 "use client";
+import useAdminPerusahaanAuth from "@/hooks/useAdminPerusahaanAuth";
 import React, { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
+import { useSession, signOut } from "next-auth/react";
 import {
   Briefcase,
   Users,
@@ -27,6 +29,11 @@ function formatTanggal(tanggal) {
     // Sesuaikan zona waktu WIB (+7 jam)
     const localDate = new Date(date.getTime() + 7 * 60 * 60 * 1000);
 
+    //    const perusahaanLogin = JSON.parse(localStorage.getItem("perusahaan"));
+    //    if (!perusahaanLogin) {
+    //      router.push("/loginPerusahaan");
+    //      return;
+
     // Format ke bahasa Indonesia
     return localDate.toLocaleDateString("id-ID", {
       day: "2-digit",
@@ -39,26 +46,33 @@ function formatTanggal(tanggal) {
 }
 
 export default function DashboardPerusahaan() {
+  useAdminPerusahaanAuth();
   const [data, setData] = useState(null);
+  const [showLogoutModal, setShowLogoutModal] = useState(false); // button logout
   const router = useRouter();
 
-  // ✅ Ambil data dari API Next.js (bukan dummy)
+  // ⬅ ambil session paling atas
+  const { data: session, status } = useSession();
+
+  // ⬅ fetch data setelah session siap
   useEffect(() => {
+    if (!session || session.user.role !== "admin") return;
+
     const fetchData = async () => {
-      try {
-        const res = await fetch("/api/perusahaan/dashboard");
-        const result = await res.json();
-        if (result.success) {
-          setData(result);
-        } else {
-          console.error("Gagal ambil data dashboard");
-        }
-      } catch (err) {
-        console.error("Error:", err);
+      const res = await fetch(`/api/perusahaan/dashboard?id_admin=${session.user.id}`);
+
+      const result = await res.json();
+
+      if (result.success) {
+        setData(result);
+      } else {
+        console.error(result.message);
       }
     };
+
     fetchData();
-  }, []);
+  }, [session]);
+
 
   // ✅ Kalau data belum siap tampil loading
   if (!data)
@@ -71,8 +85,16 @@ export default function DashboardPerusahaan() {
         <p className="text-gray-600 text-lg font-medium mt-6">
           Memuat dashboard...
         </p>
-      </div>
+      </div>  
     );
+
+  const handleLogout = () => {
+    signOut({
+      redirect: true,
+      callbackUrl: "/loginPerusahaan",
+    });
+  };
+
 
   // ✅ Ambil data dari hasil API
   const { admin, lowongan, pelamar, stats } = data;
@@ -85,18 +107,16 @@ export default function DashboardPerusahaan() {
           <div className="flex justify-between items-start">
             {/* Company Info */}
             <div className="flex items-start gap-4">
-              {/* LOGO PERUSAHAAN */}
+              {/* LOGO PERUSHAAN */}
               <div className="w-16 h-16 rounded-2xl overflow-hidden bg-gray-100 flex items-center justify-center shadow-lg">
-                {admin.logo_url ? (
+                {admin && admin.logo_url ? (
                   <img
                     src={
                       admin.logo_url.startsWith("http")
                         ? admin.logo_url
-                        : admin.logo_url.startsWith("/")
-                        ? admin.logo_url
                         : "/" + admin.logo_url
                     }
-                    alt="Logo Perusahaan"
+                    alt="Logo Perusahaan  "
                     className="w-full h-full object-cover"
                   />
                 ) : (
@@ -107,7 +127,7 @@ export default function DashboardPerusahaan() {
               {/* INFORMASI PERUSAHAAN */}
               <div>
                 <h1 className="text-3xl font-bold text-gray-900 mb-1">
-                  {admin.nama_perusahaan}
+                  {admin?.nama_perusahaan || "Perusahaan"}
                 </h1>
                 <div className="flex items-center gap-4 text-sm text-gray-600 flex-wrap">
                   <span className="flex items-center gap-1">
@@ -145,6 +165,40 @@ export default function DashboardPerusahaan() {
                 <Settings className="w-5 h-5" />
                 <span>Pengaturan</span>
               </button>
+              {/* === TOMBOL LOGOUT === */}
+              <button
+                onClick={() => setShowLogoutModal(true)}
+                className="px-5 py-3 border-2 border-gray-300 text-gray-600 rounded-xl font-semibold hover:bg-red-50 transition-all flex items-center gap-2"
+              >
+                <span>Logout</span>
+              </button>
+              {showLogoutModal && (
+                <div className="fixed inset-0 bg-black/40 flex items-center justify-center z-50">
+                  <div className="bg-white p-6 rounded-xl shadow-lg w-[340px]">
+                    <h3 className="text-xl font-bold mb-2 text-gray-800">Konfirmasi Logout</h3>
+                    <p className="text-gray-600 mb-5">Apakah Anda yakin ingin logout dari akun ini?</p>
+
+                    <div className="flex justify-end gap-3">
+                      <button
+                        onClick={() => setShowLogoutModal(false)}
+                        className="px-4 py-2 text-black rounded-lg border border-gray-300 hover:bg-red-100"
+                      >
+                        Batal
+                      </button>
+
+                      <button
+                        onClick={() => {
+                          setShowLogoutModal(false);
+                          handleLogout();
+                        }}
+                        className="px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700"
+                      >
+                        Ya, Logout
+                      </button>
+                    </div>
+                  </div>
+                </div>
+              )}
             </div>
           </div>
         </div>
@@ -312,11 +366,10 @@ export default function DashboardPerusahaan() {
 
                   <div className="flex justify-between items-center pt-3 border-t border-gray-100">
                     <span
-                      className={`text-xs px-3 py-1.5 rounded-full font-semibold ${
-                        p.status === "Baru"
-                          ? "bg-orange-100 text-orange-700"
-                          : "bg-[#800000] text-white"
-                      }`}
+                      className={`text-xs px-3 py-1.5 rounded-full font-semibold ${p.status === "Baru"
+                        ? "bg-orange-100 text-orange-700"
+                        : "bg-[#800000] text-white"
+                        }`}
                     >
                       {p.status}
                     </span>

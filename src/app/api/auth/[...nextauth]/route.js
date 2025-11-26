@@ -3,81 +3,118 @@ import CredentialsProvider from "next-auth/providers/credentials";
 import mysql from "mysql2/promise";
 import bcrypt from "bcryptjs";
 
+async function getDB() {
+  return mysql.createConnection({
+    host: "localhost",
+    user: "root",
+    password: "",
+    database: "getjob_db",
+  });
+}
+
 export const authOptions = {
-  secret: process.env.NEXTAUTH_SECRET,
-
-  session: { strategy: "jwt" },
-
   providers: [
+    //  PROVIDER 1 — LOGIN MAHASISWA
     CredentialsProvider({
-      name: "credentials",
+      id: "alumni",
+      name: "Login Mahasiswa",
       credentials: {},
-
       async authorize(credentials) {
-        const { nim, password } = credentials;
-
-        const db = await mysql.createConnection({
-          host: "localhost",
-          user: "root",
-          password: "",
-          database: "getjob_db",
-        });
-
-        const [rows] = await db.query(
-          "SELECT * FROM pencari_kerja WHERE nim=?",
-          [nim]
-        );
-        await db.end();
+        const db = await getDB();
+        const [rows] = await db.execute("SELECT * FROM pencari_kerja WHERE nim = ?", [credentials.nim]);
 
         if (rows.length === 0) return null;
 
         const user = rows[0];
-        const valid = await bcrypt.compare(password, user.password);
-        if (!valid) return null;
+        const match = await bcrypt.compare(credentials.password, user.password);
+        if (!match) return null;
 
-        // 🔥 RETURN semua data user
+        await db.end();
+
         return {
+          id: user.nim,
+          role: user.role,
           nim: user.nim,
-          nama_lengkap: user.nama_lengkap,
+          name: user.nama_lengkap,
           email: user.email,
-          foto: user.foto,                   // NEW
-          no_telephone: user.no_telephone,   // NEW
-          prodi: user.prodi,                 // NEW
-          tanggal_lahir: user.tanggal_lahir, // NEW
-          jenis_kelamin: user.jenis_kelamin, // NEW
+          prodi: user.prodi,
+          foto: user.foto,
+          no_telephone: user.no_telephone,
+        };
+      },
+    }),
+
+    // ====================================================
+    // ADMIN PERUSAHAAN
+    // ====================================================
+    CredentialsProvider({
+      id: "admin",
+      name: "Admin Perusahaan",
+      credentials: {},
+
+      async authorize(credentials) {
+        const db = await getDB();
+        const [rows] = await db.execute("SELECT * FROM admin_perusahaan WHERE email_perusahaan = ?", [credentials.email]);
+
+        if (rows.length === 0) return null;
+
+        const admin = rows[0];
+        const passOK = await bcrypt.compare(credentials.password, admin.password);
+        if (!passOK) return null;
+
+        return {
+          id: admin.id_admin,
+          role: admin.role, // <-- kamu sudah punya role
+          email: admin.email_perusahaan,
+          nama_perusahaan: admin.nama_perusahaan,
+        };
+      },
+    }),
+
+    // ====================================================
+    // SUPER ADMIN
+    // ====================================================
+    CredentialsProvider({
+      id: "super_admin",
+      name: "Super Admin Login",
+      credentials: {},
+
+      async authorize(credentials) {
+        const db = await getDB();
+        const [rows] = await db.execute("SELECT * FROM users WHERE email = ?", [credentials.email]);
+
+        if (rows.length === 0) return null;
+
+        const super_admin = rows[0];
+        const passOK = await bcrypt.compare(credentials.password, super_admin.password);
+        if (!passOK) return null;
+
+        return {
+          id: super_admin.id,
+          role: super_admin.role, // super_admin
+          email: super_admin.email,
+          name: super_admin.nama_admin,
         };
       },
     }),
   ],
 
-  // 🔥 CALLBACKS HARUS DITARUH DI DALAM OBJEK INI
+  session: {
+    strategy: "jwt",
+  },
+
   callbacks: {
     async jwt({ token, user }) {
       if (user) {
-        token.nim = user.nim;
-        token.nama_lengkap = user.nama_lengkap;
-        token.email = user.email;
-        token.foto = user.foto || null;
-        token.no_telephone = user.no_telephone || null;
-        token.prodi = user.prodi || null;
-        token.tanggal_lahir = user.tanggal_lahir || null;
-        token.jenis_kelamin = user.jenis_kelamin || null;
+        token.id = user.id;
+        token.role = user.role;
+        Object.assign(token, user);
       }
       return token;
     },
 
     async session({ session, token }) {
-      session.user.nim = token.nim;
-      session.user.nama_lengkap = token.nama_lengkap;
-      session.user.email = token.email;
-
-      // 🔥 tambahan data user ke session
-      session.user.foto = token.foto;
-      session.user.no_telephone = token.no_telephone;
-      session.user.prodi = token.prodi;
-      session.user.tanggal_lahir = token.tanggal_lahir;
-      session.user.jenis_kelamin = token.jenis_kelamin;
-
+      session.user = token;
       return session;
     },
   },
