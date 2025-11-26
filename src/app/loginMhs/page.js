@@ -16,7 +16,7 @@ export default function LoginMhs() {
     nim: "",
     password: "",
   });
-  // 🔥 AUTO REDIRECT jika sudah login
+  //  AUTO REDIRECT jika sudah login
   useEffect(() => {
     if (status === "loading") return; // tunggu session selesai dicek
 
@@ -30,7 +30,7 @@ export default function LoginMhs() {
     const saved = JSON.parse(localStorage.getItem("rememberMeData"));
     if (saved) {
       setFormData({
-        nim: saved.nim,
+        email: saved.email,
         password: saved.password,
       });
       setRememberMe(true);
@@ -60,7 +60,7 @@ export default function LoginMhs() {
     if (currentsession?.user?.role === "alumni") {
       if (rememberMe) {
         localStorage.setItem(
-          "rememberMeData",
+          "rememberMePerusahaan",
           JSON.stringify({
             nim: formData.nim,
             password: formData.password,

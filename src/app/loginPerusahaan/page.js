@@ -1,14 +1,39 @@
 "use client";
-import { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
-import { signIn } from "next-auth/react";
 import { Building2, User, Lock, Eye, EyeOff } from "lucide-react";
+import { useSession, signIn } from "next-auth/react";
 
 export default function LoginPerusahaan() {
   const [form, setForm] = useState({ email: "", password: "" });
   const [error, setError] = useState("");
   const [showPassword, setShowPassword] = useState(false);
+  const [rememberMe, setRememberMe] = useState(false); // State untuk checkbox "Ingat Saya"  
   const router = useRouter();
+  const { data: session, status } = useSession();
+
+  //  AUTO REDIRECT jika sudah login
+  useEffect(() => {
+    if (status === "loading") return; // tunggu session selesai dicek
+
+    if (session?.user?.role === "admin") {
+      router.push("/dashboardPerusahaan");
+    } else if (session?.user?.role === "super_admin") {
+      router.push("/dashboardAdmin");
+    }
+  }, [session, status]);
+
+  useEffect(() => {
+    // Ambil data remember me
+    const saved = JSON.parse(localStorage.getItem("rememberMePerusahaan") || localStorage.getItem("rememberMeAdmin"));
+    if (saved) {
+      setForm({
+        email: saved.email,
+        password: saved.password,
+      });
+      setRememberMe(true);
+    }
+  }, []);
 
   const handleLogin = async (e) => {
     e.preventDefault();
@@ -19,6 +44,7 @@ export default function LoginPerusahaan() {
       redirect: false,
       email: form.email,
       password: form.password,
+      rememberMe: rememberMe,
     });
 
     // Jika gagal admin → coba super_admin
@@ -27,6 +53,7 @@ export default function LoginPerusahaan() {
         redirect: false,
         email: form.email,
         password: form.password,
+        rememberMe: rememberMe,
       });
     }
 
@@ -36,13 +63,37 @@ export default function LoginPerusahaan() {
     }
 
     // Ambil session
-    const session = await fetch("/api/auth/session").then(r => r.json());
+    const currentsession = await fetch("/api/auth/session").then(r => r.json());
 
     // Redirect sesuai role
-    if (session?.user?.role === "admin") {
+    if (currentsession?.user?.role === "admin") {
+      if (rememberMe) {
+        localStorage.setItem(
+          "rememberMePerusahaan",
+          JSON.stringify({
+            email: form.email,
+            password: form.password,
+          })
+        );
+        localStorage.removeItem("rememberMeAdmin");
+      } else {
+        localStorage.removeItem("rememberMePerusahaan");
+      }
       router.push("/dashboardPerusahaan");
     }
-    else if (session?.user?.role === "super_admin") {
+    else if (currentsession?.user?.role === "super_admin") {
+      if (rememberMe) {
+        localStorage.setItem(
+          "rememberMeAdmin",
+          JSON.stringify({
+            email: form.email,
+            password: form.password,
+          })
+        );
+        localStorage.removeItem("rememberMePerusahaan");
+      } else {
+        localStorage.removeItem("rememberMeAdmin");
+      }
       router.push("/dashboardAdmin");
     }
     else {
@@ -130,8 +181,8 @@ export default function LoginPerusahaan() {
             {/* Remember & Forgot */}
             <div className="flex justify-between items-center text-sm">
               <label className="flex items-center space-x-2 cursor-pointer">
-                <input type="checkbox" className="w-4 h-4 accent-[#7a0d0d]" />
-                <span className="text-gray-700">Ingat Saya</span>
+                <input type="checkbox" checked={rememberMe} onChange={(e) => setRememberMe(e.target.checked)} className="w-4 h-4 text-red-900 border-gray-300 rounded focus:ring-2 focus:ring-red-900" />
+                <span className="ml-2 text-sm text-gray-700">Ingat Saya</span>
               </label>
               <a href="#" className="text-[#7a0d0d] hover:underline">
                 Lupa Kata Sandi?
