@@ -54,12 +54,11 @@ export default function Sidebar() {
   }, [session]);
 
   const user = session?.user;
-  console.log("user", user)
 
   const handleLogout = () => {
     signOut({
       redirect: true,
-      callbackUrl: "/loginMhs",
+      callbackUrl: "/",
     });
   };
 

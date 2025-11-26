@@ -122,7 +122,7 @@ export default function DashboardAdmin() {
   const handleLogout = () => {
     signOut({
       redirect: true,
-      callbackUrl: "/loginPerusahaan",
+      callbackUrl: "/",
     });
   };
 

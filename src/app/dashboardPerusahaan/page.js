@@ -29,10 +29,7 @@ function formatTanggal(tanggal) {
     // Sesuaikan zona waktu WIB (+7 jam)
     const localDate = new Date(date.getTime() + 7 * 60 * 60 * 1000);
 
-    //    const perusahaanLogin = JSON.parse(localStorage.getItem("perusahaan"));
-    //    if (!perusahaanLogin) {
-    //      router.push("/loginPerusahaan");
-    //      return;
+
 
     // Format ke bahasa Indonesia
     return localDate.toLocaleDateString("id-ID", {
@@ -91,7 +88,7 @@ export default function DashboardPerusahaan() {
   const handleLogout = () => {
     signOut({
       redirect: true,
-      callbackUrl: "/loginPerusahaan",
+      callbackUrl: "/",
     });
   };
 

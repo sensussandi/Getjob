@@ -10,7 +10,6 @@ export default function DashboardMHS() {
   const [data, setData] = useState(null);
   const router = useRouter();
   const { data: session, status } = useSession();
-    
 
   // ⬅ fetch data setelah session siap
   useEffect(() => {
@@ -22,7 +21,6 @@ export default function DashboardMHS() {
 
       if (result.success) {
         setData(result);  
-
       }
     };
 
@@ -30,7 +28,6 @@ export default function DashboardMHS() {
   }, [session]);
 
   const user = session?.user;
-  console.log("user", user)
 
   return (
     <div className="min-h-screen bg-[#fff8f8] flex items-center justify-center py-12 px-4">

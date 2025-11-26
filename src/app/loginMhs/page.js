@@ -1,8 +1,9 @@
 "use client";
-import { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { User, Lock, Eye, EyeOff, GraduationCap, X, Mail, Phone } from "lucide-react";
-import { signIn } from "next-auth/react";
+import { useSession, signIn } from "next-auth/react";
+
 
 export default function LoginMhs() {
   const [showPassword, setShowPassword] = useState(false);
@@ -10,10 +11,31 @@ export default function LoginMhs() {
   const [error, setError] = useState("");
   const [showForgotPassword, setShowForgotPassword] = useState(false);
   const router = useRouter();
+  const { data: session, status } = useSession();
   const [formData, setFormData] = useState({
     nim: "",
     password: "",
   });
+  // 🔥 AUTO REDIRECT jika sudah login
+  useEffect(() => {
+    if (status === "loading") return; // tunggu session selesai dicek
+
+    if (session?.user?.role === "alumni") {
+      router.push("/dashboardMHS");
+    }
+  }, [session, status]);
+
+  useEffect(() => {
+    // Ambil data remember me
+    const saved = JSON.parse(localStorage.getItem("rememberMeData"));
+    if (saved) {
+      setFormData({
+        nim: saved.nim,
+        password: saved.password,
+      });
+      setRememberMe(true);
+    }
+  }, []);
 
   const handleLogin = async (e) => {
     e.preventDefault();
@@ -24,17 +46,30 @@ export default function LoginMhs() {
       redirect: false,
       nim: formData.nim,
       password: formData.password,
+      rememberMe: rememberMe,
     });
 
     if (res?.error) {
       setError("NIM atau password salah!");
       return;
     }
-    
-    // HARUS AMBIL SESSION BARU
-    const session = await fetch("/api/auth/session").then((r) => r.json());
 
-    if (session?.user?.role === "alumni") {
+    // HARUS AMBIL SESSION BARU
+    const currentsession = await fetch("/api/auth/session").then((r) => r.json());
+
+    if (currentsession?.user?.role === "alumni") {
+      if (rememberMe) {
+        localStorage.setItem(
+          "rememberMeData",
+          JSON.stringify({
+            nim: formData.nim,
+            password: formData.password,
+          })
+        );
+      } else {
+        localStorage.removeItem("rememberMeData");
+      }
+      
       router.push("/dashboardMHS");
     } else {
       setError("Akses tidak diizinkan.");

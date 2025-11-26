@@ -111,10 +111,23 @@ export const authOptions = {
 
   session: {
     strategy: "jwt",
+    // maxAge: 30 * 24 * 60 * 60, // 30 hari
+    maxAge: 60 * 60, // 1 jam
+  },
+  jwt: {
+    maxAge: 60 * 60, // 1 jam
   },
 
+
   callbacks: {
-    async jwt({ token, user }) {
+    async jwt({ token, user, account }) {
+
+      if (account?.rememberMe === true) {
+        token.maxAge = 60 * 60 * 24 * 7; // 7 hari
+      } else {
+        token.maxAge = 60 * 60 * 24 * 1; // 1 hari
+      }
+
       if (user) {
         token.id = user.id;
         token.role = user.role;
@@ -125,6 +138,7 @@ export const authOptions = {
 
     async session({ session, token }) {
       session.user = token;
+      session.maxAge = token.maxAge;
       return session;
     },
   },
