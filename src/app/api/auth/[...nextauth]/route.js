@@ -14,7 +14,6 @@ async function getDB() {
 
 export const authOptions = {
   providers: [
-
     //  PROVIDER 1 — LOGIN MAHASISWA
     CredentialsProvider({
       id: "alumni",
@@ -22,10 +21,7 @@ export const authOptions = {
       credentials: {},
       async authorize(credentials) {
         const db = await getDB();
-        const [rows] = await db.execute(
-          "SELECT * FROM pencari_kerja WHERE nim = ?",
-          [credentials.nim]
-        );
+        const [rows] = await db.execute("SELECT * FROM pencari_kerja WHERE nim = ?", [credentials.nim]);
 
         if (rows.length === 0) return null;
 
@@ -58,10 +54,7 @@ export const authOptions = {
 
       async authorize(credentials) {
         const db = await getDB();
-        const [rows] = await db.execute(
-          "SELECT * FROM admin_perusahaan WHERE email_perusahaan = ?",
-          [credentials.email]
-        );
+        const [rows] = await db.execute("SELECT * FROM admin_perusahaan WHERE email_perusahaan = ?", [credentials.email]);
 
         if (rows.length === 0) return null;
 
@@ -71,11 +64,11 @@ export const authOptions = {
 
         return {
           id: admin.id_admin,
-          role: admin.role,       // <-- kamu sudah punya role
+          role: admin.role, // <-- kamu sudah punya role
           email: admin.email_perusahaan,
           nama_perusahaan: admin.nama_perusahaan,
         };
-      }
+      },
     }),
 
     // ====================================================
@@ -88,10 +81,7 @@ export const authOptions = {
 
       async authorize(credentials) {
         const db = await getDB();
-        const [rows] = await db.execute(
-          "SELECT * FROM users WHERE email = ?",
-          [credentials.email]
-        );
+        const [rows] = await db.execute("SELECT * FROM users WHERE email = ?", [credentials.email]);
 
         if (rows.length === 0) return null;
 
@@ -101,11 +91,11 @@ export const authOptions = {
 
         return {
           id: super_admin.id,
-          role: super_admin.role,  // super_admin
+          role: super_admin.role, // super_admin
           email: super_admin.email,
           name: super_admin.nama_admin,
         };
-      }
+      },
     }),
   ],
 
@@ -131,7 +121,11 @@ export const authOptions = {
       if (user) {
         token.id = user.id;
         token.role = user.role;
-        Object.assign(token, user);
+        token.foto = user.foto;
+        token.nama_lengkap = user.name;
+        token.email = user.email;
+        token.prodi = user.prodi;
+        token.no_telephone = user.no_telephone;
       }
       return token;
     },

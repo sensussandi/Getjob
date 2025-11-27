@@ -17,7 +17,7 @@ export default function DashboardMHS() {
     const fetchData = async () => {
       const res = await fetch(`/api/pencari_kerja?nim=${session.user.id}`);
       
-      const result = await res.json();
+      const result = await res.json(); 
 
       if (result.success) {
         setData(result);  

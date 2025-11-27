@@ -26,10 +26,12 @@ export default function DetailLowongan() {
   // 🔥 FETCH DETAIL LOWONGAN
   // ================================
   useEffect(() => {
+    
     const fetchDetail = async () => {
       try {
         const res = await fetch(`/api/lowongan/${id}`);
         const data = await res.json();
+        
         if (data.success) setLowongan(data.data);
       } finally {
         setLoading(false);
@@ -43,7 +45,7 @@ export default function DetailLowongan() {
   // 🔥 HANDLE LAMAR (dipanggil saat tombol ditekan)
   // ================================
   const handleLamar = async () => {
-    if (!session?.user?.nim) {
+    if (!session?.user?.id) {
       alert("Silakan login terlebih dahulu.");
       router.push("/loginMhs");
       return;
@@ -55,7 +57,7 @@ export default function DetailLowongan() {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           id_lowongan: lowongan.id_lowongan,
-          nim: session.user.nim, // ← INI BENAR
+          id: session.user.id, // ← INI BENAR
         }),
       });
 
@@ -63,10 +65,10 @@ export default function DetailLowongan() {
 
       if (data.success) {
         alert("Lamaran berhasil dikirim!");
-        router.push("/dashboardMHS/rekomendasi");
+        router.push("/dashboardMHS/");
       } else if (data.already) {
         alert("Anda sudah melamar lowongan ini.");
-        router.push("/dashboardMHS/rekomendasi");
+        router.push("/dashboardMHS/");
       } else {
         alert("Gagal mengirim lamaran.");
       }
@@ -75,6 +77,7 @@ export default function DetailLowongan() {
       alert("Terjadi kesalahan server.");
     }
   };
+
 
   // 🌀 Loading state
   if (loading)

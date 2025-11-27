@@ -83,8 +83,6 @@ export default function LoginMhs() {
     }
   };
 
-
-
   const handleCancel = () => {
     // Langsung redirect ke home tanpa konfirmasi
     window.location.href = "/";

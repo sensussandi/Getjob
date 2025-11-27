@@ -3,9 +3,9 @@ import { NextResponse } from "next/server";
 
 export async function POST(req) {
   try {
-    const { id_lowongan, nim} = await req.json();
+    const { id_lowongan, id} = await req.json();
 
-    if (!id_lowongan || !nim) {
+    if (!id_lowongan || !id) {
       return NextResponse.json({
         success: false,
         message: "Data tidak lengkap (id_lowongan & nim wajib diisi)",
@@ -22,7 +22,7 @@ export async function POST(req) {
     // 1️⃣ CEK APA SUDAH MELAMAR
     const [cek] = await db.execute(
       "SELECT * FROM mendaftar WHERE id_lowongan = ? AND nim = ?",
-      [id_lowongan, nim]
+      [id_lowongan, id]
     );
 
     if (cek.length > 0) {
@@ -41,7 +41,7 @@ export async function POST(req) {
       `INSERT INTO mendaftar 
         (id_lowongan, nim, status_pendaftaran, tanggal_daftar) 
        VALUES (?, ?, ?, ?)`,
-      [id_lowongan, nim, "menunggu", tanggal_daftar]
+      [id_lowongan, id, "menunggu", tanggal_daftar]
     );
 
     await db.end();

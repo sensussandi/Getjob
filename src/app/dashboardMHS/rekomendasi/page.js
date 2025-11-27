@@ -20,7 +20,8 @@ export default function HasilRekomendasi() {
       try {
         const res = await fetch(`/api/pencari_kerja/rekomendasi?nim=${session.user.id}`);
         const data = await res.json();
-
+        
+        console.log('session', session.user.id)
         if (data.emptySkill) {
           router.push("/dashboardMHS/rekomendasi/rekomendasiLoker");  // Mengarahkan ke halaman rekomendasi
           return;

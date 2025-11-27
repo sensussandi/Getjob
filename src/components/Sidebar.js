@@ -2,10 +2,7 @@
 import usePencakerAuth from "@/hooks/usePencakerAuth";
 import { useState, useEffect } from "react";
 import { useRouter, usePathname } from "next/navigation";
-import {
-  Home, Briefcase, User, Settings, LogOut, ChevronLeft, ChevronRight,
-  BookOpen, BarChart3
-} from "lucide-react";
+import { Home, Briefcase, User, Settings, LogOut, ChevronLeft, ChevronRight, BookOpen, BarChart3 } from "lucide-react";
 import { useSession, signOut } from "next-auth/react";
 
 export default function Sidebar() {
@@ -21,18 +18,16 @@ export default function Sidebar() {
   const [userName, setUserName] = useState("Memuat...");
   const [userRole, setUserRole] = useState("pencari_kerja");
 
-
-
   // 🔥 FIX ACTIVE MENU BERDASARKAN URL
   useEffect(() => {
     if (!session || session.user.role !== "alumni") return;
     const fetchData = async () => {
       const res = await fetch(`/api/pencari_kerja?nim=${session.user.id}`);
-      
+
       const result = await res.json();
 
       if (result.success) {
-        setData(result);  
+        setData(result);
       }
     };
     if (!pathname) return;
@@ -65,23 +60,17 @@ export default function Sidebar() {
   const menuItems = [
     { id: "dashboard", icon: Home, label: "Dashboard", href: "/dashboardMHS" },
     { id: "loker", icon: Briefcase, label: "Rekomendasi Loker", href: "/dashboardMHS/rekomendasi" },
-    { id: "lihatLokerSaya", icon: BookOpen, label: "Lihat Loker Saya", href: "/lihatLokerSaya"},
+    { id: "lihatLokerSaya", icon: BookOpen, label: "Lihat Loker Saya", href: "/lihatLokerSaya" },
     { id: "edit_profile", icon: Settings, label: "Edit Profile", href: "/editProfileMHS", badge: null },
   ];
 
   return (
     <aside className={`${isCollapsed ? "w-20" : "w-64"} bg-white border-r border-slate-200 p-4 flex flex-col transition-all duration-300 ease-in-out shadow-sm relative`}>
-
-      <button
-        onClick={() => setIsCollapsed(!isCollapsed)}
-        className="absolute -right-3 top-8 w-6 h-6 bg-white border rounded-full flex items-center justify-center shadow-md"
-      >
+      <button onClick={() => setIsCollapsed(!isCollapsed)} className="absolute -right-3 top-8 w-6 h-6 bg-white border rounded-full flex items-center justify-center shadow-md">
         {isCollapsed ? <ChevronRight /> : <ChevronLeft />}
       </button>
 
-      <div className={`mb-8 ${isCollapsed ? "px-0" : "px-2"}`}>
-        {/* logo */}
-      </div>
+      <div className={`mb-8 ${isCollapsed ? "px-0" : "px-2"}`}>{/* logo */}</div>
 
       <nav className="flex-1 space-y-1">
         {menuItems.map((item) => {
@@ -111,17 +100,13 @@ export default function Sidebar() {
               <User className="w-5 h-5 text-white" />
             </div>
             <div>
-
               <p className="font-semibold text-gray-900 text-sm truncate">{userName}</p>
               <p className="text-xs text-gray-500 truncate">{userRole}</p>
             </div>
           </div>
 
           {/* === TOMBOL LOGOUT === */}
-          <button
-            onClick={() => setShowLogoutModal(true)}
-            className="px-5 py-3 border-2 border-gray-300 text-gray-600 rounded-xl font-semibold hover:bg-red-50 transition-all flex items-center gap-2"
-          >
+          <button onClick={() => setShowLogoutModal(true)} className="px-5 py-3 border-2 border-gray-300 text-gray-600 rounded-xl font-semibold hover:bg-red-50 transition-all flex items-center gap-2">
             <span>Logout</span>
           </button>
           {showLogoutModal && (
@@ -131,10 +116,7 @@ export default function Sidebar() {
                 <p className="text-gray-600 mb-5">Apakah Anda yakin ingin logout dari akun ini?</p>
 
                 <div className="flex justify-end gap-3">
-                  <button
-                    onClick={() => setShowLogoutModal(false)}
-                    className="px-4 py-2 text-black rounded-lg border border-gray-300 hover:bg-red-100"
-                  >
+                  <button onClick={() => setShowLogoutModal(false)} className="px-4 py-2 text-black rounded-lg border border-gray-300 hover:bg-red-100">
                     Batal
                   </button>
 

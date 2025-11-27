@@ -7,7 +7,7 @@ import { useSession } from "next-auth/react";
 export default function usePencakerAuth() {
   const { data: session, status } = useSession();
   const router = useRouter();
-  console.log("useAdminPerusahaanAuth session:", session);
+  // console.log("useAdminPerusahaanAuth session:", session);
   useEffect(() => {
     // Masih loading → jangan apa-apa dulu
     if (status === "loading") return;
