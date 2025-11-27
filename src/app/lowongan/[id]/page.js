@@ -2,16 +2,15 @@
 import { useEffect, useState } from "react";
 import { useSession } from "next-auth/react";
 import { useParams, useRouter } from "next/navigation";
-import {
-  MapPin, DollarSign, CalendarDays, Briefcase, Building2,
-  Clock, ExternalLink, ArrowLeft
-} from "lucide-react";
+import { MapPin, DollarSign, CalendarDays, Briefcase, Building2, Clock, ExternalLink, ArrowLeft } from "lucide-react";
 
 function formatTanggal(t) {
   if (!t) return "-";
   const d = new Date(t);
   return d.toLocaleDateString("id-ID", {
-    day: "2-digit", month: "long", year: "numeric"
+    day: "2-digit",
+    month: "long",
+    year: "numeric",
   });
 }
 
@@ -43,9 +42,9 @@ export default function DetailLowongan() {
   // 🔥 HANDLE LAMAR (dipanggil saat tombol ditekan)
   // ================================
   const handleLamar = async () => {
-    if (!session?.user?.nim) {
+    if (!session?.user?.nim || !session?.user?.id) {
       alert("Silakan login terlebih dahulu.");
-      router.push("/loginMhs");
+      //router.push("/loginMhs");
       return;
     }
 
@@ -75,8 +74,7 @@ export default function DetailLowongan() {
       alert("Terjadi kesalahan server.");
     }
   };
-
-
+  console.log("user", session);
   // 🌀 Loading state
   if (loading)
     return (
@@ -101,15 +99,11 @@ export default function DetailLowongan() {
       </div>
     );
 
-
   return (
     <div className="min-h-screen bg-gradient-to-br from-gray-50 via-white to-gray-50 py-8 px-4 sm:px-6 lg:px-8">
       <div className="max-w-4xl mx-auto">
         {/* 🔙 Tombol Kembali */}
-        <button
-          onClick={() => router.back()}
-          className="mb-6 flex items-center gap-2 text-[#800000] hover:text-[#5c0000] font-semibold transition-all"
-        >
+        <button onClick={() => router.back()} className="mb-6 flex items-center gap-2 text-[#800000] hover:text-[#5c0000] font-semibold transition-all">
           <ArrowLeft className="w-5 h-5" />
           Kembali
         </button>
@@ -118,17 +112,11 @@ export default function DetailLowongan() {
         <div className="bg-gradient-to-r from-[#800000] to-[#a00000] rounded-3xl p-8 mb-6 shadow-xl text-white">
           <div className="flex items-start justify-between mb-4">
             <div className="flex-1">
-              <div className="inline-block bg-white/20 backdrop-blur-sm px-3 py-1 rounded-full text-xs font-medium mb-3">
-                {lowongan.tipe_pekerjaan || "Full-time"}
-              </div>
-              <h1 className="text-3xl sm:text-4xl font-bold mb-3 leading-tight">
-                {lowongan.nama_posisi}
-              </h1>
+              <div className="inline-block bg-white/20 backdrop-blur-sm px-3 py-1 rounded-full text-xs font-medium mb-3">{lowongan.tipe_pekerjaan || "Full-time"}</div>
+              <h1 className="text-3xl sm:text-4xl font-bold mb-3 leading-tight">{lowongan.nama_posisi}</h1>
               <div className="flex items-center gap-2 text-white/90 mb-4">
                 <Building2 className="w-5 h-5" />
-                <span className="text-lg font-medium">
-                  {lowongan.nama_perusahaan}
-                </span>
+                <span className="text-lg font-medium">{lowongan.nama_perusahaan}</span>
               </div>
             </div>
           </div>
@@ -156,9 +144,7 @@ export default function DetailLowongan() {
                 <CalendarDays className="w-4 h-4" />
                 <span className="font-medium">Ditutup</span>
               </div>
-              <p className="font-semibold">
-                {formatTanggal(lowongan.tanggal_ditutup)}
-              </p>
+              <p className="font-semibold">{formatTanggal(lowongan.tanggal_ditutup)}</p>
             </div>
           </div>
         </div>
@@ -171,13 +157,9 @@ export default function DetailLowongan() {
               <div className="w-10 h-10 bg-[#800000]/10 rounded-xl flex items-center justify-center">
                 <Briefcase className="w-5 h-5 text-[#800000]" />
               </div>
-              <h2 className="text-2xl font-bold text-gray-900">
-                Deskripsi Pekerjaan
-              </h2>
+              <h2 className="text-2xl font-bold text-gray-900">Deskripsi Pekerjaan</h2>
             </div>
-            <p className="text-gray-700 leading-relaxed whitespace-pre-line">
-              {lowongan.deskripsi_pekerjaan}
-            </p>
+            <p className="text-gray-700 leading-relaxed whitespace-pre-line">{lowongan.deskripsi_pekerjaan}</p>
           </div>
 
           {/* Kualifikasi */}
@@ -188,9 +170,7 @@ export default function DetailLowongan() {
               </div>
               <h2 className="text-2xl font-bold text-gray-900">Kualifikasi</h2>
             </div>
-            <p className="text-gray-700 leading-relaxed whitespace-pre-line">
-              {lowongan.kualifikasi}
-            </p>
+            <p className="text-gray-700 leading-relaxed whitespace-pre-line">{lowongan.kualifikasi}</p>
           </div>
 
           {/* CTA / Tombol Lamar */}

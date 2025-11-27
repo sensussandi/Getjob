@@ -1,6 +1,7 @@
 import "./globals.css";
 import Providers from "./Providers";
 import Header from "@/components/Header";
+import ClientLayout from "@/components/ClientLayout";
 
 export const metadata = {
   title: "GetJob",
@@ -12,8 +13,7 @@ export default function RootLayout({ children }) {
     <html lang="en">
       <body className="antialiased">
         <Providers>
-          <Header />
-          {children}
+          <ClientLayout>{children}</ClientLayout>
         </Providers>
       </body>
     </html>

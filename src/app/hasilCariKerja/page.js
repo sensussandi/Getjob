@@ -2,16 +2,36 @@
 import { useEffect, useState } from "react";
 import { useSearchParams } from "next/navigation";
 import { Briefcase, MapPin, Building2, ArrowLeft } from "lucide-react";
+import { useSession } from "next-auth/react";
+import usePencakerAuth from "@/hooks/usePencakerAuth";
 
 export default function HasilCariKerja() {
+  usePencakerAuth();
+  const { data: session } = useSession();
   const searchParams = useSearchParams();
 
   const keyword = searchParams.get("keyword") || "";
   const lokasi = searchParams.get("lokasi") || "";
   const kategori = searchParams.get("kategori") || "";
+  const [lowongan, setLowongan] = useState(null);
 
   const [data, setData] = useState([]);
   const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    if (!session || session.user.role !== "alumni") return;
+    const fetchDetail = async () => {
+      try {
+        const res = await fetch(`/api/lowongan?nim=${session.user.id}`);
+        const data = await res.json();
+        if (data.success) setLowongan(data.lowongan);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchDetail();
+  }, [session]);
 
   useEffect(() => {
     const fetchData = async () => {
@@ -29,27 +49,18 @@ export default function HasilCariKerja() {
 
     fetchData();
   }, [keyword, lokasi, kategori]);
-
-  if (loading)
-    return (
-      <div className="text-center py-20 text-gray-600">Memuat hasil pencarian...</div>
-    );
+  console.log("data", session);
+  if (loading) return <div className="text-center py-20 text-gray-600">Memuat hasil pencarian...</div>;
 
   return (
     <div className="min-h-screen bg-gradient-to-b from-orange-50 to-gray-100 py-10 px-6">
       <div className="max-w-5xl mx-auto bg-white rounded-3xl shadow-xl p-8 border border-gray-200">
-
         {/* Judul + Informasi filter */}
-        <button
-          onClick={() => history.back()}
-          className="mb-6 text-red-800 hover:text-red-600 flex items-center gap-1"
-        >
+        <button onClick={() => history.back()} className="mb-6 text-red-800 hover:text-red-600 flex items-center gap-1">
           <ArrowLeft size={18} /> Kembali
         </button>
 
-        <h1 className="text-3xl font-bold text-center text-red-900 mb-2">
-          Hasil Pencarian Lowongan
-        </h1>
+        <h1 className="text-3xl font-bold text-center text-red-900 mb-2">Hasil Pencarian Lowongan</h1>
 
         <p className="text-center text-gray-600 mb-6">
           {keyword && (
@@ -71,28 +82,15 @@ export default function HasilCariKerja() {
 
         {/* Jika tidak ada hasil */}
         {data.length === 0 ? (
-          <p className="text-center py-20 text-gray-500 text-lg">
-            Tidak ditemukan hasil pencarian.
-          </p>
+          <p className="text-center py-20 text-gray-500 text-lg">Tidak ditemukan hasil pencarian.</p>
         ) : (
           <div className="space-y-6">
             {data.map((job) => (
-              <div
-                key={job.id_lowongan}
-                className="p-6 bg-gradient-to-r from-white to-orange-50 rounded-2xl shadow-md border hover:shadow-lg transition cursor-pointer"
-              >
+              <div key={job.id_lowongan} className="p-6 bg-gradient-to-r from-white to-orange-50 rounded-2xl shadow-md border hover:shadow-lg transition cursor-pointer">
                 {/* Nama & Perusahaan */}
                 <div className="flex items-center justify-between">
-                  <h2 className="text-xl font-bold text-red-900">
-                    {job.nama_posisi}
-                  </h2>
-                  {job.logo_url && (
-                    <img
-                      src={`/uploads/${job.logo_url}`}
-                      alt="Logo"
-                      className="w-12 h-12 object-cover rounded-xl border"
-                    />
-                  )}
+                  <h2 className="text-xl font-bold text-red-900">{job.nama_posisi}</h2>
+                  {job.logo_url && <img src={`/uploads/${job.logo_url}`} alt="Logo" className="w-12 h-12 object-cover rounded-xl border" />}
                 </div>
 
                 <p className="text-gray-700 flex items-center mt-2 gap-2">
@@ -118,10 +116,7 @@ export default function HasilCariKerja() {
 
                 {/* Tombol detail */}
                 <div className="text-right mt-4">
-                  <a
-                    href={`/lowongan/${job.id_lowongan}`}
-                    className="text-red-800 hover:text-red-600 text-sm font-semibold underline"
-                  >
+                  <a href={`/lowongan/${job.id_lowongan}`} className="text-red-800 hover:text-red-600 text-sm font-semibold underline">
                     Lihat Detail →
                   </a>
                 </div>

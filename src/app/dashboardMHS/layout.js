@@ -2,8 +2,6 @@
 import Sidebar from "@/components/Sidebar";
 import Topbar from "@/components/Topbar";
 
-import Sidebar from "@/components/Sidebar";
-
 export default function DashboardLayout({ children }) {
   return (
     <div className="flex h-screen bg-gray-100">

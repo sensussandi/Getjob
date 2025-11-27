@@ -108,7 +108,11 @@ export const authOptions = {
       if (user) {
         token.id = user.id;
         token.role = user.role;
-        Object.assign(token, user);
+        token.foto = user.foto;
+        token.nama_lengkap = user.name;
+        token.email = user.email;
+        token.prodi = user.prodi;
+        token.no_telephone = user.no_telephone;
       }
       return token;
     },
