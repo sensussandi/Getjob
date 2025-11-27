@@ -76,7 +76,6 @@ export default function DetailLowongan() {
     }
   };
 
-
   // 🌀 Loading state
   if (loading)
     return (
