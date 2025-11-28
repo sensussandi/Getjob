@@ -74,8 +74,9 @@ export default function DetailPerusahaan() {
 
       const result = await res.json();
       if (result.success) {
-        setMessage("✅ Pencari Kerja berhasil diperbarui!");
-        setTimeout(() => router.push("/dashboardAdmin"), 1500);
+        alert("✅ Pencari Kerja berhasil diperbarui!");
+        
+        setTimeout(() => router.back(), 150);
       } else {
         setMessage("❌ Gagal memperbarui data");
       }
@@ -319,7 +320,7 @@ export default function DetailPerusahaan() {
             type="submit"
             className="w-full bg-red-900 text-white py-3 rounded-lg hover:bg-red-800 font-semibold transition"
           >
-            Tambahkan
+            Update
           </button>
         </form>
       </div>

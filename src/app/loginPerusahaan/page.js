@@ -183,9 +183,10 @@ export default function LoginPerusahaan() {
                 <input type="checkbox" checked={rememberMe} onChange={(e) => setRememberMe(e.target.checked)} className="w-4 h-4 text-red-900 border-gray-300 rounded focus:ring-2 focus:ring-red-900" />
                 <span className="ml-2 text-sm text-gray-700">Ingat Saya</span>
               </label>
-              <a href="#" className="text-[#7a0d0d] hover:underline">
+              <button type="button" onClick={() => router.push("/forgot-password")}
+                className="text-sm text-red-900 hover:text-red-700 font-medium transition">
                 Lupa Kata Sandi?
-              </a>
+              </button>
             </div>
 
             {/* Tombol */}

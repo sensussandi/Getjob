@@ -42,10 +42,10 @@ export default function ClientLayout({ children }) {
     "/dashboardAdmin/perusahaan/page/");
 
   const paginationPencaker = pathname.startsWith(
-    "/dashboardAdmin/pencari_kerja/page/");
+    "/dashboardAdmin/pencaker/page/");
 
   const paginationLowongan = pathname.startsWith(
-    "/dashboardAdmin/Lowongan/page/");
+    "/dashboardAdmin/lowongan/page/");
 
   const hideHeader =
     noHeaderPages.includes(pathname) ||

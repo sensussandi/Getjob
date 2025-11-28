@@ -24,16 +24,6 @@ export default function EditLowongan() {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [loading, setLoading] = useState(true);
   const { data: session, status } = useSession();
-  const redirectByRole = () => {
-
-    if (!session) 
-      return router.push("/");
-    if (session.user.role === "super_admin")
-      return router.push("/dashboardAdmin");
-    if (session.user.role === "admin")
-      return router.push("/dashboardPerusahaan");
-    return router.push("/");
-  };
 
   const [form, setForm] = useState({
     nama_posisi: "",
@@ -46,6 +36,7 @@ export default function EditLowongan() {
     tingkat_pengalaman: "",
     external_url: "",
     prodi: "",
+    keahlian: "",
   });
 
   // 🔹 Ambil data lama dari database
@@ -71,12 +62,12 @@ export default function EditLowongan() {
           setForm(formattedData);
         } else {
           alert("❌ Lowongan tidak ditemukan atau data kosong.");
-          redirectByRole();
+          setTimeout(() => router.back(), 150);
         }
       } catch (error) {
         console.error("Gagal mengambil data lowongan:", error);
         alert("⚠️ Terjadi kesalahan saat memuat data.");
-        redirectByRole();
+        setTimeout(() => router.back(), 150);
       } finally {
         setLoading(false);
       }
@@ -110,7 +101,7 @@ export default function EditLowongan() {
 
       if (res.ok && data.success) {
         alert("✅ Lowongan berhasil diperbarui!");
-        redirectByRole();
+        setTimeout(() => router.back(), 150);
       } else {
         alert(data.message || "❌ Gagal memperbarui lowongan. Silakan coba lagi.");
       }
@@ -133,7 +124,7 @@ export default function EditLowongan() {
 
         if (res.ok && data.success) {
           alert("🗑️ Lowongan berhasil dihapus!");
-          redirectByRole();
+          setTimeout(() => router.back(), 150);
         } else {
           alert(data.message || "❌ Gagal menghapus lowongan. Silakan coba lagi.");
         }
@@ -318,6 +309,15 @@ export default function EditLowongan() {
                   onChange={handleChange}
                   options={tingkatPengalaman}
                   icon={<Users className="w-5 h-5 text-gray-400" />}
+                />
+
+                <InputField
+                  label="Keahlian"
+                  name="keahlian"
+                  value={form.keahlian}
+                  onChange={handleChange}
+                  placeholder="Contoh: Public Speaking"
+                  icon={<Briefcase className="w-5 h-5 text-gray-400" />}
                 />
               </div>
             </div>
