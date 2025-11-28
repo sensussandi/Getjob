@@ -3,108 +3,138 @@ import CredentialsProvider from "next-auth/providers/credentials";
 import mysql from "mysql2/promise";
 import bcrypt from "bcryptjs";
 
-const authOptions = {
+async function getDB() {
+  return mysql.createConnection({
+    host: "localhost",
+    user: "root",
+    password: "",
+    database: "getjob_db",
+  });
+}
+
+export const authOptions = {
   providers: [
+    //  PROVIDER 1 — LOGIN MAHASISWA
     CredentialsProvider({
+      id: "alumni",
       name: "Login Mahasiswa",
-      credentials: {
-        nim: { label: "NIM", type: "text" },
-        password: { label: "Password", type: "password" },
+      credentials: {},
+      async authorize(credentials) {
+        const db = await getDB();
+        const [rows] = await db.execute("SELECT * FROM pencari_kerja WHERE nim = ?", [credentials.nim]);
+
+        if (rows.length === 0) return null;
+
+        const user = rows[0];
+        const match = await bcrypt.compare(credentials.password, user.password);
+        if (!match) return null;
+
+        await db.end();
+
+        return {
+          id: user.nim,
+          role: user.role,
+          nim: user.nim,
+          name: user.nama_lengkap,
+          email: user.email,
+          prodi: user.prodi,
+          foto: user.foto,
+          no_telephone: user.no_telephone,
+        };
       },
+    }),
+
+    // ====================================================
+    // ADMIN PERUSAHAAN
+    // ====================================================
+    CredentialsProvider({
+      id: "admin",
+      name: "Admin Perusahaan",
+      credentials: {},
 
       async authorize(credentials) {
-        let db;
-        try {
-          const nim = credentials.nim?.trim();
-          const password = credentials.password?.trim();
+        const db = await getDB();
+        const [rows] = await db.execute("SELECT * FROM admin_perusahaan WHERE email_perusahaan = ?", [credentials.email]);
 
-          if (!nim || !password) {
-            console.error("NIM atau Password kosong!");
-            return null;
-          }
+        if (rows.length === 0) return null;
 
-          // Koneksi ke database
-          db = await mysql.createConnection({
-            host: "localhost",
-            user: "root",
-            password: "",
-            database: "getjob_db",
-          });
+        const admin = rows[0];
+        const passOK = await bcrypt.compare(credentials.password, admin.password);
+        if (!passOK) return null;
 
-          const [rows] = await db.execute("SELECT * FROM pencari_kerja WHERE nim = ?", [nim]);
-          if (rows.length === 0) {
-            console.error("User tidak ditemukan:", nim);
-            return null;
-          }
+        return {
+          id: admin.id_admin,
+          role: admin.role, // <-- kamu sudah punya role
+          email: admin.email_perusahaan,
+          nama_perusahaan: admin.nama_perusahaan,
+        };
+      },
+    }),
 
-          const user = rows[0];
+    // ====================================================
+    // SUPER ADMIN
+    // ====================================================
+    CredentialsProvider({
+      id: "super_admin",
+      name: "Super Admin Login",
+      credentials: {},
 
-          // Validasi password (bcrypt)
-          const isValid = await bcrypt.compare(password, user.password);
-          if (!isValid) {
-            console.error("Password salah untuk NIM:", nim);
-            return null;
-          }
+      async authorize(credentials) {
+        const db = await getDB();
+        const [rows] = await db.execute("SELECT * FROM users WHERE email = ?", [credentials.email]);
 
-          console.log("Login berhasil:", user.nama_lengkap);
+        if (rows.length === 0) return null;
 
-          return {
-            id: user.nim,
-            nim: user.nim,
-            name: user.nama_lengkap,
-            email: user.email,
-            prodi: user.prodi,
-            foto: user.foto,
-            no_telephone: user.no_telephone,
-          };
-        } catch (err) {
-          console.error("Authorize Error:", err);
-          return null;
-        } finally {
-          if (db) await db.end();
-        }
+        const super_admin = rows[0];
+        const passOK = await bcrypt.compare(credentials.password, super_admin.password);
+        if (!passOK) return null;
+
+        return {
+          id: super_admin.id,
+          role: super_admin.role, // super_admin
+          email: super_admin.email,
+          name: super_admin.nama_admin,
+        };
       },
     }),
   ],
 
   session: {
     strategy: "jwt",
-    maxAge: 60 * 60 * 24 * 7,
+    // maxAge: 30 * 24 * 60 * 60, // 30 hari
+    maxAge: 60 * 60, // 1 jam
+  },
+  jwt: {
+    maxAge: 60 * 60, // 1 jam
   },
 
+
   callbacks: {
-    async jwt({ token, user }) {
+    async jwt({ token, user, account }) {
+
+      if (account?.rememberMe === true) {
+        token.maxAge = 60 * 60 * 24 * 7; // 7 hari
+      } else {
+        token.maxAge = 60 * 60 * 24 * 1; // 1 hari
+      }
+
       if (user) {
-        token.nim = user.nim;
-        token.name = user.name;
+        token.id = user.id;
+        token.role = user.role;
+        token.foto = user.foto;
+        token.nama_lengkap = user.name;
         token.email = user.email;
         token.prodi = user.prodi;
-        token.foto = user.foto;
         token.no_telephone = user.no_telephone;
       }
       return token;
     },
 
     async session({ session, token }) {
-  session.user.nim = token.nim;
-  session.user.name = token.name;
-  session.user.email = token.email;
-  session.user.prodi = token.prodi;
-  session.user.no_telephone = token.no_telephone;
-
-  // Cegah path double
-  session.user.foto = token.foto?.startsWith("/uploads/")
-    ? token.foto
-    : token.foto
-    ? `/uploads/${token.foto}`
-    : "/default-avatar.png";
-
-  return session;
-},
-  },
-
-  pages: {
-    signIn: "/loginMhs",
+      session.user = token;
+      session.maxAge = token.maxAge;
+      return session;
+    },
   },
 };
 

@@ -2,9 +2,8 @@ import { NextResponse } from "next/server";
 import mysql from "mysql2/promise";
 
 export async function GET(req, context) {
-  const { id } = await context.params; // ✅ wajib pakai await
-
   try {
+    const { id } = await context.params;  // params harus di await
     const db = await mysql.createConnection({
       host: "127.0.0.1",   // ✅ pastikan pakai IP
       user: "root",

@@ -26,21 +26,35 @@ export async function POST(request) {
       const user = rows[0];
       let validPassword = false;
 
-    // Jika password sudah di-hash (diawali $2a$ atau $2b$)
-    if (user.password.startsWith("$2a$") || user.password.startsWith("$2b$")) {
-      validPassword = await bcrypt.compare(password, user.password);
-    } else {
-      // 🔹 Jika masih plaintext (data lama), bandingkan biasa
-      validPassword = password === user.password;
-    }
+      // Jika password sudah di-hash (diawali $2a$ atau $2b$)
+      if (user.password.startsWith("$2a$") || user.password.startsWith("$2b$")) {
+        validPassword = await bcrypt.compare(password, user.password);
+      } else {
+        // 🔹 Jika masih plaintext (data lama), bandingkan biasa
+        validPassword = password === user.password;
+      }
 
-    if (!validPassword) {
-      await connection.end();
-      return NextResponse.json(
-        { success: false, message: "Password salah!" },
-        { status: 401 }
-      );
-    }
+      if (!validPassword) {
+        await connection.end();
+        return NextResponse.json(
+          { success: false, message: "Password salah!" },
+          { status: 401 }
+        );
+      }
+
+      let redirect = "/";
+      let role = user.role;
+
+      if (tableType === "pencari_kerja" && role === "alumni") {
+        redirect = "/dashboardMHS";
+      } else {
+        return NextResponse.json(
+          { success: false, message: "Akses ditolak. Role tidak diizinkan." },
+          { status: 403 }
+        );
+      }
+
+
       // Simpan waktu login terakhir ke kolom linkedin sebagai contoh
       await connection.execute("UPDATE pencari_kerja SET linkedin = ? WHERE nim = ?", [`Terakhir login: ${new Date().toISOString()}`, nim]);
 
@@ -49,6 +63,8 @@ export async function POST(request) {
       return Response.json({
         success: true,
         message: "Login berhasil!",
+        redirect,
+        role,
         data: {
           nim: user.nim,
           nama_lengkap: user.nama_lengkap,
@@ -56,6 +72,7 @@ export async function POST(request) {
           no_telephone: user.no_telephone,
           password: user.password,
           prodi: user.prodi,
+          role: user.role,
         },
       });
     } else {

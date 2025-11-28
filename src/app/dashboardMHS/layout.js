@@ -1,7 +1,8 @@
+"use client";
 import Sidebar from "@/components/Sidebar";
 import Topbar from "@/components/Topbar";
 
-export default function Layout({ children }) {
+export default function DashboardLayout({ children }) {
   return (
     <div className="flex h-screen bg-gray-100">
       {/* Sidebar kiri */}

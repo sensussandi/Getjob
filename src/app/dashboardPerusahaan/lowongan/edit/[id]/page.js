@@ -1,6 +1,8 @@
 "use client";
+import useProtectedAuth from "@/hooks/useProtectedAuth";
 import { useEffect, useState } from "react";
 import { useParams, useRouter } from "next/navigation";
+import { useSession } from "next-auth/react";
 import {
   Briefcase,
   MapPin,
@@ -16,10 +18,23 @@ import {
 } from "lucide-react";
 
 export default function EditLowongan() {
+  useProtectedAuth();  // ⬅ proteksi admin Perusahaan
   const router = useRouter();
   const { id } = useParams();
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [loading, setLoading] = useState(true);
+  const { data: session, status } = useSession();
+  const redirectByRole = () => {
+
+    if (!session) 
+      return router.push("/");
+    if (session.user.role === "super_admin")
+      return router.push("/dashboardAdmin");
+    if (session.user.role === "admin")
+      return router.push("/dashboardPerusahaan");
+    return router.push("/");
+  };
+
   const [form, setForm] = useState({
     nama_posisi: "",
     deskripsi_pekerjaan: "",
@@ -36,32 +51,32 @@ export default function EditLowongan() {
   // 🔹 Ambil data lama dari database
   useEffect(() => {
     if (!id) return;
-    
+
     const fetchData = async () => {
       try {
         const res = await fetch(`/api/lowongan/${id}`);
-        
+
         if (!res.ok) {
-            throw new Error(`Gagal mengambil data. Status: ${res.status}`);
+          throw new Error(`Gagal mengambil data. Status: ${res.status}`);
         }
 
         const data = await res.json();
-        
+
         if (data.success && data.data) {
-            const formattedData = {
-                ...data.data,
-                tanggal_ditutup: data.data.tanggal_ditutup ? new Date(data.data.tanggal_ditutup).toISOString().split('T')[0] : '',
-                external_url: data.data.external_url || '', 
-            };
-            setForm(formattedData);
+          const formattedData = {
+            ...data.data,
+            tanggal_ditutup: data.data.tanggal_ditutup ? new Date(data.data.tanggal_ditutup).toISOString().split('T')[0] : '',
+            external_url: data.data.external_url || '',
+          };
+          setForm(formattedData);
         } else {
-            alert("❌ Lowongan tidak ditemukan atau data kosong.");
-            router.push("/dashboardPerusahaan");
+          alert("❌ Lowongan tidak ditemukan atau data kosong.");
+          redirectByRole();
         }
       } catch (error) {
         console.error("Gagal mengambil data lowongan:", error);
         alert("⚠️ Terjadi kesalahan saat memuat data.");
-        router.push("/dashboardPerusahaan");
+        redirectByRole();
       } finally {
         setLoading(false);
       }
@@ -79,10 +94,10 @@ export default function EditLowongan() {
   const handleSubmit = async (e) => {
     e.preventDefault();
     setIsSubmitting(true);
-    
+
     const payload = {
-        ...form,
-        external_url: form.external_url.trim() === "" ? null : form.external_url,
+      ...form,
+      external_url: form.external_url.trim() === "" ? null : form.external_url,
     };
 
     try {
@@ -92,10 +107,10 @@ export default function EditLowongan() {
         body: JSON.stringify(payload),
       });
       const data = await res.json();
-      
+
       if (res.ok && data.success) {
         alert("✅ Lowongan berhasil diperbarui!");
-        router.push("/dashboardPerusahaan");
+        redirectByRole();
       } else {
         alert(data.message || "❌ Gagal memperbarui lowongan. Silakan coba lagi.");
       }
@@ -115,16 +130,17 @@ export default function EditLowongan() {
           method: "DELETE",
         });
         const data = await res.json();
-        
+
         if (res.ok && data.success) {
           alert("🗑️ Lowongan berhasil dihapus!");
-          router.push("/dashboardPerusahaan");
+          redirectByRole();
         } else {
           alert(data.message || "❌ Gagal menghapus lowongan. Silakan coba lagi.");
         }
       } catch (err) {
         console.error("Gagal menghapus:", err);
         alert("Terjadi kesalahan saat menghapus lowongan.");
+
       }
     }
   };
@@ -157,7 +173,7 @@ export default function EditLowongan() {
 
   const tipePekerjaan = ["Full-time", "Part-time", "Contract", "Internship", "Freelance"];
   const tingkatPengalaman = ["Entry Level", "Junior", "Mid Level", "Senior", "Lead/Manager"];
-  
+
   // ⭐️ PROGRAM STUDI
   const daftarProdi = [
     // ====== D3 ======
@@ -213,7 +229,7 @@ export default function EditLowongan() {
     "S3 Kajian Ilmu Pendidikan",
     "S3 Kajian Budaya",
   ];
-    // AKHIR PROGRAM STUDI
+  // AKHIR PROGRAM STUDI
 
   // 🔹 Loading State
   if (loading)
@@ -223,7 +239,7 @@ export default function EditLowongan() {
         Memuat data lowongan...
       </div>
     );
-    
+
   return (
     <div className="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100 py-8 px-4">
       <div className="max-w-5xl mx-auto">
@@ -272,17 +288,17 @@ export default function EditLowongan() {
                     icon={<Briefcase className="w-5 h-5 text-gray-400" />}
                   />
                 </div>
-                
+
                 {/* ⭐️ FIELD PRODI BARU DITAMBAHKAN */}
                 <div className="md:col-span-2">
-                    <SelectField
+                  <SelectField
                     label="Latar Belakang Pendidikan"
                     name="latar_belakang_pendidikan"
                     value={form.prodi}
                     onChange={handleChange}
                     options={daftarProdi}
                     icon={<FileText className="w-5 h-5 text-gray-400" />}
-                    />
+                  />
                 </div>
                 {/* AKHIR FIELD PRODI BARU */}
 
@@ -431,9 +447,8 @@ function InputField({ label, name, value, onChange, type = "text", placeholder, 
           value={value || ""}
           onChange={onChange}
           placeholder={placeholder}
-          className={`w-full border-2 border-gray-200 rounded-xl px-4 py-3 ${
-            icon ? "pl-12" : ""
-          } text-gray-900 placeholder-gray-400 focus:border-[#800000] focus:ring-2 focus:ring-[#800000]/20 outline-none transition-all hover:border-gray-300`}
+          className={`w-full border-2 border-gray-200 rounded-xl px-4 py-3 ${icon ? "pl-12" : ""
+            } text-gray-900 placeholder-gray-400 focus:border-[#800000] focus:ring-2 focus:ring-[#800000]/20 outline-none transition-all hover:border-gray-300`}
         />
       </div>
     </div>
@@ -450,9 +465,8 @@ function SelectField({ label, name, value, onChange, options, icon }) {
           name={name}
           value={value || ""}
           onChange={onChange}
-          className={`w-full border-2 border-gray-200 rounded-xl px-4 py-3 ${
-            icon ? "pl-12" : ""
-          } text-gray-900 placeholder-gray-400 focus:border-[#800000] focus:ring-2 focus:ring-[#800000]/20 outline-none transition-all hover:border-gray-300 appearance-none bg-white cursor-pointer`}
+          className={`w-full border-2 border-gray-200 rounded-xl px-4 py-3 ${icon ? "pl-12" : ""
+            } text-gray-900 placeholder-gray-400 focus:border-[#800000] focus:ring-2 focus:ring-[#800000]/20 outline-none transition-all hover:border-gray-300 appearance-none bg-white cursor-pointer`}
         >
           <option value="">Pilih {label}</option>
           {options.map((option, i) => (

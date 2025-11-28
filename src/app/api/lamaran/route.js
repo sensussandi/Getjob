@@ -4,9 +4,10 @@ import mysql from "mysql2/promise";
 export async function POST(req) {
   try {
     const body = await req.json();
-    const { id_lowongan, id_pencari_kerja } = body;
+    console.log("LAMARAN BODY:", body);  // <-- DEBUG
+    const { id_lowongan, nim } = body;
 
-    if (!id_lowongan || !id_pencari_kerja) {
+    if (!id_lowongan || !nim) {
       return NextResponse.json(
         { success: false, message: "Data tidak lengkap!" },
         { status: 400 }
@@ -20,12 +21,13 @@ export async function POST(req) {
       database: "getjob_db",
     });
 
-    // 🔍 Cek duplikasi
+    // Cek duplikasi
     const [cek] = await db.query(
       `SELECT * FROM mendaftar 
-       WHERE id_lowongan = ? AND id_pencari_kerja = ?`,
-      [id_lowongan, id_pencari_kerja]
+      WHERE id_lowongan = ? AND nim = ?`,
+      [id_lowongan, nim]
     );
+    console.log("CHECK RESULT:", cek);   // <-- DEBUG
 
     if (cek.length > 0) {
       return NextResponse.json({
@@ -35,11 +37,11 @@ export async function POST(req) {
       });
     }
 
-    // 📝 Simpan lamaran
+    // Simpan lamaran
     await db.query(
-      `INSERT INTO mendaftar (id_lowongan, id_pencari_kerja, status_pendaftaran, tanggal_daftar)
-       VALUES (?, ?, 'menunggu', CURDATE())`,
-      [id_lowongan, id_pencari_kerja]
+      `INSERT INTO mendaftar (id_lowongan, nim, status_pendaftaran, tanggal_daftar)
+      VALUES (?, ?, 'menunggu', CURDATE())`,
+      [id_lowongan, nim]
     );
 
     return NextResponse.json({

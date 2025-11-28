@@ -3,35 +3,59 @@ import mysql from "mysql2/promise";
 import fs from "fs";
 import path from "path";
 
-// === Koneksi Database ===
 async function connectDB() {
   return await mysql.createConnection({
     host: "localhost",
     user: "root",
-    password: "", // isi kalau MySQL kamu pakai password
+    password: "",
     database: "getjob_db",
   });
 }
 
-// === API POST: Update data perusahaan ===
+// === GET AMBIL PROFIL ===
+export async function GET(req) {
+  try {
+    const { searchParams } = new URL(req.url);
+    const id_admin = searchParams.get("id_admin");
+
+    if (!id_admin) {
+      return NextResponse.json({ success: false, message: "id_admin wajib dikirim!" });
+    }
+
+    const db = await connectDB();
+    const [rows] = await db.execute(
+      "SELECT id_admin, nama_perusahaan, tentang_perusahaan, alamat_perusahaan, logo_url FROM admin_perusahaan WHERE id_admin = ?",
+      [id_admin]
+    );
+    await db.end();
+
+    if (rows.length === 0) {
+      return NextResponse.json({ success: false, message: "Data tidak ditemukan." });
+    }
+
+    return NextResponse.json({ success: true, data: rows[0] });
+  } catch (err) {
+    console.error("❌ Error ambil profil:", err);
+    return NextResponse.json({ success: false, message: err.message }, { status: 500 });
+  }
+}
+
+// === UPDATE PROFIL ===
 export async function POST(req) {
   try {
-    const formData = await req.formData();
+    const { searchParams } = new URL(req.url);
+    const id_admin = searchParams.get("id_admin");
 
+    if (!id_admin) {
+      return NextResponse.json({ success: false, message: "id_admin wajib dikirim!" });
+    }
+
+    const formData = await req.formData();
     const nama_perusahaan = formData.get("nama_perusahaan");
     const tentang_perusahaan = formData.get("tentang");
     const alamat_perusahaan = formData.get("alamat");
     const logo = formData.get("logo");
 
-    // Validasi data wajib
-    if (!nama_perusahaan || !alamat_perusahaan) {
-      return NextResponse.json(
-        { success: false, message: "Nama perusahaan dan alamat wajib diisi." },
-        { status: 400 }
-      );
-    }
-
-    // Upload logo (jika ada)
     let logoPath = null;
     if (logo && typeof logo === "object") {
       const buffer = Buffer.from(await logo.arrayBuffer());
@@ -45,11 +69,8 @@ export async function POST(req) {
       logoPath = `/uploads/logo/${fileName}`;
     }
 
-    // Update ke database (sementara id_admin = 1)
     const db = await connectDB();
-    const id_admin = 1; // nanti bisa disesuaikan dengan session login
-
-    const [result] = await db.execute(
+    const [update] = await db.execute(
       `
       UPDATE admin_perusahaan 
       SET nama_perusahaan = ?, 
@@ -66,38 +87,12 @@ export async function POST(req) {
 
     await db.end();
 
-    return NextResponse.json({
-      success: true,
-      message: "Data perusahaan berhasil diperbarui.",
-      updated: result.affectedRows,
-    });
+    return NextResponse.json({ success: true, message: "Profil diperbarui!" });
+
   } catch (err) {
     console.error("❌ Error update perusahaan:", err);
     return NextResponse.json(
-      { success: false, message: "Terjadi kesalahan server.", error: err.message },
-      { status: 500 }
-    );
-  }
-}
-
-// === API GET: Ambil data perusahaan ===
-export async function GET() {
-  try {
-    const db = await connectDB();
-    const [rows] = await db.execute(
-      "SELECT id_admin, nama_perusahaan, tentang_perusahaan, alamat_perusahaan, logo_url FROM admin_perusahaan WHERE id_admin = 1"
-    );
-    await db.end();
-
-    if (rows.length === 0) {
-      return NextResponse.json({ success: false, message: "Data tidak ditemukan." });
-    }
-
-    return NextResponse.json({ success: true, data: rows[0] });
-  } catch (err) {
-    console.error("❌ Error ambil profil:", err);
-    return NextResponse.json(
-      { success: false, message: "Gagal memuat profil perusahaan.", error: err.message },
+      { success: false, message: err.message },
       { status: 500 }
     );
   }

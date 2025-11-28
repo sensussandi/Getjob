@@ -1,36 +1,18 @@
 "use client";
 import { useEffect, useState } from "react";
+import { useSession } from "next-auth/react";
 import { useParams, useRouter } from "next/navigation";
 import {
-  MapPin,
-  DollarSign,
-  CalendarDays,
-  Briefcase,
-  Building2,
-  Clock,
-  ExternalLink,
-  ArrowLeft,
+  MapPin, DollarSign, CalendarDays, Briefcase, Building2,
+  Clock, ExternalLink, ArrowLeft
 } from "lucide-react";
 
-// 🗓️ Fungsi format tanggal ke Bahasa Indonesia (WIB)
-function formatTanggal(tanggal) {
-  if (!tanggal) return "-";
-  try {
-    const date = new Date(tanggal);
-    if (isNaN(date)) return tanggal;
-
-    // Konversi ke WIB (+7 jam)
-    const localDate = new Date(date.getTime() + 7 * 60 * 60 * 1000);
-
-    // Format ke bahasa Indonesia
-    return localDate.toLocaleDateString("id-ID", {
-      day: "2-digit",
-      month: "long",
-      year: "numeric",
-    });
-  } catch (e) {
-    return tanggal;
-  }
+function formatTanggal(t) {
+  if (!t) return "-";
+  const d = new Date(t);
+  return d.toLocaleDateString("id-ID", {
+    day: "2-digit", month: "long", year: "numeric"
+  });
 }
 
 export default function DetailLowongan() {
@@ -38,22 +20,64 @@ export default function DetailLowongan() {
   const router = useRouter();
   const [lowongan, setLowongan] = useState(null);
   const [loading, setLoading] = useState(true);
+  const { data: session } = useSession();
 
-  // 🔁 Fetch detail lowongan dari API
+  // ================================
+  // 🔥 FETCH DETAIL LOWONGAN
+  // ================================
   useEffect(() => {
+    
     const fetchDetail = async () => {
       try {
         const res = await fetch(`/api/lowongan/${id}`);
         const data = await res.json();
+        
         if (data.success) setLowongan(data.data);
-      } catch (err) {
-        console.error("Error load detail:", err);
       } finally {
         setLoading(false);
       }
     };
+
     fetchDetail();
   }, [id]);
+
+  // ================================
+  // 🔥 HANDLE LAMAR (dipanggil saat tombol ditekan)
+  // ================================
+  const handleLamar = async () => {
+    if (!session?.user?.id) {
+      alert("Silakan login terlebih dahulu.");
+      router.push("/loginMhs");
+      return;
+    }
+
+    try {
+      const res = await fetch("/api/lowongan/lamar", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          id_lowongan: lowongan.id_lowongan,
+          id: session.user.id, // ← INI BENAR
+        }),
+      });
+
+      const data = await res.json();
+
+      if (data.success) {
+        alert("Lamaran berhasil dikirim!");
+        router.push("/dashboardMHS/");
+      } else if (data.already) {
+        alert("Anda sudah melamar lowongan ini.");
+        router.push("/dashboardMHS/");
+      } else {
+        alert("Gagal mengirim lamaran.");
+      }
+    } catch (e) {
+      console.error(e);
+      alert("Terjadi kesalahan server.");
+    }
+  };
+
 
   // 🌀 Loading state
   if (loading)
@@ -79,40 +103,6 @@ export default function DetailLowongan() {
       </div>
     );
 
-  const handleLamar = async () => {
-    const user = JSON.parse(localStorage.getItem("user"));
-
-    // Jika belum login → redirect
-    if (!user) {
-      alert("Silakan login terlebih dahulu untuk melamar.");
-      router.push("/loginMhs");
-      return;
-    }
-
-    try {
-      const res = await fetch("/api/lamar", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          id_lowongan: lowongan.id_lowongan,
-          id_pencari_kerja: user.nim,
-        }),
-      });
-
-      const data = await res.json();
-
-      if (data.success) {
-        alert("Lamaran berhasil dikirim!");
-      } else if (data.already) {
-        alert("Anda sudah melamar lowongan ini sebelumnya.");
-      } else {
-        alert("Gagal mengirim lamaran. Silakan coba lagi.");
-      }
-    } catch (error) {
-      console.error("Error melamar:", error);
-      alert("Terjadi kesalahan saat mengirim lamaran.");
-    }
-  };
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-gray-50 via-white to-gray-50 py-8 px-4 sm:px-6 lg:px-8">
