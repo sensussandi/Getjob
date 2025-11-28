@@ -25,7 +25,6 @@ export default function DashboardAdmin() {
   useAdminAuth();  // ⬅ proteksi berjalan otomatis
   const router = useRouter();
   const [data, setData] = useState({});
-  const [showLogoutModal, setShowLogoutModal] = useState(false); // button logout
   const [stats, setStats] = useState({
     totalPerusahaan: 0,
     totalPencariKerja: 0,
@@ -35,7 +34,7 @@ export default function DashboardAdmin() {
   const [dataPerusahaan, setDataPerusahaan] = useState([]);
   const [dataPencariKerja, setDataPencariKerja] = useState([]);
   const [dataLowongan, setDataLowongan] = useState([]);
-
+  const [showLogoutModal, setShowLogoutModal] = useState(false); // button logout
 
   // ⬅ ambil session paling atas
   const { data: session, status } = useSession();
@@ -85,6 +84,10 @@ export default function DashboardAdmin() {
     }
   };
 
+  const handleLogout = () => {
+    signOut({ redirect: true, callbackUrl: "/" });
+  };
+
   const handleDeletePencaker = async (id) => {
     if (!confirm("Yakin ingin menghapus pencari kerja ini?")) return;
 
@@ -119,12 +122,6 @@ export default function DashboardAdmin() {
     }
   };
 
-  const handleLogout = () => {
-    signOut({
-      redirect: true,
-      callbackUrl: "/",
-    });
-  };
   // ======== Notifikasi Reset Password ========
   const notifRef = useRef(null);
   const [showNotif, setShowNotif] = useState(false);
@@ -194,142 +191,88 @@ export default function DashboardAdmin() {
     <div className="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100 p-8">
       <div className="max-w-7xl mx-auto">
         {/* HEADER */}
-        <div className="bg-gradient-to-r from-[#800000] to-[#b22222] text-white p-8 rounded-2xl shadow-lg mb-8 flex justify-between items-center">
-          <div>
+        <div className="bg-gradient-to-r from-[#800000] to-[#b22222] text-white p-8 rounded-2xl shadow-lg mb-8">
+          <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-6">
 
+            {/* Kiri - Judul */}
             <button
               onClick={() => router.push("/dashboardAdmin")}
               className="text-left group outline-none"
-              aria-label="Ke Dashboard Admin"
             >
-              <h1 className="text-3xl font-bold transition group-hover:opacity-90 group-focus:opacity-90">
+              <h1 className="text-3xl font-bold group-hover:opacity-90">
                 Dashboard Admin
               </h1>
-              <p className="text-white/80 mt-2">Pantau seluruh aktivitas sistem GetJob</p>
+              <p className="text-white/80 mt-1 text-sm">
+                Pantau seluruh aktivitas sistem GetJob
+              </p>
             </button>
 
-          </div>
-          <div className="bg-white/20 px-5 py-2 rounded-xl text-sm backdrop-blur-sm">
-            <BarChart3 className="inline w-5 h-5 mr-2" /> Statistik Sistem
-          </div>
-          {/* === TOMBOL Setting === */}
-          <button
-            onClick={() => router.push("/dashboardAdmin/pengaturan")}
-            className="px-5 py-3 border-2 border-gray-300 rounded-xl font-medium hover:bg-gray-50 transition-all flex items-center gap-2 text-black-700"
-          >
-            <Settings className="w-5 h-5" />
-            <span>Pengaturan</span>
-          </button>
+            {/* Kanan - Tombol */}
+            <div className="flex items-center gap-4">
 
-          {/* === NOTIFIKASI RESET PASSWORD === */}
-          <div className="relative" ref={notifRef}>
-            <button
-              onClick={() => setShowNotif(s => !s)}
-              className="relative rounded-xl p-2.5 hover:bg-white/10 transition focus:outline-none focus:ring-2 focus:ring-white/60"
-              aria-label="Notifikasi reset password"
-            >
-              {/* Pakai putih full, tanpa override di breakpoint */}
-              <Bell className="w-5 h-5 text-white drop-shadow" />
+              {/* Pengaturan */}
+              <button
+                onClick={() => router.push("/dashboardAdmin/pengaturan")}
+                className="px-5 py-3 border-2 border-white/70 rounded-xl font-medium 
+                   hover:bg-white/10 transition-all flex items-center gap-2"
+              >
+                <Settings className="w-5 h-5" />
+                <span>Pengaturan</span>
+              </button>
 
-              {unreadCount > 0 && (
-                <span
-                  className="absolute -top-1 -right-1 min-w-[20px] h-5 px-1 rounded-full
-                   bg-white text-[#b22222] text-xs font-bold grid place-items-center shadow"
-                >
-                  {unreadCount}
-                </span>
-              )}
-            </button>
-            {showNotif && (
-              <div className="absolute right-0 mt-3 w-80 bg-white rounded-2xl shadow-2xl border border-slate-200 overflow-hidden z-50">
-                {/* Header merah gradasi */}
-                <div className="bg-gradient-to-r from-[#800000] to-[#b22222] text-white px-4 py-3">
-                  <div className="flex items-center justify-between">
-                    <div>
-                      <p className="font-bold">Notifikasi</p>
-                      <p className="text-xs opacity-90">{unreadCount} belum dibaca</p>
+              {/* Notifikasi */}
+              <button
+                onClick={() => setShowNotif(s => !s)}
+                className="rounded-xl p-3 border-2 border-white/70 hover:bg-white/10
+                   transition flex items-center justify-center relative"
+              >
+                <Bell className="w-5 h-5 text-white" />
+                {unreadCount > 0 && (
+                  <span className="absolute -top-1 -right-1 px-1.5 py-0.5 text-xs rounded-full 
+                           bg-white text-[#b22222] font-bold shadow">
+                    {unreadCount}
+                  </span>
+                )}
+              </button>
+
+              {/* === TOMBOL LOGOUT === */}
+              <button
+                onClick={() => setShowLogoutModal(true)}
+                className="px-5 py-3 border-2 border-gray-300 text-gray-600 rounded-xl font-semibold hover:bg-red-50 transition-all flex items-center gap-2 text-white"
+              >
+                <span>Logout</span>
+              </button>
+              {showLogoutModal && (
+                <div className="fixed inset-0 bg-black/40 flex items-center justify-center z-50">
+                  <div className="bg-white p-6 rounded-xl shadow-lg w-[340px]">
+                    <h3 className="text-xl font-bold mb-2 text-gray-800">Konfirmasi Logout</h3>
+                    <p className="text-gray-600 mb-5">Apakah Anda yakin ingin logout dari akun ini?</p>
+
+                    <div className="flex justify-end gap-3">
+                      <button
+                        onClick={() => setShowLogoutModal(false)}
+                        className="px-4 py-2 text-black rounded-lg border border-gray-300 hover:bg-red-100"
+                      >
+                        Batal
+                      </button>
+
+                      <button
+                        onClick={() => {
+                          setShowLogoutModal(false);
+                          handleLogout();
+                        }}
+                        className="px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700"
+                      >
+                        Ya, Logout
+                      </button>
                     </div>
-                    <button
-                      onClick={markAllRead}
-                      className="text-xs bg-white/20 hover:bg-white/30 px-2 py-1 rounded-md"
-                    >
-                      Tandai terbaca
-                    </button>
                   </div>
                 </div>
-
-                {/* List notifikasi */}
-                <div className="max-h-96 overflow-y-auto">
-                  {notifications.length === 0 ? (
-                    <div className="px-4 py-4 text-sm text-slate-500">Tidak ada permintaan reset.</div>
-                  ) : (
-                    notifications.map((n) => (
-                      <button
-                        key={n.id}
-                        onClick={() => {
-                          toggleRead(n.id);
-                          setShowNotif(false);
-                          // scroll ke seksi reset
-                          document.getElementById("reset-requests")?.scrollIntoView({ behavior: "smooth", block: "start" });
-                        }}
-                        className={`w-full text-left px-4 py-3 border-b border-slate-100 transition ${n.unread ? "bg-red-50/40 text-slate-900" : "text-slate-500"
-                          }`}
-                      >
-                        <p className={`text-sm font-medium ${n.unread ? "" : "opacity-80 line-clamp-1"}`}>{n.text}</p>
-                        <p className="text-xs opacity-70 mt-1">{n.time}</p>
-                      </button>
-                    ))
-                  )}
-                </div>
-
-                {/* Footer */}
-                <div className="px-4 py-2 bg-slate-50 text-center">
-                  <button
-                    onClick={() => { setShowNotif(false); document.getElementById("reset-requests")?.scrollIntoView({ behavior: "smooth" }); }}
-                    className="text-xs font-medium text-[#800000] hover:underline"
-                  >
-                    Lihat semua permintaan
-                  </button>
-                </div>
-              </div>
-            )}
-          </div>
-
-          {/* === TOMBOL LOGOUT === */}
-          <button
-            onClick={() => setShowLogoutModal(true)}
-            className="px-5 py-3 border-2 border-black-400 text-black-600 rounded-xl font-semibold hover:bg-red-50 transition-all flex items-center gap-2"
-          >
-            <span>Logout</span>
-          </button>
-          {showLogoutModal && (
-            <div className="fixed inset-0 bg-black/40 flex items-center justify-center z-50">
-              <div className="bg-white p-6 rounded-xl shadow-lg w-[340px]">
-                <h3 className="text-xl font-bold mb-2 text-gray-800">Konfirmasi Logout</h3>
-                <p className="text-gray-600 mb-5">Apakah Anda yakin ingin logout dari akun ini?</p>
-
-                <div className="flex justify-end gap-3">
-                  <button
-                    onClick={() => setShowLogoutModal(false)}
-                    className="px-4 py-2 text-black rounded-lg border border-gray-300 hover:bg-red-100"
-                  >
-                    Batal
-                  </button>
-
-                  <button
-                    onClick={() => {
-                      setShowLogoutModal(false);
-                      handleLogout();
-                    }}
-                    className="px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700"
-                  >
-                    Ya, Logout
-                  </button>
-                </div>
-              </div>
+              )}
             </div>
-          )}
+          </div>
         </div>
+
 
         {/* STATISTIK */}
         <div className="grid grid-cols-1 sm:grid-cols-3 gap-6 mb-10">

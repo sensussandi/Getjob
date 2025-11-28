@@ -28,7 +28,9 @@ export default function PencakerPage({ params }) {
   const [selectedProdi, setSelectedProdi] = useState("");
   const [filteredData, setFilteredData] = useState([]);
   const [allProdi, setAllProdi] = useState([]); // semua prodi untuk dropdown 
-
+  const [notifications, setNotifications] = useState([]);
+  const [showLogoutModal, setShowLogoutModal] = useState(false); // button logout
+  const unreadCount = notifications.filter(n => n.unread).length;
 
   const [data, setData] = useState([]);
   const [stats, setStats] = useState({
@@ -36,6 +38,19 @@ export default function PencakerPage({ params }) {
     pencaker: 0,
     lowongan: 0,
   });
+
+  // Bangun notifikasi dari dataPencariKerja yang minta reset
+  useEffect(() => {
+    const reqs = (data || []).filter(u => Number(u.reset_request) === 1);
+    setNotifications(reqs.map(u => ({
+      id: `reset-${u.nim}`,
+      nim: u.nim,
+      text: `Permintaan reset password: ${u.nama_lengkap} (${u.nim})`,
+      // kalau punya kolom waktu, pakai itu; jika tidak, pakai label 'baru'
+      time: u.reset_requested_at ? new Date(u.reset_requested_at).toLocaleString("id-ID") : "baru",
+      unread: true,
+    })));
+  }, [data]);
 
   // ========== FETCH ALL STATS + PAGED DATA ==========
   useEffect(() => {
@@ -177,10 +192,7 @@ export default function PencakerPage({ params }) {
           </button>
 
           <div className="flex items-center gap-4">
-            <div className="bg-white/20 px-5 py-2 rounded-xl text-sm flex items-center gap-2">
-              <BarChart3 className="w-5 h-5" />
-              <span>Statistik Sistem</span>
-            </div>
+
 
             <button
               onClick={() => router.push("/dashboardAdmin/pengaturan")}
@@ -190,16 +202,55 @@ export default function PencakerPage({ params }) {
               Pengaturan
             </button>
 
-            <button className="rounded-xl p-2.5 hover:bg-white/10 transition">
+            {/* Notifikasi */}
+            <button
+              onClick={() => setShowNotif(s => !s)}
+              className="rounded-xl p-3 border-2 border-white/70 hover:bg-white/10
+                               transition flex items-center justify-center relative"
+            >
               <Bell className="w-5 h-5 text-white" />
+              {unreadCount > 0 && (
+                <span className="absolute -top-1 -right-1 px-1.5 py-0.5 text-xs rounded-full 
+                                       bg-white text-[#b22222] font-bold shadow">
+                  {unreadCount}
+                </span>
+              )}
             </button>
 
+            {/* === TOMBOL LOGOUT === */}
             <button
-              onClick={handleLogout}
-              className="px-5 py-3 border-2 border-white rounded-xl font-semibold hover:bg-white/10"
+              onClick={() => setShowLogoutModal(true)}
+              className="px-5 py-3 border-2 border-gray-300 text-gray-600 rounded-xl font-semibold hover:bg-red-50 transition-all flex items-center gap-2 text-white"
             >
-              Logout
+              <span>Logout</span>
             </button>
+            {showLogoutModal && (
+              <div className="fixed inset-0 bg-black/40 flex items-center justify-center z-50">
+                <div className="bg-white p-6 rounded-xl shadow-lg w-[340px]">
+                  <h3 className="text-xl font-bold mb-2 text-gray-800">Konfirmasi Logout</h3>
+                  <p className="text-gray-600 mb-5">Apakah Anda yakin ingin logout dari akun ini?</p>
+
+                  <div className="flex justify-end gap-3">
+                    <button
+                      onClick={() => setShowLogoutModal(false)}
+                      className="px-4 py-2 text-black rounded-lg border border-gray-300 hover:bg-red-100"
+                    >
+                      Batal
+                    </button>
+
+                    <button
+                      onClick={() => {
+                        setShowLogoutModal(false);
+                        handleLogout();
+                      }}
+                      className="px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700"
+                    >
+                      Ya, Logout
+                    </button>
+                  </div>
+                </div>
+              </div>
+            )}
           </div>
         </div>
 
@@ -295,10 +346,10 @@ export default function PencakerPage({ params }) {
                   <div className="flex justify-between items-start mb-3">
                     <div>
                       <h4 className="text-lg font-bold text-gray-900">{u.nama_lengkap}</h4>
-                      <p className="text-sm text-gray-500">             
+                      <p className="text-sm text-gray-500">
                         {u.nim || "nim tidak diketahui"}
                       </p>
-                      <p className="text-sm text-gray-500">             
+                      <p className="text-sm text-gray-500">
                         {u.prodi || "Prodi tidak diketahui"}
                       </p>
                     </div>
