@@ -24,9 +24,9 @@ export async function GET(req) {
     );
 
     const [pelamar] = await db.query(
-      `SELECT pk.*
-       FROM mendaftar m
-       JOIN pencari_kerja pk ON pk.nim = m.nim
+      `SELECT pk.*, m.status_pendaftaran
+       FROM pencari_kerja pk
+       JOIN mendaftar m ON m.nim = pk.nim
        WHERE m.id_lowongan = ?`,
       [id_lowongan]
     );

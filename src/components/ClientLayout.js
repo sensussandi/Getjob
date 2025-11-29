@@ -47,12 +47,15 @@ export default function ClientLayout({ children }) {
   const paginationLowongan = pathname.startsWith(
     "/dashboardAdmin/lowongan/page/");
 
+  const detaillowongan = pathname.startsWith(
+    "/dashboardAdmin/lowongan/detail/");
+
   const hideHeader =
     noHeaderPages.includes(pathname) ||
     isLowonganDetail || isEditLowongan
     || isKelolaAdmin_Perusahaan || isKelolaPencaker
     || paginationPerusahaan || paginationPencaker
-    || paginationLowongan;
+    || paginationLowongan || detaillowongan;
   return (
     <>
       {!hideHeader && <Header />}
