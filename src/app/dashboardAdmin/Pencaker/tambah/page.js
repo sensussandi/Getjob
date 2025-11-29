@@ -52,7 +52,7 @@ export default function RegisterPage() {
         alert("Berhasil menambahkan.");
         const confirmExit = confirm("Apakah Anda ingin keluar?");
         if (confirmExit) {
-          router.push("/dashboardAdmin");
+          router.back();
         } else {
           // RESET FORM SAJA
           setFormData({

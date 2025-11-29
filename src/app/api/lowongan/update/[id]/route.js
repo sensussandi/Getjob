@@ -5,7 +5,7 @@ export async function PUT(req, context) {
   try {
     const { id } = await context.params;  // params harus di await
     const body = await req.json();
-    const { nama_posisi, deskripsi_pekerjaan, kualifikasi, gaji, lokasi, tanggal_ditutup } = body;
+    const { nama_posisi, deskripsi_pekerjaan, kualifikasi, tipe_pekerjaan, tingkat_pengalaman, prodi, keahlian, gaji, lokasi, tanggal_ditutup } = body;
 
     const db = await mysql.createConnection({
       host: "localhost",
@@ -22,8 +22,8 @@ export async function PUT(req, context) {
     }
 
     await db.execute(
-      `UPDATE lowongan_kerja SET nama_posisi=?, deskripsi_pekerjaan=?, kualifikasi=?, gaji=?, lokasi=?, tanggal_ditutup=? WHERE id_lowongan=?`,
-      [nama_posisi, deskripsi_pekerjaan, kualifikasi, gaji, lokasi, tanggal_ditutup, id]
+      `UPDATE lowongan_kerja SET nama_posisi=?, deskripsi_pekerjaan=?, kualifikasi=?, tipe_pekerjaan=?, tingkat_pengalaman=?, prodi=?, keahlian=?, gaji=?, lokasi=?, tanggal_ditutup=? WHERE id_lowongan=?`,
+      [nama_posisi, deskripsi_pekerjaan, kualifikasi, tipe_pekerjaan, tingkat_pengalaman, prodi, keahlian, gaji, lokasi, tanggal_ditutup, id]
     );
 
     return NextResponse.json({ success: true, message: "Lowongan berhasil diupdate" });

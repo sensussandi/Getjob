@@ -59,10 +59,10 @@ export default function PengaturanPage() {
 
       const result = await res.json();
       if (result.success) {
-        alert("Profil perusahaan berhasil diperbarui!");
-        router.push("/dashboardAdmin");
+        alert("Profil Admin berhasil diperbarui!");
+        router.back();
       } else {
-        alert("Gagal memperbarui profil perusahaan!");
+        alert("Gagal memperbarui profil Admin!");
       }
     } catch (err) {
       console.error("Error:", err);

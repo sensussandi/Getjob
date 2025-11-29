@@ -26,17 +26,6 @@ export default function TambahLowongan() {
   const router = useRouter();
   const [isSuperAdmin, setIsSuperAdmin] = useState(false);
   const { data: session, status } = useSession();
-  const redirectByRole = () => {
-    
-    if (!session) 
-      return router.push("/");
-    if (session.user.role === "super_admin")
-      return router.push("/dashboardAdmin");
-    if (session.user.role === "admin")
-      return router.push("/dashboardPerusahaan");
-    return router.push("/");
-  };
-
 
   const [form, setForm] = useState({
     nama_posisi: "",
@@ -48,6 +37,7 @@ export default function TambahLowongan() {
     tipe_pekerjaan: "Full-time",
     tingkat_pengalaman: "Entry Level",
     prodi: "",
+    keahlian: "",
     external_url: "",
     id_admin: "",
   });
@@ -95,7 +85,7 @@ export default function TambahLowongan() {
 
       if (res.ok && data.success) {
         alert("✅ Lowongan berhasil dibuat!");
-        redirectByRole(); // sudah benar
+        setTimeout(() => router.back(), 150);
       } else {
         alert(data.message || "❌ Gagal menambahkan lowongan.");
       }
@@ -297,7 +287,14 @@ export default function TambahLowongan() {
                   options={daftarProdi}
                   icon={<GraduationCap className="w-5 h-5 text-gray-400" />}
                 />
-
+                <InputField
+                    label="Keahlian"
+                    name="keahlian"
+                    value={form.keahlian}
+                    onChange={handleChange}
+                    placeholder="Contoh: Public Speaking"
+                    icon={<Briefcase className="w-5 h-5 text-gray-400" />}
+                  />
               </div>
             </div>
 

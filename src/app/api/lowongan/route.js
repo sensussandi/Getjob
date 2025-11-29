@@ -14,13 +14,17 @@ export async function GET() {
       SELECT 
         l.id_lowongan,
         l.nama_posisi,
-        l.deskripsi_pekerjaan,
-        l.kualifikasi,
-        l.gaji,
-        l.lokasi,
         l.tanggal_dibuka,
         l.tanggal_ditutup,
         l.external_url,
+        l.deskripsi_pekerjaan,
+        l.kualifikasi,
+        l.tipe_pekerjaan,
+        l.tingkat_pengalaman,
+        l.prodi,
+        l.keahlian,
+        l.gaji,
+        l.lokasi,
         a.nama_perusahaan
       FROM lowongan_kerja AS l
       JOIN admin_perusahaan AS a ON l.id_admin = a.id_admin

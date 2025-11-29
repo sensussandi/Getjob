@@ -44,7 +44,7 @@ export async function POST(req) {
     await db.execute(
       `INSERT INTO admin_perusahaan 
         (nama_perusahaan, email_perusahaan, alamat_perusahaan, tentang_perusahaan, logo_url, password, no_telepone, role)
-       VALUES (?, ?, ?, ?, ?, ?, ?, 'admin')`,
+       VALUES (?, ?, ?, ?, ?, ?, ?, ?)`,
       [
         nama_perusahaan,
         email_perusahaan,
@@ -53,6 +53,7 @@ export async function POST(req) {
         safeLogo,
         hashedPassword,
         safeTelp,
+        'admin',
       ]
     );
 

@@ -17,9 +17,9 @@ export async function POST(req) {
 
     const body = await req.json();
 
-    const { nama_posisi, deskripsi_pekerjaan, kualifikasi, gaji, lokasi, tanggal_ditutup, external_url, tipe_pekerjaan, tingkat_pengalaman, prodi } = body;
+    const { nama_posisi, deskripsi_pekerjaan, kualifikasi, gaji, lokasi, tanggal_ditutup, external_url, tipe_pekerjaan, tingkat_pengalaman, prodi, keahlian } = body;
 
-    if (!nama_posisi || !deskripsi_pekerjaan || !kualifikasi || !gaji || !lokasi || !tanggal_ditutup || !tipe_pekerjaan || !tingkat_pengalaman || !prodi) {
+    if (!nama_posisi || !deskripsi_pekerjaan || !kualifikasi || !gaji || !lokasi || !tanggal_ditutup || !tipe_pekerjaan || !tingkat_pengalaman || !prodi || !keahlian) {
       return NextResponse.json({ success: false, message: "Semua field wajib diisi." }, { status: 400 });
     }
 
@@ -52,11 +52,11 @@ export async function POST(req) {
     // Query lengkap INSERT
     const query = `
       INSERT INTO lowongan_kerja 
-      (id_admin, nama_posisi, tanggal_dibuka, tanggal_ditutup, deskripsi_pekerjaan, kualifikasi, gaji, lokasi, external_url, tipe_pekerjaan, tingkat_pengalaman, prodi)
-      VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+      (id_admin, nama_posisi, tanggal_dibuka, tanggal_ditutup, deskripsi_pekerjaan, kualifikasi, gaji, lokasi, external_url, tipe_pekerjaan, tingkat_pengalaman, prodi, keahlian)
+      VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
     `;
 
-    const values = [id_admin, nama_posisi, tanggal_dibuka, tanggal_ditutup, deskripsi_pekerjaan, kualifikasi, gaji, lokasi, linkFinal, tipe_pekerjaan, tingkat_pengalaman, prodi];
+    const values = [id_admin, nama_posisi, tanggal_dibuka, tanggal_ditutup, deskripsi_pekerjaan, kualifikasi, gaji, lokasi, linkFinal, tipe_pekerjaan, tingkat_pengalaman, prodi, keahlian];
 
     await db.execute(query, values);
     await db.end();
