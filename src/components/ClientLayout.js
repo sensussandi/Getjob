@@ -48,7 +48,7 @@ export default function ClientLayout({ children }) {
     "/dashboardAdmin/lowongan/page/");
 
   const detaillowongan = pathname.startsWith(
-    "/dashboardAdmin/lowongan/detail/");
+    "/dashboardAdmin/lowongan/pelamar/");
 
   const hideHeader =
     noHeaderPages.includes(pathname) ||
