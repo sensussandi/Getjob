@@ -35,9 +35,8 @@ export default function RekomendasiPage() {
     "Farmasi", "Psikologi", "Ilmu Komunikasi", "Manajemen", "Akuntansi",
     "Ekonomi", "Pendidikan Bahasa Inggris", "Pendidikan Bahasa Indonesia",
     "Pendidikan Fisika", "Pendidikan Biologi", "Pendidikan Guru SD",
-    "Bimbingan dan Konseling", "Arsitektur", "Sastra Inggris",
-    "Sastra Indonesia", "Sastra Jerman", "Sastra Prancis",
-    "Ilmu Hukum", "Keperawatan", "Teknik Mesin", "Teknik Sipil"
+    "Bimbingan dan Konseling", "Sastra Inggris","Sastra Indonesia",
+    "Teknik Mesin"
   ];
 
   // === Keahlian & Minat Lengkap ===
