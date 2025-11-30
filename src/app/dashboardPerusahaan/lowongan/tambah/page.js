@@ -66,7 +66,9 @@ export default function TambahLowongan() {
     // Kesehatan
     "Perawat", "Apoteker", "Analis Kesehatan", "Laboran",
     // Umum
-    "Admin Kantor", "Barista", "Kasir", "Event Organizer", "Customer Support"
+    "Admin Kantor", "Barista", "Kasir", "Event Organizer", "Customer Support",
+    // psikolog
+    "Story telling", "Psikolog Industri & Organisasi", "Psikolog Pendidikan",
   ];
   
   const filteredSkills = daftarKeahlian.filter((skill) =>
