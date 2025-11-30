@@ -2,13 +2,18 @@
 
 import { useState, useEffect } from "react";
 import { Search, MapPin, Briefcase } from "lucide-react";
+import { useSearchParams } from "next/navigation";
 
 export default function CariLoker() {
-  const [keyword, setKeyword] = useState("");
-  const [lokasi, setLokasi] = useState("");
-  const [kategori, setKategori] = useState("");
+  const searchParams = useSearchParams();
+
+  const [keyword, setKeyword] = useState(searchParams.get("keyword") || "");
+  const [lokasi, setLokasi] = useState(searchParams.get("lokasi") || "");
+  const [kategori, setKategori] = useState(searchParams.get("kategori") || "");
+
   const [loker, setLoker] = useState([]);
   const [loading, setLoading] = useState(false);
+
 
   // Fetch data loker dari API
   const fetchLoker = async () => {
@@ -16,21 +21,45 @@ export default function CariLoker() {
     try {
       const res = await fetch("/api/lowongan");
       const data = await res.json();
+
       if (data.success) {
-        setLoker(data.data);
+        // 🔍 FILTER BERDASARKAN QUERY
+        const filtered = data.data.filter((job) => {
+          const matchKeyword =
+            keyword === "" ||
+            job.nama_posisi.toLowerCase().includes(keyword.toLowerCase()) ||
+            job.nama_perusahaan.toLowerCase().includes(keyword.toLowerCase());
+
+          const matchLocation =
+            lokasi === "" ||
+            job.lokasi.toLowerCase().includes(lokasi.toLowerCase());
+
+          const matchCategory =
+            kategori === "" ||
+            job.kualifikasi.toLowerCase().includes(kategori.toLowerCase());
+
+          return matchKeyword && matchLocation && matchCategory;
+        });
+
+        setLoker(filtered);
       } else {
         setLoker([]);
       }
     } catch (error) {
       console.error(error);
     }
+
     setLoading(false);
   };
 
-  // Load semua loker saat halaman dibuka
+
+
   useEffect(() => {
     fetchLoker();
-  }, []);
+  }, [keyword, lokasi, kategori]);
+
+
+
 
   return (
     <section className="min-h-screen bg-gradient-to-b from-[#800000] via-[#900000] to-[#700000] text-white py-16">

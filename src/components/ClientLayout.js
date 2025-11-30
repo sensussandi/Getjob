@@ -1,7 +1,7 @@
 "use client";
 
 import { usePathname } from "next/navigation";
-import Header from "@/components/Header";
+import Header from "@/components/HeaderSpecialNatal";
 
 export default function ClientLayout({ children }) {
   const pathname = usePathname();
@@ -24,6 +24,7 @@ export default function ClientLayout({ children }) {
     "/dashboardAdmin/pengaturan",
     "/lihatLokerSaya",
     "/hasilCariKerja",
+    "/dashboardPerusahaan/semuaPelamar",
   ];
 
   const isEditLowongan = pathname.startsWith(

@@ -54,7 +54,9 @@ export default function DashboardPerusahaan() {
     if (!session || session.user.role !== "admin") return;
 
     const fetchData = async () => {
-      const res = await fetch(`/api/perusahaan/dashboard?id_admin=${session.user.id}`);
+      const res = await fetch(
+        `/api/perusahaan/dashboard?id_admin=${session.user.id}`
+      );
 
       const result = await res.json();
 
@@ -68,7 +70,6 @@ export default function DashboardPerusahaan() {
     fetchData();
   }, [session]);
 
-
   // ✅ Kalau data belum siap tampil loading
   if (!data)
     return (
@@ -80,7 +81,7 @@ export default function DashboardPerusahaan() {
         <p className="text-gray-600 text-lg font-medium mt-6">
           Memuat dashboard...
         </p>
-      </div>  
+      </div>
     );
 
   const handleLogout = () => {
@@ -89,7 +90,6 @@ export default function DashboardPerusahaan() {
       callbackUrl: "/",
     });
   };
-
 
   // ✅ Ambil data dari hasil API
   const { admin, lowongan, pelamar, stats } = data;
@@ -170,8 +170,12 @@ export default function DashboardPerusahaan() {
               {showLogoutModal && (
                 <div className="fixed inset-0 bg-black/40 flex items-center justify-center z-50">
                   <div className="bg-white p-6 rounded-xl shadow-lg w-[340px]">
-                    <h3 className="text-xl font-bold mb-2 text-gray-800">Konfirmasi Logout</h3>
-                    <p className="text-gray-600 mb-5">Apakah Anda yakin ingin logout dari akun ini?</p>
+                    <h3 className="text-xl font-bold mb-2 text-gray-800">
+                      Konfirmasi Logout
+                    </h3>
+                    <p className="text-gray-600 mb-5">
+                      Apakah Anda yakin ingin logout dari akun ini?
+                    </p>
 
                     <div className="flex justify-end gap-3">
                       <button
@@ -340,41 +344,56 @@ export default function DashboardPerusahaan() {
 
             {/* Applicant Cards */}
             <div className="space-y-4">
-              {pelamar.map((p) => (
-                <div
-                  key={p.id}
-                  className="bg-white border border-gray-200 rounded-xl p-5 hover:border-[#800000]/30 hover:shadow-lg transition-all duration-300 cursor-pointer group"
-                >
-                  <div className="flex items-start gap-3 mb-3">
-                    <div className="w-12 h-12 bg-gradient-to-br from-[#800000] to-[#b22222] rounded-full flex items-center justify-center text-white font-bold text-lg flex-shrink-0">
-                      {p.nama_pelamar.charAt(0)}
-                    </div>
-                    <div className="flex-1 min-w-0">
-                      <h4 className="font-semibold text-gray-900 group-hover:text-[#800000] transition-colors truncate">
-                        {p.nama_pelamar}
-                      </h4>
-                      <p className="text-sm text-gray-600 truncate">
-                        {p.nama_posisi}
-                      </p>
-                    </div>
-                  </div>
+              {pelamar
+                .sort(
+                  (a, b) =>
+                    new Date(b.tanggal_input) - new Date(a.tanggal_input)
+                ) // urutkan terbaru
+                .slice(0, 3) // ambil 3 teratas
+                .map((p) => (
+                  <div
+                    key={p.id}
+                    className="bg-white border border-gray-200 rounded-xl p-5 hover:border-[#800000]/30 hover:shadow-lg transition-all duration-300 cursor-pointer group"
+                  >
+                    <div className="flex items-start gap-3 mb-3">
+                      <div className="w-12 h-12 bg-gradient-to-br from-[#800000] to-[#b22222] rounded-full flex items-center justify-center text-white font-bold text-lg flex-shrink-0">
+                        {p.nama_pelamar.charAt(0)}
+                      </div>
 
-                  <div className="flex justify-between items-center pt-3 border-t border-gray-100">
-                    <span
-                      className={`text-xs px-3 py-1.5 rounded-full font-semibold ${p.status === "Baru"
-                        ? "bg-orange-100 text-orange-700"
-                        : "bg-[#800000] text-white"
+                      <div className="flex-1 min-w-0">
+                        <h4 className="font-semibold text-gray-900 group-hover:text-[#800000] transition-colors truncate">
+                          {p.nama_pelamar}
+                        </h4>
+                        <p className="text-sm text-gray-600 truncate">
+                          {p.nama_posisi}
+                        </p>
+                      </div>
+                    </div>
+
+                    <div className="flex justify-between items-center pt-3 border-t border-gray-100">
+                      <span
+                        className={`text-xs px-3 py-1.5 rounded-full font-semibold ${
+                          p.status === "Baru"
+                            ? "bg-orange-100 text-orange-700"
+                            : "bg-[#800000] text-white"
                         }`}
-                    >
-                      {p.status}
-                    </span>
-                    <span className="text-xs text-gray-500 flex items-center gap-1">
-                      <Clock className="w-3.5 h-3.5" />
-                      {p.tanggal_input}
-                    </span>
+                      >
+                        {p.status}
+                      </span>
+
+                     
+                    </div>
                   </div>
-                </div>
-              ))}
+                ))}
+            </div>
+            {/* Tombol Lihat Semua Pelamar */}
+            <div className="text-center mt-4">
+              <button
+                onClick={() => router.push("/dashboardPerusahaan/semuaPelamar")}
+                className="text-sm text-[#800000] font-semibold hover:underline"
+              >
+                Lihat Semua Kandidat →
+              </button>
             </div>
           </div>
         </div>
