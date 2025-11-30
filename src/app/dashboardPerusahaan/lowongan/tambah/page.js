@@ -17,10 +17,8 @@ import {
   X,
 } from "lucide-react";
 
-
-
 // PAGE UTAMA
-
+  
 export default function TambahLowongan() {
   useProtectedAuth();
   const router = useRouter();
@@ -44,6 +42,55 @@ export default function TambahLowongan() {
 
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [daftarPerusahaan, setDaftarPerusahaan] = useState([]);
+  const [keahlianList, setKeahlianList] = useState([]);
+  const [searchSkill, setSearchSkill] = useState("");
+  
+  
+  // === Keahlian & Minat Lengkap ===
+  const daftarKeahlian = [
+    // IT
+    "Web Developer", "Mobile Developer", "UI/UX Designer", "Data Analyst",
+    "Data Scientist", "Game Developer", "Cyber Security", "AI Engineer", "DevOps Engineer",
+    // Bisnis & Manajemen
+    "Marketing", "Digital Marketing", "Sales", "Public Relations", "Business Analyst",
+    "Finance Analyst", "Entrepreneurship", "Human Resource", "Customer Service",
+    // Kreatif
+    "Graphic Designer", "Video Editor", "Content Creator", "Copywriter", "Photographer",
+    "Animator", "Brand Strategist", "Illustrator",
+    // Pendidikan & Sosial
+    "Guru SD", "Guru Bahasa Inggris", "Tutor Privat", "Psikolog", "Konselor", "Peneliti",
+    "Penerjemah", "Trainer", "Instruktur",
+    // Teknik
+    "Teknisi Listrik", "Teknisi Mesin", "Arsitek", "Drafter", "Quality Control",
+    "Surveyor", "Operator Produksi", "Project Engineer",
+    // Kesehatan
+    "Perawat", "Apoteker", "Analis Kesehatan", "Laboran",
+    // Umum
+    "Admin Kantor", "Barista", "Kasir", "Event Organizer", "Customer Support"
+  ];
+  
+  const filteredSkills = daftarKeahlian.filter((skill) =>
+    skill.toLowerCase().includes(searchSkill.toLowerCase())
+  );
+
+  const handleSkillClick = (skill) => {
+    let updated;
+
+    if (!keahlianList.includes(skill) && keahlianList.length >= 5) {
+      alert("Maksimal 5 keahlian!");
+      return;
+    }
+
+    if (keahlianList.includes(skill)) {
+      updated = keahlianList.filter((x) => x !== skill);
+    } else {
+      updated = [...keahlianList, skill];
+    }
+
+    setKeahlianList(updated);
+    setForm({ ...form, keahlian: updated.join(",") });
+  };
+
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -200,29 +247,6 @@ export default function TambahLowongan() {
     "S3 Kajian Budaya",
   ];
 
-  // === Keahlian & Minat Lengkap ===
-  const keahlian = [
-    // IT
-    "Web Developer", "Mobile Developer", "UI/UX Designer", "Data Analyst",
-    "Data Scientist", "Game Developer", "Cyber Security", "AI Engineer", "DevOps Engineer",
-    // Bisnis & Manajemen
-    "Marketing", "Digital Marketing", "Sales", "Public Relations", "Business Analyst",
-    "Finance Analyst", "Entrepreneurship", "Human Resource", "Customer Service",
-    // Kreatif
-    "Graphic Designer", "Video Editor", "Content Creator", "Copywriter", "Photographer",
-    "Animator", "Brand Strategist", "Illustrator",
-    // Pendidikan & Sosial
-    "Guru SD", "Guru Bahasa Inggris", "Tutor Privat", "Psikolog", "Konselor", "Peneliti",
-    "Penerjemah", "Trainer", "Instruktur",
-    // Teknik
-    "Teknisi Listrik", "Teknisi Mesin", "Arsitek", "Drafter", "Quality Control",
-    "Surveyor", "Operator Produksi", "Project Engineer",
-    // Kesehatan
-    "Perawat", "Apoteker", "Analis Kesehatan", "Laboran",
-    // Umum
-    "Admin Kantor", "Barista", "Kasir", "Event Organizer", "Customer Support"
-  ];
-
   return (
     <div className="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100 py-8 px-4">
       <div className="max-w-5xl mx-auto">
@@ -310,14 +334,52 @@ export default function TambahLowongan() {
                   options={daftarProdi}
                   icon={<GraduationCap className="w-5 h-5 text-gray-400" />}
                 />
-                <EditableSelectField
-                  label="Keahlian"
-                  name="keahlian"
-                  value={form.keahlian}
-                  onChange={handleChange}
-                  options={keahlian}
-                  icon={<Briefcase className="w-5 h-5 text-gray-400" />}
-                />
+                {/* === MULTISELECT KEAHLIAN === */}
+                <div className="md:col-span-2">
+                  <label className="font-semibold text-gray-700">Keahlian (maks 5)</label>
+
+                  <input
+                    type="text"
+                    placeholder="Cari keahlian..."
+                    value={searchSkill}
+                    onChange={(e) => setSearchSkill(e.target.value)}
+                    className="w-full border rounded-xl px-4 py-3 mt-2 mb-2"
+                  />
+
+                  <div className="max-h-44 overflow-y-auto border rounded-xl p-2 bg-white">
+                    {filteredSkills.map((skill, idx) => (
+                      <div
+                        key={idx}
+                        onClick={() => handleSkillClick(skill)}
+                        className={`cursor-pointer px-3 py-2 rounded-lg mb-1 border transition-all ${
+                          keahlianList.includes(skill)
+                            ? "bg-red-100 border-red-300 text-red-700"
+                            : "hover:bg-gray-100 border-gray-300"
+                        }`}
+                      >
+                        {skill}
+                      </div>
+                    ))}
+                  </div>
+
+                  <div className="flex flex-wrap gap-2 mt-3">
+                    {keahlianList.map((skill, idx) => (
+                      <span
+                        key={idx}
+                        className="px-3 py-1 bg-red-50 text-red-700 rounded-full flex items-center gap-2"
+                      >
+                        {skill}
+                        <button
+                          onClick={() => handleSkillClick(skill)}
+                          className="font-bold"
+                        >
+                          ×
+                        </button>
+                      </span>
+                    ))}
+                  </div>
+                </div>
+
               </div>
             </div>
 
