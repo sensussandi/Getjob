@@ -10,18 +10,27 @@ export default function DetailPelamar() {
   const [loading, setLoading] = useState(true);
   const [pelamar, setPelamar] = useState([]);
   const [loker, setLoker] = useState(null);
+  const [selectedUser, setSelectedUser] = useState(null);
 
   useEffect(() => {
+    if (!id) return;
+
     const load = async () => {
-      const res = await fetch(`/api/lowongan/pelamar?id_lowongan=${id}`);
+      try {
+      const res = await fetch(`/api/lowongan/pelamar/${id}`);
       const json = await res.json();
 
       if (json.success) {
         setPelamar(json.pelamar);
         setLoker(json.lowongan);
+      } else {
+          console.error("Gagal memuat data:", json.message);
+        }
+      } catch (err) {
+        console.error("FETCH ERROR:", err);
+      } finally {
+        setLoading(false);
       }
-
-      setLoading(false);
     };
 
     load();
@@ -104,6 +113,65 @@ export default function DetailPelamar() {
                   <p className="flex items-center gap-2">
                     <Phone className="w-4 h-4 text-gray-400" /> {u.no_telephone}
                   </p>
+
+                  <button
+                    onClick={() => setSelectedUser(u)}
+                    className="mt-4 w-full bg-[#800000] hover:bg-[#a00000] text-white py-2 rounded-lg transition font-semibold"
+                  >
+                    Detail Pelamar
+                  </button>
+                  {selectedUser && (
+                    <div className="fixed inset-0 bg-black/40 backdrop-blur-sm flex items-center justify-center z-50">
+                      <div className="bg-white w-full max-w-lg rounded-xl p-6 shadow-xl">
+                        <h2 className="text-xl font-bold text-gray-900 mb-4">Detail Pelamar</h2>
+
+                        <div className="space-y-3 text-gray-700">
+                          <p><b>Nama:</b> {selectedUser.nama_lengkap}</p>
+                          <p><b>NIM:</b> {selectedUser.nim}</p>
+                          <p><b>Program Studi:</b> {selectedUser.prodi}</p>
+                          <p><b>Email:</b> {selectedUser.email}</p>
+                          <p><b>No Telepon:</b> {selectedUser.no_telephone}</p>
+
+                          {selectedUser.linkedin && (
+                            <p>
+                              <b>LinkedIn:</b>{" "}
+                              <a href={selectedUser.linkedin} target="_blank" className="text-blue-600 underline">
+                                {selectedUser.linkedin}
+                              </a>
+                            </p>
+                          )}
+
+                          {selectedUser.keahlian && (
+                            <p><b>Keahlian:</b> {selectedUser.keahlian}</p>
+                          )}
+
+                          {selectedUser.tentang_anda && (
+                            <p><b>Tentang Anda:</b> {selectedUser.tentang_anda}</p>
+                          )}
+
+                          {selectedUser.cv && (
+                            <p>
+                              <b>CV:</b>{" "}
+                              <a
+                                href={`/uploads/cv/${selectedUser.cv}`}
+                                target="_blank"
+                                className="text-green-700 underline font-semibold"
+                              >
+                                Lihat CV
+                              </a>
+                            </p>
+                          )}
+                        </div>
+
+                        <button
+                          onClick={() => setSelectedUser(null)}
+                          className="mt-6 w-full bg-gray-600 text-white py-2 rounded-lg hover:bg-gray-700 transition"
+                        >
+                          Tutup
+                        </button>
+                      </div>
+                    </div>
+                  )}
                 </div>
               </div>
             ))}
