@@ -39,15 +39,25 @@ export async function GET(req) {
       ORDER BY nim DESC
     `);
 
+
     // === 3. Semua lowongan kerja ===
     const [lowongan] = await db.query(`
       SELECT 
         l.*,
-        a.nama_perusahaan
+        a.nama_perusahaan,
+
+        -- === Hitung jumlah pelamar per lowongan ===
+        (
+          SELECT COUNT(*) 
+          FROM mendaftar m 
+          WHERE m.id_lowongan = l.id_lowongan
+        ) AS jumlah_pelamar
+
       FROM lowongan_kerja l
       LEFT JOIN admin_perusahaan a ON l.id_admin = a.id_admin
       ORDER BY l.id_lowongan DESC
     `);
+    
 
     // === 4. Statistik ===
     const stats = {
