@@ -200,6 +200,29 @@ export default function TambahLowongan() {
     "S3 Kajian Budaya",
   ];
 
+  // === Keahlian & Minat Lengkap ===
+  const keahlian = [
+    // IT
+    "Web Developer", "Mobile Developer", "UI/UX Designer", "Data Analyst",
+    "Data Scientist", "Game Developer", "Cyber Security", "AI Engineer", "DevOps Engineer",
+    // Bisnis & Manajemen
+    "Marketing", "Digital Marketing", "Sales", "Public Relations", "Business Analyst",
+    "Finance Analyst", "Entrepreneurship", "Human Resource", "Customer Service",
+    // Kreatif
+    "Graphic Designer", "Video Editor", "Content Creator", "Copywriter", "Photographer",
+    "Animator", "Brand Strategist", "Illustrator",
+    // Pendidikan & Sosial
+    "Guru SD", "Guru Bahasa Inggris", "Tutor Privat", "Psikolog", "Konselor", "Peneliti",
+    "Penerjemah", "Trainer", "Instruktur",
+    // Teknik
+    "Teknisi Listrik", "Teknisi Mesin", "Arsitek", "Drafter", "Quality Control",
+    "Surveyor", "Operator Produksi", "Project Engineer",
+    // Kesehatan
+    "Perawat", "Apoteker", "Analis Kesehatan", "Laboran",
+    // Umum
+    "Admin Kantor", "Barista", "Kasir", "Event Organizer", "Customer Support"
+  ];
+
   return (
     <div className="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100 py-8 px-4">
       <div className="max-w-5xl mx-auto">
@@ -279,7 +302,7 @@ export default function TambahLowongan() {
                   icon={<Users className="w-5 h-5 text-gray-400" />}
                 />
 
-                <SelectField
+                <EditableSelectField
                   label="Program Studi (Prodi)"
                   name="prodi"
                   value={form.prodi}
@@ -287,14 +310,14 @@ export default function TambahLowongan() {
                   options={daftarProdi}
                   icon={<GraduationCap className="w-5 h-5 text-gray-400" />}
                 />
-                <InputField
-                    label="Keahlian"
-                    name="keahlian"
-                    value={form.keahlian}
-                    onChange={handleChange}
-                    placeholder="Contoh: Public Speaking"
-                    icon={<Briefcase className="w-5 h-5 text-gray-400" />}
-                  />
+                <EditableSelectField
+                  label="Keahlian"
+                  name="keahlian"
+                  value={form.keahlian}
+                  onChange={handleChange}
+                  options={keahlian}
+                  icon={<Briefcase className="w-5 h-5 text-gray-400" />}
+                />
               </div>
             </div>
 
@@ -336,7 +359,7 @@ export default function TambahLowongan() {
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
 
                 {isSuperAdmin && (
-                  <SelectField
+                  <EditableSelectField
                     label="Pilih Perusahaan"
                     name="id_admin"
                     value={form.id_admin}
@@ -349,7 +372,7 @@ export default function TambahLowongan() {
                   />
                 )}
 
-                <SelectField
+                <EditableSelectField
                   label="Range Gaji"
                   name="gaji"
                   value={form.gaji}
@@ -358,7 +381,7 @@ export default function TambahLowongan() {
                   icon={<DollarSign className="w-5 h-5 text-gray-400" />}
                 />
 
-                <SelectField
+                <EditableSelectField
                   label="Lokasi Kerja"
                   name="lokasi"
                   value={form.lokasi}
@@ -485,6 +508,85 @@ function TextAreaField({ label, name, value, onChange, placeholder, rows = 4, ic
             } focus:border-[#800000] focus:ring-2 focus:ring-[#800000]/20 outline-none transition-all hover:border-gray-300 resize-none`}
         />
       </div>
+    </div>
+  );
+}
+
+function EditableSelectField({ label, name, value, onChange, options, icon }) {
+  const [showDropdown, setShowDropdown] = useState(false);
+  const [filter, setFilter] = useState(value || "");
+
+  const normalizeText = (opt) => {
+    if (typeof opt === "string") return opt;
+    if (typeof opt === "object") return opt.label || "";
+    return "";
+  };
+
+  const filteredOptions = options.filter((opt) =>
+    normalizeText(opt).toLowerCase().includes(filter.toLowerCase())
+  );
+
+  const handleSelect = (opt) => {
+    if (typeof opt === "string") {
+      onChange({ target: { name, value: opt } });
+      setFilter(opt);
+    } else {
+      onChange({ target: { name, value: opt.value } });
+      setFilter(opt.label);
+    }
+    setShowDropdown(false);
+  };
+
+  return (
+    <div className="relative">
+      <label className="block text-sm font-semibold text-gray-700 mb-2">
+        {label}
+      </label>
+
+      <div className="relative">
+        {icon && (
+          <div className="absolute left-4 top-1/2 -translate-y-1/2 z-10">
+            {icon}
+          </div>
+        )}
+
+        <input
+          name={name}
+          value={filter}
+          placeholder={`Pilih atau ketik ${label}`}
+          onChange={(e) => {
+            setFilter(e.target.value);
+            setShowDropdown(true);
+            onChange({ target: { name, value: e.target.value } });
+          }}
+          onFocus={() => setShowDropdown(true)}
+          className={`w-full border-2 border-gray-200 rounded-xl px-4 py-3 ${
+            icon ? "pl-12" : ""
+          } focus:border-[#800000] focus:ring-2 focus:ring-[#800000]/20`}
+        />
+      </div>
+
+      {showDropdown && (
+        <div className="absolute w-full bg-white border border-gray-200 mt-1 rounded-xl shadow-lg max-h-52 overflow-y-auto z-50">
+          {filteredOptions.length === 0 ? (
+            <p className="px-4 py-2 text-gray-500 text-sm">Tidak ada pilihan</p>
+          ) : (
+            filteredOptions.map((opt, idx) => {
+              const text = normalizeText(opt);
+              return (
+                <button
+                  key={idx}
+                  type="button"
+                  onClick={() => handleSelect(opt)}
+                  className="w-full text-left px-4 py-2 hover:bg-gray-100 text-gray-700"
+                >
+                  {text}
+                </button>
+              );
+            })
+          )}
+        </div>
+      )}
     </div>
   );
 }

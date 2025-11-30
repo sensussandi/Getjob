@@ -1,6 +1,6 @@
 "use client";
 import useAdminAuth from "@/hooks/useAdminAuth";
-import { useEffect, useState, use } from "react";
+import { useEffect, useState, use, useRef } from "react";
 import { useRouter } from "next/navigation";
 import { signOut } from "next-auth/react";
 import {
@@ -20,6 +20,8 @@ export default function PerusahaanPage({ params }) {
   const [showLogoutModal, setShowLogoutModal] = useState(false); // button logout
   const unreadCount = notifications.filter(n => n.unread).length;
   const [data, setData] = useState([]);
+  const [showNotif, setShowNotif] = useState(false);
+  const notifRef = useRef(null);
   const [stats, setStats] = useState({
     perusahaan: 0,
     pencaker: 0,
@@ -40,6 +42,17 @@ export default function PerusahaanPage({ params }) {
   }, [data]);
 
   // ===== Ambil data + statistik =====
+
+  useEffect(() => {
+    const onDown = (e) => {
+      if (notifRef.current && !notifRef.current.contains(e.target)) {
+        setShowNotif(false);
+      }
+    };
+    if (showNotif) document.addEventListener("mousedown", onDown);
+    return () => document.removeEventListener("mousedown", onDown);
+  }, [showNotif]);
+
   useEffect(() => {
     const loadAll = async () => {
       try {
@@ -93,24 +106,26 @@ export default function PerusahaanPage({ params }) {
   }, [currentPage]);
 
   useEffect(() => {
-  let filtered = data;
+    let filtered = data;
 
-  // === SEARCH ===
-  if (searchQuery.trim()) {
-    const lower = searchQuery.toLowerCase();
-    filtered = filtered.filter((p) =>
-      p.nama_perusahaan.toLowerCase().includes(lower)
-    );
-  }
+    // === SEARCH ===
+    if (searchQuery.trim()) {
+      const lower = searchQuery.toLowerCase();
+      filtered = filtered.filter((p) =>
+        p.nama_perusahaan.toLowerCase().includes(lower)
+      );
+    }
 
-  // === PAGINATION (POTONG 9 ITEM PER PAGE) ===
-  const start = (currentPage - 1) * itemsPerPage;
-  const end = start + itemsPerPage;
+    // === PAGINATION (POTONG 9 ITEM PER PAGE) ===
+    const start = (currentPage - 1) * itemsPerPage;
+    const end = start + itemsPerPage;
 
-  setFilteredData(filtered.slice(start, end));
-}, [searchQuery, data, currentPage]);
+    setFilteredData(filtered.slice(start, end));
+  }, [searchQuery, data, currentPage]);
 
 
+  const markAllRead = () =>
+    setNotifications(prev => prev.map(n => ({ ...n, unread: false })));
 
   const totalPages = Math.ceil(stats.perusahaan / itemsPerPage);
 
@@ -160,12 +175,15 @@ export default function PerusahaanPage({ params }) {
 
           </div>
 
-          <div className="flex items-center gap-4">
+          {/* Kanan - Tombol */}
+          <div className="flex items-center gap-4 relative">
 
 
+            {/* Pengaturan */}
             <button
               onClick={() => router.push("/dashboardAdmin/pengaturan")}
-              className="px-5 py-3 border-2 border-white/70 rounded-xl font-medium hover:bg-white/10 transition-all flex items-center gap-2"
+              className="px-5 py-3 border-2 border-white/70 rounded-xl font-medium 
+                             hover:bg-white/10 transition-all flex items-center gap-2"
             >
               <Settings className="w-5 h-5" />
               <span>Pengaturan</span>
@@ -175,16 +193,81 @@ export default function PerusahaanPage({ params }) {
             <button
               onClick={() => setShowNotif(s => !s)}
               className="rounded-xl p-3 border-2 border-white/70 hover:bg-white/10
-                               transition flex items-center justify-center relative"
+                             transition flex items-center justify-center relative"
             >
               <Bell className="w-5 h-5 text-white" />
               {unreadCount > 0 && (
                 <span className="absolute -top-1 -right-1 px-1.5 py-0.5 text-xs rounded-full 
-                                       bg-white text-[#b22222] font-bold shadow">
+                                     bg-white text-[#b22222] font-bold shadow">
                   {unreadCount}
                 </span>
               )}
             </button>
+            {/* DROPDOWN NOTIFIKASI */}
+            {showNotif && (
+              <div
+                ref={notifRef}
+                className="absolute top-full right-0 mt-3 w-80 bg-white text-gray-800 
+                         rounded-xl shadow-xl border border-gray-200 z-[999]"
+              >
+                {/* HEADER */}
+                <div className="flex justify-between items-center px-4 py-3 border-b">
+                  <p className="font-semibold">Notifikasi</p>
+                  <button
+                    onClick={markAllRead}
+                    className="text-xs text-blue-600 hover:underline"
+                  >
+                    Tandai semua dibaca
+                  </button>
+                </div>
+
+                {/* LIST NOTIF */}
+                <div className="max-h-72 overflow-y-auto">
+                  {notifications.length === 0 ? (
+                    <p className="text-gray-500 text-center py-6">Tidak ada notifikasi</p>
+                  ) :
+                    (notifications.map((n) => (
+                      <div
+                        key={n.id}
+                        className={`px-4 py-3 border-b hover:bg-gray-50 cursor-pointer 
+                ${n.unread ? "bg-red-50" : ""}`}
+                      >
+
+                        {/* TEKS NOTIF */}
+                        <div className="flex justify-between items-start">
+                          <div>
+                            <p className="text-sm font-medium">{n.text}</p>
+                            <p className="text-xs text-gray-500">{n.time}</p>
+                          </div>
+
+                          {/* BUTTON TOGGLE READ */}
+                          <button
+                            onClick={(e) => {
+                              e.stopPropagation(); // biar ga nutup dropdown
+                              toggleRead(n.id);
+                            }}
+                            className={`text-xs px-2 py-1 rounded border ${n.unread
+                              ? "text-blue-600 border-blue-400 hover:bg-blue-50"
+                              : "text-gray-600 border-gray-300 hover:bg-gray-100"
+                              }`}
+                          >
+                            {n.unread ? "Tandai dibaca" : "Belum dibaca"}
+                          </button>
+                        </div>
+
+                        {/* BUTTON RESET PASSWORD */}
+                        <button
+                          onClick={() => handleResetPassword(n.nim)}
+                          className="mt-2 text-xs bg-orange-600 hover:bg-orange-700 text-white px-2 py-1 rounded"
+                        >
+                          Reset Password
+                        </button>
+                      </div>
+                    ))
+                    )}
+                </div>
+              </div>
+            )}
 
             {/* === TOMBOL LOGOUT === */}
             <button
