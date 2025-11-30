@@ -89,7 +89,7 @@ export default function RekomendasiPage() {
       const res = await fetch("/api/pencari_kerja/updateprofil", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ nim: session?.user?.nim, prodi, keahlian }),
+        body: JSON.stringify({ nim: session?.user?.id, prodi, keahlian }),
       });
 
       const result = await res.json();
