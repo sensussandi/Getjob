@@ -2,22 +2,14 @@
 import usePencakerAuth from "@/hooks/usePencakerAuth";
 import { useState, useEffect } from "react";
 import { useRouter, usePathname } from "next/navigation";
-import {
-  Home,
-  Briefcase,
-  User,
-  Settings,
-  ChevronLeft,
-  ChevronRight,
-  BookOpen,
-} from "lucide-react";
+import { Home, Briefcase, User, Settings, ChevronLeft, ChevronRight, BookOpen } from "lucide-react";
 import { useSession, signOut } from "next-auth/react";
 
 export default function Sidebar() {
   usePencakerAuth();
   const router = useRouter();
   const pathname = usePathname();
-  const { data: session, status } = useSession();
+  const { data: session } = useSession();
 
   const [isCollapsed, setIsCollapsed] = useState(false);
   const [activeMenu, setActiveMenu] = useState("");
@@ -42,18 +34,13 @@ export default function Sidebar() {
   ];
 
   return (
-    <aside
-      className={`${isCollapsed ? "w-20" : "w-64"} bg-white border-r border-slate-200 p-4 flex flex-col transition-all duration-300 ease-in-out shadow-sm relative`}
-    >
+    <aside className={`${isCollapsed ? "w-20" : "w-64"} bg-white border-r border-slate-200 p-4 flex flex-col transition-all duration-300 shadow-sm relative`}>
       {/* Collapse Button */}
-      <button
-        onClick={() => setIsCollapsed(!isCollapsed)}
-        className="absolute -right-3 top-8 w-6 h-6 bg-white border rounded-full flex items-center justify-center shadow-md"
-      >
+      <button onClick={() => setIsCollapsed(!isCollapsed)} className="absolute -right-3 top-8 w-6 h-6 bg-white border rounded-full flex items-center justify-center shadow-md">
         {isCollapsed ? <ChevronRight /> : <ChevronLeft />}
       </button>
 
-      {/* Menu */}
+      {/* Menu List */}
       <nav className="flex-1 space-y-1 mt-6">
         {menuItems.map((item) => {
           const Icon = item.icon;
@@ -74,33 +61,28 @@ export default function Sidebar() {
         })}
       </nav>
 
-      {/* ======= USER PANEL ======= */}
+      {/* USER PANEL */}
       {!isCollapsed && (
-        <div className="bg-gradient-to-br from-red-50 to-orange-50 rounded-xl p-4 border mt-4">
-          {/* FOTO + NAMA */}
-          <div className="flex items-center gap-3">
+        <div className="bg-gradient-to-br from-red-50 to-orange-50 rounded-xl p-4 border mt-6">
+          {/* FOTO USER */}
+          <div className="flex items-center gap-3 mb-4">
             <img
               src={user?.foto ? `/uploads/${user.foto}` : "/default-avatar.jpg"}
               alt="Foto User"
               className="w-12 h-12 rounded-full object-cover border-2 border-red-800"
-              onError={(e) => (e.target.src = "/default-avatar.jpg")}
+              onError={(e) => {
+                e.target.src = "/default-avatar.jpg";
+              }}
             />
 
             <div>
-              <p className="font-semibold text-gray-900 text-sm">
-                {user?.name || user?.nama_lengkap || "User"}
-              </p>
-              <p className="text-xs text-gray-500">
-                {user?.role || "pencari_kerja"}
-              </p>
+              <p className="font-semibold text-gray-900 text-sm">{user?.name || user?.nama_lengkap || "User"}</p>
+              <p className="text-xs text-gray-500">{user?.role || "pencari_kerja"}</p>
             </div>
           </div>
 
-          {/* LOGOUT BUTTON */}
-          <button
-            onClick={() => setShowLogoutModal(true)}
-            className="mt-4 w-full px-4 py-2 border-2 border-gray-300 text-gray-600 rounded-xl font-semibold hover:bg-red-50 transition-all flex items-center justify-center gap-2"
-          >
+          {/* TOMBOL LOGOUT */}
+          <button onClick={() => setShowLogoutModal(true)} className="w-full px-5 py-3 border-2 border-gray-300 text-gray-600 rounded-xl font-semibold hover:bg-red-50 transition-all flex items-center gap-2 justify-center">
             Logout
           </button>
 
@@ -112,10 +94,7 @@ export default function Sidebar() {
                 <p className="text-gray-600 mb-5">Apakah Anda yakin ingin keluar?</p>
 
                 <div className="flex justify-end gap-3">
-                  <button
-                    onClick={() => setShowLogoutModal(false)}
-                    className="px-4 py-2 rounded-lg border border-gray-300 hover:bg-gray-100"
-                  >
+                  <button onClick={() => setShowLogoutModal(false)} className="px-4 py-2 text-black rounded-lg border border-gray-300 hover:bg-red-100">
                     Batal
                   </button>
 

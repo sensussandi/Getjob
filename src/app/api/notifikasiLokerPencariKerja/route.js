@@ -7,7 +7,10 @@ export async function GET(req) {
     const nim = searchParams.get("nim");
 
     if (!nim) {
-      return NextResponse.json({ success: false, message: "NIM tidak diberikan" });
+      return NextResponse.json({
+        success: false,
+        message: "NIM tidak diberikan",
+      });
     }
 
     const db = await mysql.createConnection({
@@ -17,25 +20,27 @@ export async function GET(req) {
       database: "getjob_db",
     });
 
-    // JOIN ke tabel lowongan
+    // 🔥 Ambil status lamaran + nama lowongan + status read
     const [rows] = await db.execute(
       `
       SELECT 
-        p.status_pendaftaran,
-        p.tanggal_daftar,
+        m.id_pendaftaran,
+        m.status_pendaftaran,
+        m.tanggal_daftar,
+        m.is_read,
         l.nama_posisi
-      FROM pendaftaran p
-      JOIN lowongan l ON l.id_lowongan = p.id_lowongan
-      WHERE p.nim = ?
-      ORDER BY p.id_pendaftaran DESC
+      FROM mendaftar m
+      JOIN lowongan_kerja l ON l.id_lowongan = m.id_lowongan
+      WHERE m.nim = ?
+      ORDER BY m.id_pendaftaran DESC
       `,
       [nim]
     );
 
     await db.end();
 
-    const notif = rows.map((row, i) => ({
-      id: i + 1,
+    const notif = rows.map((row) => ({
+      id: row.id_pendaftaran, // ID penting untuk update read
       pesan:
         row.status_pendaftaran === "diterima"
           ? `Lamaran Anda untuk posisi ${row.nama_posisi} DITERIMA`
@@ -43,12 +48,24 @@ export async function GET(req) {
           ? `Lamaran Anda untuk posisi ${row.nama_posisi} DITOLAK`
           : `Lamaran Anda pada posisi ${row.nama_posisi} MENUNGGU`,
       waktu: row.tanggal_daftar,
-      unread: true,
+      unread: row.is_read === 0, // TRUE jika belum dibaca
+      id_pendaftaran: row.id_pendaftaran,
     }));
 
-    return NextResponse.json({ success: true, data: notif });
+    return NextResponse.json({
+      success: true,
+      data: notif,
+    });
+
   } catch (err) {
     console.error(err);
-    return NextResponse.json({ success: false, message: "Gagal mengambil notifikasi" });
+    return NextResponse.json(
+      {
+        success: false,
+        message: "Gagal mengambil notifikasi",
+        error: err.message,
+      },
+      { status: 500 }
+    );
   }
 }

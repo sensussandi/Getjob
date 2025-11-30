@@ -9,7 +9,6 @@ export default function Topbar() {
   const [showNotifications, setShowNotifications] = useState(false);
 
   const [notifications, setNotifications] = useState([]);
-
   const [unreadCount, setUnreadCount] = useState(0);
 
   const [keyword, setKeyword] = useState("");
@@ -99,16 +98,16 @@ export default function Topbar() {
               </select>
             </div>
 
-            {/* Kategori */}
+            {/* Tipe Pekerjaan */}
             <div className="relative hidden lg:block min-w-[180px]">
               <Briefcase className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-500" />
               <select value={kategori} onChange={(e) => setKategori(e.target.value)} className="w-full pl-11 pr-4 py-2.5 border border-slate-300 rounded-xl text-sm text-gray-800">
-                <option>Semua Pekerjaan</option>
-                <option>IT/Software Development</option>
-                <option>Marketing</option>
-                <option>Design</option>
-                <option>Finance</option>
-                <option>HR</option>
+                <option>Tipe Pekerjaan</option>
+                <option>Full-Time</option>
+                <option>Part-Time</option>
+                <option>Contract</option>
+                <option>Intership</option>
+                <option>Freelance</option>
               </select>
             </div>
 
@@ -136,8 +135,25 @@ export default function Topbar() {
                     <p className="p-4 text-sm text-gray-500">Tidak ada notifikasi</p>
                   ) : (
                     notifications.map((n) => (
-                      <div key={n.id} className={`p-4 border-b hover:bg-slate-50 ${n.unread ? "bg-red-50" : ""}`}>
-                        <p className="text-sm font-medium">{n.pesan}</p>
+                      <div
+                        key={n.id}
+                        onClick={async () => {
+                          await fetch("/api/notifikasiLokerPencariKerja/read", {
+                            method: "POST",
+                            headers: { "Content-Type": "application/json" },
+                            body: JSON.stringify({
+                              id_pendaftaran: n.id_pendaftaran,
+                            }),
+                          });
+
+                          // update UI setelah dibaca
+                          setNotifications((prev) => prev.map((item) => (item.id_pendaftaran === n.id_pendaftaran ? { ...item, unread: false } : item)));
+
+                          setUnreadCount((prev) => prev - 1);
+                        }}
+                        className={`p-4 border-b hover:bg-slate-100 cursor-pointer ${n.unread ? "bg-red-50" : "bg-white"}`}
+                      >
+                        <p className="text-sm font-medium text-gray-800">{n.pesan}</p>
                         <p className="text-xs text-gray-500 mt-1">{n.waktu}</p>
                       </div>
                     ))

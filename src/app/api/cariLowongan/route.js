@@ -46,18 +46,11 @@ export async function GET(req) {
       params.push(lokasi);
     }
 
-    // 💼 FILTER KATEGORI
-    // ⚠️ sekarang dropdown-mu berisi "IT/Software Development, Marketing, ..."
-    // sedangkan di tabel TIDAK ADA kolom 'kategori' seperti itu.
-    // Ada 'tipe_pekerjaan', 'prodi', dll.
-    // Jadi SEMENTARA ini kita abaikan filter kategori supaya tidak mengosongkan hasil.
-    //
-    // Nanti kalau sudah punya kolom kategori di DB baru diaktifkan.
-    //
-    // if (kategori && kategori !== "Semua Pekerjaan") {
-    //   query += ` AND l.tipe_pekerjaan = ? `;
-    //   params.push(kategori);
-    // }
+    // FILTER KATEGORI
+    if (kategori && kategori !== "Semua Pekerjaan") {
+      query += ` AND l.tipe_pekerjaan = ? `;
+      params.push(kategori);
+    }
 
     // urutkan di paling akhir
     query += ` ORDER BY l.id_lowongan DESC`;

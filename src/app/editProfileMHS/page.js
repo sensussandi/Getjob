@@ -220,10 +220,49 @@ export default function PengaturanPage() {
           {/* DROPDOWNS */}
           <select name="prodi" value={formData.prodi} onChange={handleChange} className="border border-gray-400 p-3 w-full mb-3 rounded bg-white text-gray-900">
             <option value="">Pilih Program Studi</option>
-            <option value="Informatika">Informatika</option>
-            <option value="TM">Teknik Mesin</option>
-            <option value="TE">Teknik Elektro</option>
-            <option value="Matematika">Matematika</option>
+            <option value="Informatika">Teknik Elektromedis (D3)</option>
+            <option value="TM">Mekatronika (D3)</option>
+            <option value="TE">Akuntansi (S1)</option>
+            <option value="Ekonomi">Ekonomi (S1)</option>
+            <option value="Manajemen">Manajemen (S1)</option>
+            <option value="Farmasi">Farmasi (S1)</option>
+            <option value="BK">Bimbingan dan Konseling (S1)</option>
+            <option value="PBSI">Pendidikan Bahasa dan Sastra indonesia (S1)</option>
+            <option value="PBI">Pendidikan Bahasa Inggris (S1)</option>
+            <option value="PBio">Pendidikan Biologi (S1)</option>
+            <option value="PEBPA">Pendidikan Ekonomi Bidang Keahlian Khusus Pendidikan Akuntansi (S1)</option>
+            <option value="PEBPE">Pendidikan Ekonomi Bidang Keahlian Khusus Pendidikan Ekonomi (S1)</option>
+            <option value="PFisika">Pendidikan Fisika (S1)</option>
+            <option value="PGSD">Pendidikan Guru Sekolah Dasar (S1)</option>
+            <option value="PAK">Pendidikan Keagamaan Katolik (S1)</option>
+            <option value="PKimia">Pendidikan Kimia (S1)</option>
+            <option value="PMat">Pendidikan Matematika (S1)</option>
+            <option value="PSejarah">Pendidikan Sejarah (S1)</option>
+            <option value="Psikologi">Psikologi (S1)</option>
+            <option value="Informatika">Informatika (S1)</option>
+            <option value="Matematika">Matematika (S1)</option>
+            <option value="TE">Teknik Elektro (S1)</option>
+            <option value="TM">Teknik Mesin (S1)</option>
+            <option value="Sasindo">Sastra Indonesia (S1)</option>
+            <option value="Sasing">Sastra Inggris (S1)</option>
+            <option value="Sejarah">Sejarah (S1)</option>
+            <option value="FilKeilahian">Filsafat Keilahian (S1)</option>
+            <option value="PenProfApt">Pendidikan Profesi Apoteker (Profesi)</option>
+            <option value="PenProfGr">PendidikanProfesi Guru (Profesi)</option>
+            <option value="PenProfGPE">Pendidikan Profesi Guru Prajab Ekonomi (Profesi)</option>
+            <option value="PenProfGPFis">Pendidikan Profesi Guru Prajab Fisika (Profesi)</option>
+            <option value="PenProfIns">Pendidikan Profesi Insinyur (Profesi)</option>
+            <option value="ManMAG">Manajemen (S2)</option>
+            <option value="FarmMag">Farmasi (S2)</option>
+            <option value="PBIMag">Pendidikan Bahasa Indonesia (S2)</option>
+            <option value="PBIngMag">Pendidikan Bahasa Inggris (S2)</option>
+            <option value="PmatMag">Pendidikan Matematika (S2)</option>
+            <option value="KBingMag">Kajian Bahasa Inggris (S2)</option>
+            <option value="KBudMag">Kajian Budaya (S2)</option>
+            <option value="PsiMag">Psikologi (S2)</option>
+            <option value="SastraMag">Sastra (S2)</option>
+            <option value="TeoMag">Teologi (S2)</option>
+            <option value="KaBudDok">Kajian Budaya (S3)</option>
           </select>
 
           <select name="pendidikan_terakhir" value={formData.pendidikan_terakhir} onChange={handleChange} className="border border-gray-400 p-3 w-full mb-3 rounded bg-white text-gray-900">
