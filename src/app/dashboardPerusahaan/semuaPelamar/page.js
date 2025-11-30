@@ -6,7 +6,13 @@ import { useRouter } from "next/navigation";
 import { jsPDF } from "jspdf";
 import autoTable from "jspdf-autotable";
 import * as XLSX from "xlsx";
-import { ArrowLeft, FileSpreadsheet, FileDown, Search, Filter } from "lucide-react";
+import {
+  ArrowLeft,
+  FileSpreadsheet,
+  FileDown,
+  Search,
+  Filter,
+} from "lucide-react";
 
 function genderLabel(g) {
   return g === "1" || g === 1 ? "Laki-laki" : "Perempuan";
@@ -61,11 +67,13 @@ export default function SemuaPelamar() {
     const q = searchQuery.toLowerCase();
 
     const matchSearch =
-      p.nama_lengkap.toLowerCase().includes(q) ||
-      p.email.toLowerCase().includes(q) ||
-      p.nim.toLowerCase().includes(q) ||
-      p.prodi.toLowerCase().includes(q) ||
-      p.nama_posisi.toLowerCase().includes(q);
+      (p.nama_lengkap || "").toLowerCase().includes(q) ||
+      (p.email || "").toLowerCase().includes(q) ||
+      String(p.nim || "")
+        .toLowerCase()
+        .includes(q) ||
+      (p.prodi || "").toLowerCase().includes(q) ||
+      (p.nama_posisi || "").toLowerCase().includes(q);
 
     const matchStatus =
       filterStatus === "semua" ? true : p.status_pendaftaran === filterStatus;
@@ -115,9 +123,30 @@ export default function SemuaPelamar() {
     const filename = prompt("Masukkan nama file Excel:", "data_pelamar");
     if (!filename) return;
 
-    const worksheet = XLSX.utils.json_to_sheet(filteredData);
+    // gunakan format yang SAMA seperti PDF
+    const excelData = filteredData.map((p) => ({
+      NIM: p.nim,
+      Nama: p.nama_lengkap,
+      "Tanggal Lahir": formatTanggalIndo(p.tanggal_lahir),
+      Gender: genderLabel(p.jenis_kelamin),
+      Alamat: p.alamat,
+      Email: p.email,
+      Telepon: p.no_telephone,
+      Pendidikan: p.pendidikan_terakhir,
+      Prodi: p.prodi,
+      LinkedIn: p.linkedin,
+      Keahlian: p.keahlian,
+      "Tentang Anda": p.tentang_anda,
+      CV: p.cv ? p.cv : "-",
+      Posisi: p.nama_posisi,
+      "Tanggal Daftar": formatTanggalIndo(p.tanggal_daftar),
+      Status: p.status_pendaftaran,
+    }));
+
+    const worksheet = XLSX.utils.json_to_sheet(excelData);
     const workbook = XLSX.utils.book_new();
     XLSX.utils.book_append_sheet(workbook, worksheet, "Pelamar");
+
     XLSX.writeFile(workbook, `${filename}.xlsx`);
   };
 
@@ -134,7 +163,7 @@ export default function SemuaPelamar() {
       p.nim,
       p.nama_lengkap,
       p.tanggal_lahir,
-      p.jenis_kelamin,
+      genderLabel(p.jenis_kelamin),
       p.alamat,
       p.email,
       p.no_telephone,
@@ -197,7 +226,7 @@ export default function SemuaPelamar() {
           onClick={() => router.back()}
           className="flex items-center gap-2 text-[#800000] hover:text-[#5c0000] mb-6 font-semibold transition-colors duration-200 group"
         >
-          <ArrowLeft className="w-5 h-5 group-hover:-translate-x-1 transition-transform duration-200" /> 
+          <ArrowLeft className="w-5 h-5 group-hover:-translate-x-1 transition-transform duration-200" />
           Kembali
         </button>
 
@@ -205,8 +234,12 @@ export default function SemuaPelamar() {
         <div className="bg-gradient-to-r from-[#800000] to-[#a00000] rounded-2xl shadow-xl p-6 mb-6">
           <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
             <div>
-              <h1 className="text-3xl font-bold text-white mb-2">Data Semua Pelamar</h1>
-              <p className="text-gray-200 text-sm">Total: {filteredData.length} pelamar</p>
+              <h1 className="text-3xl font-bold text-white mb-2">
+                Data Semua Pelamar
+              </h1>
+              <p className="text-gray-200 text-sm">
+                Total: {filteredData.length} pelamar
+              </p>
             </div>
 
             <div className="flex flex-wrap gap-3">
@@ -231,7 +264,7 @@ export default function SemuaPelamar() {
         <div className="bg-white p-5 rounded-xl shadow-md border border-gray-200 mb-6">
           <div className="flex flex-col md:flex-row gap-4">
             <div className="flex-1 relative">
-              <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" />
+              <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-grey-600" />
               <input
                 type="text"
                 placeholder="Cari nama, email, NIM, prodi, posisi..."
@@ -292,11 +325,18 @@ export default function SemuaPelamar() {
               <tbody className="divide-y divide-gray-200">
                 {paginatedData.length === 0 ? (
                   <tr>
-                    <td colSpan="17" className="px-4 py-12 text-center text-gray-500">
+                    <td
+                      colSpan="17"
+                      className="px-4 py-12 text-center text-gray-500"
+                    >
                       <div className="flex flex-col items-center gap-2">
                         <Search className="w-12 h-12 text-gray-300" />
-                        <p className="font-semibold">Tidak ada data ditemukan</p>
-                        <p className="text-sm">Coba ubah kata kunci pencarian atau filter</p>
+                        <p className="font-semibold">
+                          Tidak ada data ditemukan
+                        </p>
+                        <p className="text-sm">
+                          Coba ubah kata kunci pencarian atau filter
+                        </p>
                       </div>
                     </td>
                   </tr>
@@ -308,24 +348,58 @@ export default function SemuaPelamar() {
                         idx % 2 === 0 ? "bg-white" : "bg-gray-50"
                       }`}
                     >
-                      <td className="px-4 py-3 font-medium text-gray-900">{p.nim}</td>
-                      <td className="px-4 py-3 font-medium text-gray-900">{p.nama_lengkap}</td>
-                      <td className="px-4 py-3 text-gray-600">{formatTanggalIndo(p.tanggal_lahir)}</td>
-                      <td className="px-4 py-3 text-gray-600">{genderLabel(p.jenis_kelamin)}</td>
-                      <td className="px-4 py-3 text-gray-600 max-w-xs truncate" title={p.alamat}>{p.alamat}</td>
+                      <td className="px-4 py-3 font-medium text-gray-900">
+                        {p.nim}
+                      </td>
+                      <td className="px-4 py-3 font-medium text-gray-900">
+                        {p.nama_lengkap}
+                      </td>
+                      <td className="px-4 py-3 text-gray-600">
+                        {formatTanggalIndo(p.tanggal_lahir)}
+                      </td>
+                      <td className="px-4 py-3 text-gray-600">
+                        {genderLabel(p.jenis_kelamin)}
+                      </td>
+                      <td
+                        className="px-4 py-3 text-gray-600 max-w-xs truncate"
+                        title={p.alamat}
+                      >
+                        {p.alamat}
+                      </td>
                       <td className="px-4 py-3 text-gray-600">{p.email}</td>
-                      <td className="px-4 py-3 text-gray-600">{p.no_telephone}</td>
-                      <td className="px-4 py-3 text-gray-600">{p.pendidikan_terakhir}</td>
+                      <td className="px-4 py-3 text-gray-600">
+                        {p.no_telephone}
+                      </td>
+                      <td className="px-4 py-3 text-gray-600">
+                        {p.pendidikan_terakhir}
+                      </td>
                       <td className="px-4 py-3 text-gray-600">{p.prodi}</td>
                       <td className="px-4 py-3 text-gray-600">
                         {p.linkedin ? (
-                          <a href={p.linkedin} target="_blank" rel="noopener noreferrer" className="text-[#800000] hover:underline">
+                          <a
+                            href={p.linkedin}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="text-[#800000] hover:underline"
+                          >
                             LinkedIn
                           </a>
-                        ) : "-"}
+                        ) : (
+                          "-"
+                        )}
                       </td>
-                      <td className="px-4 py-3 text-gray-600 max-w-xs truncate" title={p.keahlian}>{p.keahlian}</td>
-                      <td className="px-4 py-3 text-gray-600 max-w-xs truncate" title={p.tentang_anda}>{p.tentang_anda}</td>
+                      <td
+                        className="px-4 py-3 text-gray-600 max-w-xs truncate"
+                        title={p.keahlian}
+                      >
+                        {p.keahlian}
+                      </td>
+                      <td
+                        className="px-4 py-3 text-gray-600 max-w-xs truncate"
+                        title={p.tentang_anda}
+                      >
+                        {p.tentang_anda}
+                      </td>
 
                       {/* DOWNLOAD CV */}
                       <td className="px-4 py-3">
@@ -339,12 +413,18 @@ export default function SemuaPelamar() {
                             Download
                           </a>
                         ) : (
-                          <span className="text-gray-400 text-xs">Tidak ada</span>
+                          <span className="text-gray-400 text-xs">
+                            Tidak ada
+                          </span>
                         )}
                       </td>
 
-                      <td className="px-4 py-3 font-medium text-gray-900">{p.nama_posisi}</td>
-                      <td className="px-4 py-3 text-gray-600">{formatTanggalIndo(p.tanggal_daftar)}</td>
+                      <td className="px-4 py-3 font-medium text-gray-900">
+                        {p.nama_posisi}
+                      </td>
+                      <td className="px-4 py-3 text-gray-600">
+                        {formatTanggalIndo(p.tanggal_daftar)}
+                      </td>
 
                       {/* STATUS */}
                       <td className="px-4 py-3">
@@ -369,7 +449,9 @@ export default function SemuaPelamar() {
                       <td className="px-4 py-3">
                         <div className="flex gap-2">
                           <button
-                            onClick={() => updateStatus(p.id_pendaftaran, "diterima")}
+                            onClick={() =>
+                              updateStatus(p.id_pendaftaran, "diterima")
+                            }
                             className="px-3 py-1.5 bg-green-600 hover:bg-green-700 text-white rounded-md text-xs font-medium transition-colors duration-200 disabled:opacity-40 disabled:cursor-not-allowed"
                             disabled={p.status_pendaftaran !== "menunggu"}
                           >
@@ -377,7 +459,9 @@ export default function SemuaPelamar() {
                           </button>
 
                           <button
-                            onClick={() => updateStatus(p.id_pendaftaran, "tidak")}
+                            onClick={() =>
+                              updateStatus(p.id_pendaftaran, "tidak")
+                            }
                             className="px-3 py-1.5 bg-red-600 hover:bg-red-700 text-white rounded-md text-xs font-medium transition-colors duration-200 disabled:opacity-40 disabled:cursor-not-allowed"
                             disabled={p.status_pendaftaran !== "menunggu"}
                           >

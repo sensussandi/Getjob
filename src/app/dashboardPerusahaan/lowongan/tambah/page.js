@@ -17,15 +17,29 @@ import {
   X,
 } from "lucide-react";
 
-
-
-// PAGE UTAMA
+// === Daftar Keahlian Super Lengkap ===
+const daftarKeahlian = [
+  "Web Developer", "Frontend Developer", "Backend Developer", "Fullstack Developer",
+  "Mobile Developer (Android/iOS)", "Game Developer", "UI/UX Designer",
+  "Data Analyst", "Data Scientist", "BI Analyst", "Machine Learning Engineer",
+  "AI Engineer", "Deep Learning Engineer", "Cloud Engineer", "DevOps Engineer",
+  "Cyber Security Specialist", "Network Engineer", "Database Administrator",
+  "QA Engineer", "IT Support", "System Administrator",
+  "Blockchain Developer", "IoT Engineer", "AR/VR Developer",
+  "Business Analyst", "Product Manager", "Project Manager", "Finance Analyst",
+  "HR", "Marketing", "Digital Marketing", "Sales Executive",
+  "Graphic Designer", "Video Editor", "Animator", "3D Artist", "Content Creator",
+  "Copywriter", "Photographer", "Event Organizer", "Brand Strategist",
+  "Guru", "Tutor Privat", "Peneliti", "Konselor Pendidikan",
+  "Perawat", "Bidan", "Apoteker", "Ahli Gizi", "Analis Kesehatan",
+  "Teknisi Mesin", "Teknisi Listrik", "Operator Produksi", "Quality Control",
+  "Admin Kantor", "Barista", "Kasir", "Driver", "Kurir",
+];
 
 export default function TambahLowongan() {
   useProtectedAuth();
   const router = useRouter();
-  const [isSuperAdmin, setIsSuperAdmin] = useState(false);
-  const { data: session, status } = useSession();
+  const { data: session } = useSession();
 
   const [form, setForm] = useState({
     nama_posisi: "",
@@ -43,223 +57,127 @@ export default function TambahLowongan() {
   });
 
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const [daftarPerusahaan, setDaftarPerusahaan] = useState([]);
 
-  const handleChange = (e) => {
-    const { name, value } = e.target;
-    setForm({ ...form, [name]: value });
+  // === STATE MULTISELECT KEAHLIAN ===
+  const [keahlianList, setKeahlianList] = useState([]);
+  const [searchSkill, setSearchSkill] = useState("");
+
+  const filteredSkills = daftarKeahlian.filter((skill) =>
+    skill.toLowerCase().includes(searchSkill.toLowerCase())
+  );
+
+  const handleSkillClick = (skill) => {
+    let updated;
+
+    if (!keahlianList.includes(skill) && keahlianList.length >= 5) {
+      alert("Maksimal 5 keahlian!");
+      return;
+    }
+
+    if (keahlianList.includes(skill)) {
+      updated = keahlianList.filter((x) => x !== skill);
+    } else {
+      updated = [...keahlianList, skill];
+    }
+
+    setKeahlianList(updated);
+    setForm({ ...form, keahlian: updated.join(",") });
   };
 
+  // HANDLE INPUT
+  const handleChange = (e) => {
+    setForm({ ...form, [e.target.name]: e.target.value });
+  };
+
+  // SUBMIT
   const handleSubmit = async (e) => {
     e.preventDefault();
     setIsSubmitting(true);
 
     try {
-      let idAdminFinal = null;
+      let idAdminFinal = session.user.role === "admin"
+        ? session.user.id
+        : form.id_admin;
 
-      // Jika admin perusahaan → gunakan ID dari session.user.id
-      if (session.user.role === "admin") {
-        idAdminFinal = session.user.id;
+      if (session.user.role === "super_admin" && !form.id_admin) {
+        alert("Super Admin wajib memilih perusahaan!");
+        setIsSubmitting(false);
+        return;
       }
 
-      // Jika super_admin → wajib pilih perusahaan manual
-      if (session.user.role === "super_admin") {
-        if (!form.id_admin) {
-          alert("❌ Super Admin wajib memilih perusahaan!");
-          setIsSubmitting(false);
-          return;
-        }
-        idAdminFinal = form.id_admin;
-      }
+      const res = await fetch(`/api/perusahaan/lowongan/tambah?id_admin=${idAdminFinal}`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(form),
+      });
 
-      const res = await fetch(
-        `/api/perusahaan/lowongan/tambah?id_admin=${idAdminFinal}`,
-        {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify(form),
-        }
-      );
+      const json = await res.json();
 
-      const data = await res.json();
-
-      if (res.ok && data.success) {
-        alert("✅ Lowongan berhasil dibuat!");
-        setTimeout(() => router.back(), 150);
+      if (json.success) {
+        alert("Lowongan berhasil dibuat!");
+        router.back();
       } else {
-        alert(data.message || "❌ Gagal menambahkan lowongan.");
+        alert(json.message);
       }
     } finally {
       setIsSubmitting(false);
     }
   };
 
-
-  // CEK ROLE SUPER ADMIN
-  useEffect(() => {
-    if (!session) return;
-
-    if (session.user.role === "super_admin") {
-      setIsSuperAdmin(true);
-
-      fetch("/api/admin/perusahaan/list")
-        .then((res) => res.json())
-        .then((data) => {
-          if (data.success) setDaftarPerusahaan(data.data);
-        });
-    }
-  }, [session]);
-
-  // DATA DROPDOWN
-  const rangeGaji = [
-    "< Rp 3.000.000",
-    "Rp 3.000.000 - Rp 5.000.000",
-    "Rp 5.000.000 - Rp 8.000.000",
-    "Rp 8.000.000 - Rp 12.000.000",
-    "Rp 12.000.000 - Rp 20.000.000",
-    "> Rp 20.000.000",
-  ];
-
-  const kota = [
-    "Jakarta",
-    "Bandung",
-    "Surabaya",
-    "Yogyakarta",
-    "Semarang",
-    "Medan",
-    "Bali",
-    "Makassar",
-    "Tangerang",
-    "Depok",
-    "Bogor",
-    "Bekasi",
-    "Remote",
-  ];
-
-  const tipePekerjaan = [
-    "Full-time",
-    "Part-time",
-    "Contract",
-    "Internship",
-    "Freelance",
-  ];
-
-  const tingkatPengalaman = [
-    "Entry Level",
-    "Junior",
-    "Mid Level",
-    "Senior",
-    "Lead/Manager",
-  ];
-
-  const daftarProdi = [
-    "D3 Bahasa Inggris",
-    "D3 Sekretari",
-    "D3 Perpustakaan",
-    "D3 Teknik Elektronika",
-    "S1 Akuntansi",
-    "S1 Arsitektur",
-    "S1 Biologi",
-    "S1 Bimbingan dan Konseling",
-    "S1 Farmasi",
-    "S1 Fisika",
-    "S1 Ilmu Komunikasi",
-    "S1 Keperawatan",
-    "S1 Kimia",
-    "S1 Matematika",
-    "S1 Manajemen",
-    "S1 Pendidikan Akuntansi",
-    "S1 Pendidikan Bahasa Inggris",
-    "S1 Pendidikan Bahasa Jawa",
-    "S1 Pendidikan Bahasa dan Sastra Indonesia",
-    "S1 Pendidikan Biologi",
-    "S1 Pendidikan Fisika",
-    "S1 Pendidikan Guru SD (PGSD)",
-    "S1 Pendidikan Kimia",
-    "S1 Pendidikan Matematika",
-    "S1 Pendidikan Musik",
-    "S1 Pendidikan Sejarah",
-    "S1 Pendidikan Teologi",
-    "S1 Psikologi",
-    "S1 Sastra Inggris",
-    "S1 Sastra Indonesia",
-    "S1 Sastra Jepang",
-    "S1 Sistem Informasi",
-    "S1 Teknik Elektro",
-    "S1 Teknik Informatika",
-    "S1 Teknologi Pangan",
-    "S1 Teologi",
-    "S2 Kajian Bahasa Inggris",
-    "S2 Kajian Bahasa & Budaya Indonesia",
-    "S2 Pendidikan Bahasa Inggris",
-    "S2 Ilmu Religi & Budaya",
-    "S2 Pendidikan Teologi",
-    "S2 Manajemen Pendidikan",
-    "S2 Kajian Bahasa & Budaya Jawa",
-    "S3 Kajian Ilmu Pendidikan",
-    "S3 Kajian Budaya",
-  ];
+  // DROPDOWN DATA
+  const tipePekerjaan = ["Full-time", "Part-time", "Contract", "Internship", "Freelance"];
+  const tingkatPengalaman = ["Entry Level", "Junior", "Mid Level", "Senior", "Lead/Manager"];
+  const rangeGaji = ["< Rp3.000.000", "Rp3–5 Juta", "Rp5–8 Juta", "Rp8–12 Juta", "> Rp12 Juta"];
+  const kota = ["Jakarta", "Bandung", "Surabaya", "Yogyakarta", "Semarang", "Medan", "Bali", "Derpo", "Bekasi", "Remote"];
+  const daftarProdi = ["S1 Informatika", "S1 Ilmu Komunikasi", "S1 Manajemen", "S1 Psikologi", "S1 Teknik Elektro"];
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100 py-8 px-4">
       <div className="max-w-5xl mx-auto">
 
-        {/* ================= HEADER ================ */}
+        {/* HEADER */}
         <div className="bg-gradient-to-r from-[#800000] to-[#b22222] rounded-2xl shadow-xl p-8 mb-8 text-white">
           <div className="flex justify-between items-start">
-            <div>
-              <div className="flex items-center gap-3 mb-3">
-                <div className="bg-white/20 backdrop-blur-sm p-3 rounded-xl">
-                  <Briefcase className="w-8 h-8" />
-                </div>
-                <div>
-                  <h1 className="text-3xl font-bold">Buat Lowongan Baru</h1>
-                  <p className="text-white/90 text-sm mt-1">
-                    Lengkapi informasi lowongan pekerjaan Anda
-                  </p>
-                </div>
+            <div className="flex items-center gap-3 mb-3">
+              <div className="bg-white/20 p-3 rounded-xl">
+                <Briefcase className="w-8 h-8" />
+              </div>
+              <div>
+                <h1 className="text-3xl font-bold">Buat Lowongan Baru</h1>
+                <p className="text-white/90 text-sm">Lengkapi informasi lowongan pekerjaan</p>
               </div>
             </div>
 
             <button
               onClick={() => router.back()}
-              className="bg-white/20 hover:bg-white/30 backdrop-blur-sm p-2 rounded-lg transition-all"
+              className="bg-white/20 hover:bg-white/30 p-2 rounded-lg"
             >
               <X className="w-6 h-6" />
             </button>
           </div>
         </div>
 
-        <button
-          onClick={() => router.back()}
-          className="flex items-center gap-2 text-gray-600 hover:text-[#800000]"
-        >
-          <ArrowLeft className="w-4 h-4" /> Kembali
-        </button>
-
-        {/* ================= FORM ================= */}
+        {/* FORM */}
         <div className="bg-white shadow-xl rounded-2xl overflow-hidden">
           <form onSubmit={handleSubmit}>
 
             {/* INFORMASI DASAR */}
             <div className="p-8 border-b border-gray-100">
-              <h2 className="text-xl font-bold text-gray-800 mb-6 flex items-center gap-2">
-                <Building2 className="w-5 h-5 text-[#800000]" />
-                Informasi Dasar
+              <h2 className="text-xl font-bold mb-6 flex items-center gap-2 text-gray-800">
+                <Building2 className="w-5 h-5 text-[#800000]" /> Informasi Dasar
               </h2>
 
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-6 text-black">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
 
-                <div className="md:col-span-2">
-                  <InputField
-                    label="Nama Posisi"
-                    name="nama_posisi"
-                    value={form.nama_posisi}
-                    onChange={handleChange}
-                    placeholder="Contoh: Senior Web Developer"
-                    icon={<Briefcase className="w-5 h-5 text-gray-400" />}
-                  />
-                </div>
+                <InputField
+                  label="Nama Posisi"
+                  name="nama_posisi"
+                  value={form.nama_posisi}
+                  onChange={handleChange}
+                  placeholder="Contoh: Web Developer"
+                  icon={<Briefcase className="w-5 h-5 text-gray-400" />}
+                  className="md:col-span-2"
+                />
 
                 <SelectField
                   label="Tipe Pekerjaan"
@@ -280,129 +198,118 @@ export default function TambahLowongan() {
                 />
 
                 <SelectField
-                  label="Program Studi (Prodi)"
+                  label="Program Studi"
                   name="prodi"
                   value={form.prodi}
                   onChange={handleChange}
                   options={daftarProdi}
                   icon={<GraduationCap className="w-5 h-5 text-gray-400" />}
                 />
-                <InputField
-                    label="Keahlian"
-                    name="keahlian"
-                    value={form.keahlian}
-                    onChange={handleChange}
-                    placeholder="Contoh: Public Speaking"
-                    icon={<Briefcase className="w-5 h-5 text-gray-400" />}
+
+                {/* === MULTISELECT KEAHLIAN === */}
+                <div className="md:col-span-2">
+                  <label className="font-semibold text-gray-700">Keahlian (maks 5)</label>
+
+                  <input
+                    type="text"
+                    placeholder="Cari keahlian..."
+                    value={searchSkill}
+                    onChange={(e) => setSearchSkill(e.target.value)}
+                    className="w-full border rounded-xl px-4 py-3 mt-2 mb-2"
                   />
+
+                  <div className="max-h-44 overflow-y-auto border rounded-xl p-2 bg-white">
+                    {filteredSkills.map((skill, idx) => (
+                      <div
+                        key={idx}
+                        onClick={() => handleSkillClick(skill)}
+                        className={`cursor-pointer px-3 py-2 rounded-lg mb-1 border transition-all ${
+                          keahlianList.includes(skill)
+                            ? "bg-red-100 border-red-300 text-red-700"
+                            : "hover:bg-gray-100 border-gray-300"
+                        }`}
+                      >
+                        {skill}
+                      </div>
+                    ))}
+                  </div>
+
+                  <div className="flex flex-wrap gap-2 mt-3">
+                    {keahlianList.map((skill, idx) => (
+                      <span
+                        key={idx}
+                        className="px-3 py-1 bg-red-50 text-red-700 rounded-full flex items-center gap-2"
+                      >
+                        {skill}
+                        <button
+                          onClick={() => handleSkillClick(skill)}
+                          className="font-bold"
+                        >
+                          ×
+                        </button>
+                      </span>
+                    ))}
+                  </div>
+                </div>
+
               </div>
             </div>
 
             {/* DESKRIPSI */}
-            <div className="p-8 bg-gray-50 border-b border-gray-100 text-black">
-              <h2 className="text-xl font-bold text-gray-800 mb-6 flex items-center gap-2">
-                <FileText className="w-5 h-5 text-[#800000]" />
-                Deskripsi & Kualifikasi
-              </h2>
+            <div className="p-8 border-b bg-gray-50">
+              <TextAreaField
+                label="Deskripsi Pekerjaan"
+                name="deskripsi_pekerjaan"
+                value={form.deskripsi_pekerjaan}
+                onChange={handleChange}
+                placeholder="Tuliskan deskripsi pekerjaan..."
+              />
 
-              <div className="space-y-6">
-                <TextAreaField
-                  label="Deskripsi Pekerjaan"
-                  name="deskripsi_pekerjaan"
-                  value={form.deskripsi_pekerjaan}
-                  onChange={handleChange}
-                  placeholder="Tuliskan deskripsi pekerjaan..."
-                  rows="5"
-                />
-
-                <TextAreaField
-                  label="Kualifikasi"
-                  name="kualifikasi"
-                  value={form.kualifikasi}
-                  onChange={handleChange}
-                  placeholder="• Minimal S1 ..."
-                  rows="5"
-                />
-              </div>
+              <TextAreaField
+                label="Kualifikasi"
+                name="kualifikasi"
+                value={form.kualifikasi}
+                onChange={handleChange}
+                placeholder="Contoh: minimal S1..."
+              />
             </div>
 
             {/* KOMPENSASI */}
-            <div className="p-8 text-black">
-              <h2 className="text-xl font-bold mb-6 flex items-center gap-2">
-                <DollarSign className="w-5 h-5 text-[#800000]" />
-                Kompensasi & Lokasi
-              </h2>
+            <div className="p-8">
+              <SelectField
+                label="Range Gaji"
+                name="gaji"
+                value={form.gaji}
+                onChange={handleChange}
+                options={rangeGaji}
+                icon={<DollarSign className="w-5 h-5 text-gray-400" />}
+              />
 
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              <SelectField
+                label="Lokasi"
+                name="lokasi"
+                value={form.lokasi}
+                onChange={handleChange}
+                options={kota}
+                icon={<MapPin className="w-5 h-5 text-gray-400" />}
+              />
 
-                {isSuperAdmin && (
-                  <SelectField
-                    label="Pilih Perusahaan"
-                    name="id_admin"
-                    value={form.id_admin}
-                    onChange={handleChange}
-                    options={daftarPerusahaan.map((p) => ({
-                      value: p.id_admin,
-                      label: p.nama_perusahaan,
-                    }))}
-                    icon={<Building2 className="w-5 h-5 text-gray-400" />}
-                  />
-                )}
-
-                <SelectField
-                  label="Range Gaji"
-                  name="gaji"
-                  value={form.gaji}
-                  onChange={handleChange}
-                  options={rangeGaji}
-                  icon={<DollarSign className="w-5 h-5 text-gray-400" />}
-                />
-
-                <SelectField
-                  label="Lokasi Kerja"
-                  name="lokasi"
-                  value={form.lokasi}
-                  onChange={handleChange}
-                  options={kota}
-                  icon={<MapPin className="w-5 h-5 text-gray-400" />}
-                />
-
-                <div className="md:col-span-2">
-                  <label className="block text-sm font-semibold text-gray-700 mb-2">
-                    Link Eksternal (Opsional)
-                  </label>
-                  <input
-                    type="url"
-                    name="external_url"
-                    value={form.external_url}
-                    placeholder="https://website-perusahaan.com/career"
-                    onChange={(e) =>
-                      setForm({ ...form, external_url: e.target.value })
-                    }
-                    className="w-full border-2 border-gray-200 rounded-xl px-4 py-3 focus:ring-2 focus:ring-[#800000]/20"
-                  />
-                </div>
-
-                <div className="md:col-span-2">
-                  <InputField
-                    label="Tanggal Penutupan Pendaftaran"
-                    name="tanggal_ditutup"
-                    type="date"
-                    value={form.tanggal_ditutup}
-                    onChange={handleChange}
-                    icon={<CalendarDays className="w-5 h-5 text-gray-400" />}
-                  />
-                </div>
-
-              </div>
+              <InputField
+                label="Tanggal Penutupan"
+                name="tanggal_ditutup"
+                type="date"
+                value={form.tanggal_ditutup}
+                onChange={handleChange}
+                icon={<CalendarDays className="w-5 h-5 text-gray-400" />}
+              />
             </div>
 
             {/* BUTTON SUBMIT */}
-            <div className="px-8 py-6 bg-gray-50 border-t border-gray-100 flex gap-4">
+            <div className="px-8 py-6 bg-gray-50 border-t flex gap-4">
               <button
                 type="button"
                 onClick={() => router.back()}
-                className="text-black flex-1 border-2 border-gray-300 hover:bg-gray-100 py-3 rounded-xl"
+                className="flex-1 border py-3 rounded-xl"
               >
                 Batal
               </button>
@@ -410,26 +317,12 @@ export default function TambahLowongan() {
               <button
                 type="submit"
                 disabled={isSubmitting}
-                className="flex-1 bg-gradient-to-r from-[#800000] to-[#b22222] text-white py-3 rounded-xl"
+                className="flex-1 bg-[#800000] text-white py-3 rounded-xl"
               >
                 {isSubmitting ? "Menyimpan..." : "Publikasikan Lowongan"}
               </button>
             </div>
-
           </form>
-        </div>
-
-        {/* TIPS */}
-        <div className="mt-6 bg-blue-50 border border-blue-200 rounded-xl p-6">
-          <h3 className="font-semibold text-blue-900 mb-2 flex items-center gap-2">
-            <FileText className="w-5 h-5" />
-            Tips Membuat Lowongan yang Menarik
-          </h3>
-          <ul className="text-sm text-blue-800 space-y-1 ml-7">
-            <li>• Tulis deskripsi pekerjaan yang jelas dan detail</li>
-            <li>• Sebutkan benefit perusahaan</li>
-            <li>• Gunakan bahasa profesional namun ramah</li>
-          </ul>
         </div>
 
       </div>
@@ -437,94 +330,65 @@ export default function TambahLowongan() {
   );
 }
 
-// COMPONENTS DI DALAM FILE 
+/* =============== COMPONENTS =============== */
 
-// 🟦 INPUT FIELD KOMPONEN
 function InputField({ label, name, value, onChange, type = "text", placeholder, icon }) {
   return (
     <div>
-      <label className="block text-sm font-semibold text-gray-700 mb-2">
-        {label}
-      </label>
+      <label className="block font-semibold text-gray-700 mb-2">{label}</label>
       <div className="relative">
-        {icon && (
-          <div className="absolute left-4 top-1/2 -translate-y-1/2 z-10">
-            {icon}
-          </div>
-        )}
+        {icon && <div className="absolute left-3 top-1/2 -translate-y-1/2">{icon}</div>}
         <input
           type={type}
           name={name}
           value={value}
           placeholder={placeholder}
           onChange={onChange}
-          className={`w-full border-2 border-gray-200 rounded-xl px-4 py-3 ${icon ? "pl-12" : ""
-            } focus:border-[#800000] focus:ring-2 focus:ring-[#800000]/20 outline-none transition-all hover:border-gray-300`}
+          className={`w-full border rounded-xl px-4 py-3 ${icon ? "pl-12" : ""}`}
         />
       </div>
     </div>
   );
 }
 
-// 🟦 TEXT AREA FIELD
-function TextAreaField({ label, name, value, onChange, placeholder, rows = 4, icon }) {
-  return (
-    <div>
-      <label className="block text-sm font-semibold text-gray-700 mb-2">
-        {label}
-      </label>
-      <div className="relative">
-        {icon && <div className="absolute left-4 top-4 z-10">{icon}</div>}
-        <textarea
-          name={name}
-          value={value}
-          placeholder={placeholder}
-          rows={rows}
-          onChange={onChange}
-          className={`w-full border-2 border-gray-200 rounded-xl px-4 py-3 ${icon ? "pl-12" : ""
-            } focus:border-[#800000] focus:ring-2 focus:ring-[#800000]/20 outline-none transition-all hover:border-gray-300 resize-none`}
-        />
-      </div>
-    </div>
-  );
-}
-
-// 🟦 SELECT FIELD
 function SelectField({ label, name, value, onChange, options, icon }) {
   return (
     <div>
-      <label className="block text-sm font-semibold text-gray-700 mb-2">
-        {label}
-      </label>
+      <label className="block font-semibold text-gray-700 mb-2">{label}</label>
       <div className="relative">
-        {icon && (
-          <div className="absolute left-4 top-1/2 -translate-y-1/2 z-10">
-            {icon}
-          </div>
-        )}
+        {icon && <div className="absolute left-3 top-1/2 -translate-y-1/2">{icon}</div>}
         <select
           name={name}
           value={value}
           onChange={onChange}
-          className={`w-full border-2 border-gray-200 rounded-xl px-4 py-3 ${icon ? "pl-12" : ""
-            } focus:border-[#800000] focus:ring-2 focus:ring-[#800000]/20 outline-none transition-all hover:border-gray-300 appearance-none bg-white cursor-pointer`}
+          className={`w-full border rounded-xl px-4 py-3 ${icon ? "pl-12" : ""}`}
         >
           <option value="">Pilih {label}</option>
-          {Array.isArray(options)
-            ? options.map((item, idx) =>
-              typeof item === "string" ? (
-                <option key={idx} value={item}>
-                  {item}
-                </option>
-              ) : (
-                <option key={idx} value={item.value}>
-                  {item.label}
-                </option>
-              )
+          {options.map((item, i) =>
+            typeof item === "string" ? (
+              <option key={i} value={item}>{item}</option>
+            ) : (
+              <option key={i} value={item.value}>{item.label}</option>
             )
-            : null}
+          )}
         </select>
       </div>
+    </div>
+  );
+}
+
+function TextAreaField({ label, name, value, onChange, placeholder }) {
+  return (
+    <div className="mt-4">
+      <label className="block font-semibold text-gray-700 mb-2">{label}</label>
+      <textarea
+        name={name}
+        value={value}
+        placeholder={placeholder}
+        onChange={onChange}
+        rows="4"
+        className="w-full border rounded-xl px-4 py-3"
+      ></textarea>
     </div>
   );
 }
