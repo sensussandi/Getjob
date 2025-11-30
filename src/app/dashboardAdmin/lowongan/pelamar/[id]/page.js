@@ -13,7 +13,7 @@ export default function DetailPelamar() {
 
   useEffect(() => {
     const load = async () => {
-      const res = await fetch(`/api/lowongan/detail?id_lowongan=${id}`);
+      const res = await fetch(`/api/lowongan/pelamar?id_lowongan=${id}`);
       const json = await res.json();
 
       if (json.success) {
@@ -52,10 +52,21 @@ export default function DetailPelamar() {
         </button>
 
         {/* === TITLE === */}
-        <h1 className="text-3xl font-bold text-gray-900">{loker?.nama_posisi}</h1>
+        <h1 className="text-3xl font-bold text-gray-900">
+          {loker?.nama_posisi}
+        </h1>
+
         <p className="text-gray-600 mt-1 mb-8">
-          Daftar pencari kerja yang melamar lowongan ini
+          Total pelamar: <span className="font-semibold text-gray-900">{pelamar.length}</span>
         </p>
+
+        <div className="flex gap-4 text-sm text-gray-700 mb-8">
+          <span>Menunggu: {pelamar.filter(p => p.status_pendaftaran === "menunggu").length}</span>
+          <span>Diterima: {pelamar.filter(p => p.status_pendaftaran === "diterima").length}</span>
+          <span>Ditolak: {pelamar.filter(p => p.status_pendaftaran === "tidak").length}</span>
+        </div>
+
+
 
         {/* === LIST PELAMAR === */}
         {pelamar.length === 0 ? (

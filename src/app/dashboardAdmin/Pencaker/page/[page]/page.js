@@ -118,8 +118,14 @@ export default function PencakerPage({ params }) {
       filtered = filtered.filter((u) => u.prodi === selectedProdi);
     }
 
+    const start = (currentPage - 1) * itemsPerPage;
+    const end = start + itemsPerPage;
+
+    setFilteredData(filtered.slice(start, end));
+
+
     setFilteredData(filtered);
-  }, [searchQuery, selectedProdi, data]);
+  }, [searchQuery, selectedProdi, data, currentPage]);
 
   const totalPages = Math.ceil(stats.pencaker / itemsPerPage);
 

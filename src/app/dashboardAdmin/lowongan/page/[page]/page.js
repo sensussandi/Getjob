@@ -25,6 +25,7 @@ export default function LowonganPaged({ params }) {
   const currentPage = Number(page) || 1;
   const itemsPerPage = 9;
   const [searchQuery, setSearchQuery] = useState("");
+  const [pelamar, setPelamar] = useState([]);
   const [selectedProdi, setSelectedProdi] = useState("");
   const [filteredData, setFilteredData] = useState([]);
   const [allProdi, setAllProdi] = useState([]);
@@ -94,7 +95,7 @@ export default function LowonganPaged({ params }) {
   useEffect(() => {
     let filtered = data;
 
-    // FILTER SEARCH (nama posisi, perusahaan, lokasi)
+    // FILTER SEARCH
     if (searchQuery.trim()) {
       const q = searchQuery.toLowerCase();
       filtered = filtered.filter((l) =>
@@ -111,15 +112,21 @@ export default function LowonganPaged({ params }) {
       );
     }
 
-    setFilteredData(filtered);
-  }, [searchQuery, selectedProdi, data]);
+    // === LIMIT PER PAGE DI BAGIAN INI ===
+    const start = (currentPage - 1) * itemsPerPage;
+    const end = start + itemsPerPage;
+
+    setFilteredData(filtered.slice(start, end));
+
+  }, [searchQuery, selectedProdi, data, currentPage]);
+
 
 
   const totalPages = Math.ceil(stats.lowongan / itemsPerPage);
 
   const goToPage = (p) => {
     if (p < 1 || p > totalPages) return;
-    router.push(`/dashboardPerusahaan/lowongan/page/${p}`);
+    router.push(`/dashboardAdmin/lowongan/page/${p}`);
   };
 
   const handleDeleteLowongan = async (id) => {
@@ -357,11 +364,17 @@ export default function LowonganPaged({ params }) {
                     </button>
 
                     <button
-                      onClick={() => router.push(`/dashboardAdmin/lowongan/detail/${job.id_lowongan}`)}
-                      className="text-sm font-medium text-blue-600 hover:underline flex items-center gap-1"
+                      onClick={() => router.push(`/dashboardAdmin/lowongan/pelamar/${job.id_lowongan}`)}
+                      className="text-sm font-medium text-blue-600 hover:underline flex items-center gap-1 relative"
                     >
-                      <Users className="w-4 h-4" /> Detail
+                      <Users className="w-4 h-4" /> Pelamar
+
+                      {/* Badge jumlah pelamar */}
+                      <span className="ml-1 px-2 py-0.5 text-xs rounded-full bg-blue-100 text-blue-700 border border-blue-300">
+                        {job.jumlah_pelamar ?? 0}
+                      </span>
                     </button>
+
 
                     <button
                       onClick={() => handleDeleteLowongan(job.id_lowongan)}

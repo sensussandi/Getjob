@@ -530,10 +530,15 @@ function LowonganSection({ dataLowongan, router, handleDeleteLowongan }) {
                   </button>
 
                   <button
-                    onClick={() => router.push(`/dashboardAdmin/lowongan/detail/${job.id_lowongan}`)}
-                    className="text-sm font-medium text-blue-600 hover:underline flex items-center gap-1"
+                    onClick={() => router.push(`/dashboardAdmin/lowongan/pelamar/${job.id_lowongan}`)}
+                    className="text-sm font-medium text-blue-600 hover:underline flex items-center gap-1 relative"
                   >
-                    <Users className="w-4 h-4" /> Detail
+                    <Users className="w-4 h-4" /> Pelamar
+
+                    {/* Badge jumlah pelamar */}
+                    <span className="ml-1 px-2 py-0.5 text-xs rounded-full bg-blue-100 text-blue-700 border border-blue-300">
+                      {job.jumlah_pelamar ?? 0}
+                    </span>
                   </button>
 
                   <button

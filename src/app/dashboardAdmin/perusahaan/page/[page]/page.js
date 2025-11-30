@@ -93,18 +93,23 @@ export default function PerusahaanPage({ params }) {
   }, [currentPage]);
 
   useEffect(() => {
-    if (!searchQuery.trim()) {
-      setFilteredData(data);
-      return;
-    }
+  let filtered = data;
 
+  // === SEARCH ===
+  if (searchQuery.trim()) {
     const lower = searchQuery.toLowerCase();
-    setFilteredData(
-      data.filter((p) =>
-        p.nama_perusahaan.toLowerCase().includes(lower)
-      )
+    filtered = filtered.filter((p) =>
+      p.nama_perusahaan.toLowerCase().includes(lower)
     );
-  }, [searchQuery, data]);
+  }
+
+  // === PAGINATION (POTONG 9 ITEM PER PAGE) ===
+  const start = (currentPage - 1) * itemsPerPage;
+  const end = start + itemsPerPage;
+
+  setFilteredData(filtered.slice(start, end));
+}, [searchQuery, data, currentPage]);
+
 
 
   const totalPages = Math.ceil(stats.perusahaan / itemsPerPage);

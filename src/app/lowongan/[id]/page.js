@@ -65,10 +65,10 @@ export default function DetailLowongan() {
 
       if (data.success) {
         alert("Lamaran berhasil dikirim!");
-        router.push("/dashboardMHS/");
+        router.back();
       } else if (data.already) {
         alert("Anda sudah melamar lowongan ini.");
-        router.push("/dashboardMHS/");
+        router.back();
       } else {
         alert("Gagal mengirim lamaran.");
       }
