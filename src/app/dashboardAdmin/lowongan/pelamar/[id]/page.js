@@ -9,21 +9,26 @@ export default function DetailPelamar() {
 
   const [loading, setLoading] = useState(true);
   const [pelamar, setPelamar] = useState([]);
+  const [filtered, setFiltered] = useState([]);
   const [loker, setLoker] = useState(null);
   const [selectedUser, setSelectedUser] = useState(null);
+
+  const [kategori, setKategori] = useState("semua");
+  const [search, setSearch] = useState("");
 
   useEffect(() => {
     if (!id) return;
 
     const load = async () => {
       try {
-      const res = await fetch(`/api/lowongan/pelamar/${id}`);
-      const json = await res.json();
+        const res = await fetch(`/api/lowongan/pelamar/${id}`);
+        const json = await res.json();
 
-      if (json.success) {
-        setPelamar(json.pelamar);
-        setLoker(json.lowongan);
-      } else {
+        if (json.success) {
+          setPelamar(json.pelamar);
+          setFiltered(json.pelamar); // default
+          setLoker(json.lowongan);
+        } else {
           console.error("Gagal memuat data:", json.message);
         }
       } catch (err) {
@@ -35,6 +40,29 @@ export default function DetailPelamar() {
 
     load();
   }, [id]);
+
+  // === FILTER + SEARCH SYSTEM ===
+  useEffect(() => {
+    let data = [...pelamar];
+
+    // Filter kategori
+    if (kategori !== "semua") {
+      data = data.filter((p) => p.status_pendaftaran === kategori);
+    }
+
+    // Search
+    if (search.trim() !== "") {
+      const q = search.toLowerCase();
+      data = data.filter(
+        (p) =>
+          p.nama_lengkap.toLowerCase().includes(q) ||
+          String(p.nim).includes(q)
+      );
+    }
+
+    setFiltered(data);
+  }, [kategori, search, pelamar]);
+
 
   const getStatusBadge = (status) => {
     const styles = {
@@ -69,6 +97,32 @@ export default function DetailPelamar() {
           Total pelamar: <span className="font-semibold text-gray-900">{pelamar.length}</span>
         </p>
 
+      {/* === FILTER + SEARCH === */}
+        <div className="flex flex-col md:flex-row items-center justify-between gap-4 mb-6">
+          
+          {/* FILTER */}
+          <select
+            value={kategori}
+            onChange={(e) => setKategori(e.target.value)}
+            className="border rounded-lg p-2 text-gray-700"
+          >
+            <option value="semua">Semua Status</option>
+            <option value="menunggu">Menunggu</option>
+            <option value="diterima">Diterima</option>
+            <option value="tidak">Ditolak</option>
+          </select>
+
+          {/* SEARCH */}
+          <input
+            type="text"
+            placeholder="Cari berdasarkan NIM atau Nama..."
+            className="border rounded-lg p-2 w-full md:w-1/2 text-gray-700"
+            value={search}
+            onChange={(e) => setSearch(e.target.value)}
+          />
+        </div>
+
+        {/* === STATISTIK === */}
         <div className="flex gap-4 text-sm text-gray-700 mb-8">
           <span>Menunggu: {pelamar.filter(p => p.status_pendaftaran === "menunggu").length}</span>
           <span>Diterima: {pelamar.filter(p => p.status_pendaftaran === "diterima").length}</span>
@@ -76,15 +130,14 @@ export default function DetailPelamar() {
         </div>
 
 
-
         {/* === LIST PELAMAR === */}
-        {pelamar.length === 0 ? (
+        {filtered.length === 0 ? (
           <p className="text-gray-500 border p-5 bg-white rounded-xl shadow text-center">
-            Belum ada pelamar.
+            Tidak ada pelamar.
           </p>
         ) : (
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-            {pelamar.map((u) => (
+            {filtered.map((u) => (
               <div
                 key={u.nim}
                 className="p-6 bg-white rounded-2xl border shadow-sm hover:shadow-lg transition"
@@ -131,6 +184,8 @@ export default function DetailPelamar() {
                           <p><b>Program Studi:</b> {selectedUser.prodi}</p>
                           <p><b>Email:</b> {selectedUser.email}</p>
                           <p><b>No Telepon:</b> {selectedUser.no_telephone}</p>
+                          <p><b>Alamat:</b> {selectedUser.alamat}</p>
+                          <p><b>tentang_anda:</b> {selectedUser.tentang_anda}</p>
 
                           {selectedUser.linkedin && (
                             <p>

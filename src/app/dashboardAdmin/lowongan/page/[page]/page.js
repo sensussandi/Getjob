@@ -24,6 +24,7 @@ export default function LowonganPaged({ params }) {
   const { page } = use(params);
   const currentPage = Number(page) || 1;
   const itemsPerPage = 9;
+  const [sortPelamar, setSortPelamar] = useState("");
   const [searchQuery, setSearchQuery] = useState("");
   const [pelamar, setPelamar] = useState([]);
   const [selectedProdi, setSelectedProdi] = useState("");
@@ -123,13 +124,21 @@ export default function LowonganPaged({ params }) {
       );
     }
 
+    // SORTING PELAMAR
+    if (sortPelamar === "asc") {
+      filtered = [...filtered].sort((a, b) => (a.jumlah_pelamar ?? 0) - (b.jumlah_pelamar ?? 0));
+    } else if (sortPelamar === "desc") {
+      filtered = [...filtered].sort((a, b) => (b.jumlah_pelamar ?? 0) - (a.jumlah_pelamar ?? 0));
+    }
+
+
     // === LIMIT PER PAGE DI BAGIAN INI ===
     const start = (currentPage - 1) * itemsPerPage;
     const end = start + itemsPerPage;
 
     setFilteredData(filtered.slice(start, end));
 
-  }, [searchQuery, selectedProdi, data, currentPage]);
+}, [searchQuery, selectedProdi, sortPelamar, data, currentPage]);
 
 
 
@@ -356,6 +365,17 @@ export default function LowonganPaged({ params }) {
 
             {/* Search bar + Dropdown */}
             <div className="flex flex-col sm:flex-row gap-3 w-full lg:w-auto">
+
+              {/* SORT BY JUMLAH PELAMAR */}
+              <select
+                value={sortPelamar}
+                onChange={(e) => setSortPelamar(e.target.value)}
+                className="px-4 py-2 rounded-lg border border-gray-300 w-full sm:w-56 focus:ring-2 focus:ring-[#800000] outline-none text-black"
+              >
+                <option value="">Urutkan Jumlah Pelamar</option>
+                <option value="asc">Paling Sedikit → Banyak</option>
+                <option value="desc">Paling Banyak → Sedikit</option>
+              </select>
 
               {/* SEARCH INPUT */}
               <div className="relative w-full sm:w-64 text-black">
