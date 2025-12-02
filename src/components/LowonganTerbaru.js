@@ -10,7 +10,7 @@ import {
 } from "lucide-react";
 import { useEffect, useState } from "react";
 
-// Fungsi untuk format tanggal Indonesia 
+// Fungsi untuk format tanggal Indonesia
 function formatTanggal(tanggal) {
   if (!tanggal) return "-";
   try {
@@ -110,7 +110,7 @@ export default function LowonganTerbaru() {
                 className="bg-white rounded-2xl border border-gray-200 hover:border-[#800000]/30 hover:shadow-2xl transition-all duration-300 overflow-hidden group cursor-pointer"
               >
                 {/* Company Header with Gradient */}
-                <div className="bg-gradient-to-r from-[#800000] to-[#b22222] p-5">
+                <div className="bg-gradient-                  -r from-[#800000] to-[#b22222] p-5">
                   <div className="flex items-center gap-3">
                     <div className="w-12 h-12 bg-white rounded-xl flex items-center justify-center flex-shrink-0">
                       <Building2 className="w-6 h-6 text-[#800000]" />
@@ -179,25 +179,13 @@ export default function LowonganTerbaru() {
                   </div>
 
                   {/* Apply Button */}
-                  {job.external_url ? (
-                    <a
-                      href={job.external_url}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="w-full mt-5 bg-[#800000] hover:bg-[#5c0000] text-white py-3 rounded-xl font-semibold flex items-center justify-center gap-2 transition-all group-hover:shadow-lg"
-                    >
-                      <span>Lamar Sekarang</span>
-                      <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
-                    </a>
-                  ) : (
-                    <a
-                      href={`/lowongan/${job.id_lowongan}`}
-                      className="w-full mt-5 bg-[#800000] hover:bg-[#5c0000] text-white py-3 rounded-xl font-semibold flex items-center justify-center gap-2 transition-all group-hover:shadow-lg"
-                    >
-                      <span>Lamar Sekarang</span>
-                      <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
-                    </a>
-                  )}
+                  <a
+                    href={`/lowongan/${job.id_lowongan}`}
+                    className="w-full mt-5 bg-[#800000] hover:bg-[#5c0000] text-white py-3 rounded-xl font-semibold flex items-center justify-center gap-2 transition-all group-hover:shadow-lg"
+                  >
+                    <span>Lamar Sekarang</span>
+                    <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
+                  </a>
                 </div>
               </div>
             ))}

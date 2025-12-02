@@ -4,7 +4,16 @@ import mysql from "mysql2/promise";
 export async function POST(req) {
   try {
     const body = await req.json();
-    const { id_lowongan, id_mahasiswa } = body;
+    console.log("LAMARAN BODY:", body);
+
+    const { id_lowongan, nim } = body;
+
+    if (!id_lowongan || !nim) {
+      return NextResponse.json(
+        { success: false, message: "Data tidak lengkap!" },
+        { status: 400 }
+      );
+    }
 
     const db = await mysql.createConnection({
       host: "localhost",
@@ -13,11 +22,13 @@ export async function POST(req) {
       database: "getjob_db",
     });
 
-    // Cek apakah user sudah pernah melamar
+    // Cek sudah pernah melamar
     const [cek] = await db.query(
-      `SELECT * FROM mendaftar WHERE id_lowongan=? AND id_mahasiswa=?`,
-      [id_lowongan, id_mahasiswa]
+      "SELECT * FROM mendaftar WHERE id_lowongan=? AND nim=?",
+      [id_lowongan, nim]
     );
+
+    console.log("CHECK DUPLICATE:", cek);
 
     if (cek.length > 0) {
       return NextResponse.json({
@@ -27,18 +38,18 @@ export async function POST(req) {
     }
 
     await db.query(
-      `INSERT INTO mendaftar (id_lowongan, id_mahasiswa, tanggal) VALUES (?, ?, NOW())`,
-      [id_lowongan, id_mahasiswa]
+      `INSERT INTO mendaftar (id_lowongan, nim, status_pendaftaran, tanggal_daftar)
+      VALUES (?, ?, 'menunggu', NOW())`,
+      [id_lowongan, nim]
     );
 
     await db.end();
 
     return NextResponse.json({ success: true });
-
   } catch (err) {
-    console.error(err);
+    console.error("LAMARAN ERROR:", err);
     return NextResponse.json(
-      { success: false, message: "Gagal mengirim lamaran" },
+      { success: false, message: "Server error." },
       { status: 500 }
     );
   }

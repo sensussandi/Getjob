@@ -3,37 +3,24 @@ import mysql from "mysql2/promise";
 
 export async function POST(req) {
   try {
-    const body = await req.json();
+    // Sementara ID admin hardcoded (nanti ambil dari session)
+    const { searchParams } = new URL(req.url);
+    const id_admin =  searchParams.get("id_admin");
 
-    const {
-      nama_posisi,
-      deskripsi_pekerjaan,
-      kualifikasi,
-      gaji,
-      lokasi,
-      tanggal_ditutup,
-      external_url,
-      tipe_pekerjaan,
-      tingkat_pengalaman,
-      prodi,
-    } = body;
-
-    // Validasi wajib
-    if (
-      !nama_posisi ||
-      !deskripsi_pekerjaan ||
-      !kualifikasi ||
-      !gaji ||
-      !lokasi ||
-      !tanggal_ditutup ||
-      !tipe_pekerjaan ||
-      !tingkat_pengalaman ||
-      !prodi
-    ) {
+    if (!id_admin) {
       return NextResponse.json(
-        { success: false, message: "Semua field wajib diisi." },
+        { success: false, message: "ID admin wajib dikirim" },
         { status: 400 }
       );
+    }
+    console.log("ID ADMIN DITERIMA:", id_admin);
+
+    const body = await req.json();
+
+    const { nama_posisi, deskripsi_pekerjaan, kualifikasi, gaji, lokasi, tanggal_ditutup, external_url, tipe_pekerjaan, tingkat_pengalaman, prodi, keahlian } = body;
+
+    if (!nama_posisi || !deskripsi_pekerjaan || !kualifikasi || !gaji || !lokasi || !tanggal_ditutup || !tipe_pekerjaan || !tingkat_pengalaman || !prodi || !keahlian) {
+      return NextResponse.json({ success: false, message: "Semua field wajib diisi." }, { status: 400 });
     }
 
     // Validasi URL eksternal (opsional)
@@ -42,15 +29,12 @@ export async function POST(req) {
     if (external_url && external_url.trim() !== "") {
       try {
         const parsed = new URL(external_url);
-        if (parsed.protocol !== "http:" && parsed.protocol !== "https:") {
-          throw new Error("URL tidak valid");
+        if (!["http:", "https:"].includes(parsed.protocol)) {
+          throw new Error("Invalid URL");
         }
         linkFinal = external_url;
       } catch {
-        return NextResponse.json(
-          { success: false, message: "Format link eksternal tidak valid!" },
-          { status: 400 }
-        );
+        return NextResponse.json({ success: false, message: "Format link eksternal tidak valid!" }, { status: 400 });
       }
     }
 
@@ -64,30 +48,15 @@ export async function POST(req) {
 
     const tanggal_dibuka = new Date().toISOString().split("T")[0];
 
-    // Sementara ID admin hardcoded (nanti ambil dari session)
-    const id_admin = 1;
 
     // Query lengkap INSERT
     const query = `
       INSERT INTO lowongan_kerja 
-      (id_admin, nama_posisi, tanggal_dibuka, tanggal_ditutup, deskripsi_pekerjaan, kualifikasi, gaji, lokasi, external_url, tipe_pekerjaan, tingkat_pengalaman, prodi)
-      VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+      (id_admin, nama_posisi, tanggal_dibuka, tanggal_ditutup, deskripsi_pekerjaan, kualifikasi, gaji, lokasi, external_url, tipe_pekerjaan, tingkat_pengalaman, prodi, keahlian)
+      VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
     `;
 
-    const values = [
-      id_admin,
-      nama_posisi,
-      tanggal_dibuka,
-      tanggal_ditutup,
-      deskripsi_pekerjaan,
-      kualifikasi,
-      gaji,
-      lokasi,
-      linkFinal,
-      tipe_pekerjaan,
-      tingkat_pengalaman,
-      prodi,
-    ];
+    const values = [id_admin, nama_posisi, tanggal_dibuka, tanggal_ditutup, deskripsi_pekerjaan, kualifikasi, gaji, lokasi, linkFinal, tipe_pekerjaan, tingkat_pengalaman, prodi, keahlian];
 
     await db.execute(query, values);
     await db.end();
@@ -96,12 +65,8 @@ export async function POST(req) {
       success: true,
       message: "Lowongan berhasil ditambahkan!",
     });
-
   } catch (err) {
     console.error("❌ Error tambah lowongan:", err);
-    return NextResponse.json(
-      { success: false, message: "Terjadi kesalahan pada server." },
-      { status: 500 }
-    );
+    return NextResponse.json({ success: false, message: "Terjadi kesalahan pada server." }, { status: 500 });
   }
 }

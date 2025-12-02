@@ -1,12 +1,19 @@
-import { NextResponse } from "next/server";
 import mysql from "mysql2/promise";
-// import bcrypt from "bcryptjs"; // kalau password kamu nanti mau di-hash
+import { NextResponse } from "next/server";
+import bcrypt from "bcryptjs";
 
-export async function POST(request) {
+export async function POST(req) {
   try {
-    const { email, password } = await request.json();
+    const { email, password } = await req.json();
 
-    // 🧩 Koneksi ke database
+    if (!email || !password) {
+      return NextResponse.json(
+        { success: false, message: "Email dan password wajib diisi!" },
+        { status: 400 }
+      );
+    }
+
+    // 🔹 Koneksi ke database
     const db = await mysql.createConnection({
       host: "localhost",
       user: "root",
@@ -14,50 +21,60 @@ export async function POST(request) {
       database: "getjob_db",
     });
 
-    // 🧠 Cek apakah email ada di tabel admin_perusahaan
-    const [rows] = await db.query(
-      `SELECT * FROM admin_perusahaan WHERE email_perusahaan = ?`,
+    // 🔹 Cek dulu di tabel admin_perusahaan
+    const [adminRows] = await db.execute(
+      "SELECT * FROM admin_perusahaan WHERE email_perusahaan = ?",
       [email]
     );
 
-    // Kalau tidak ditemukan
-    if (rows.length === 0) {
-      await db.end();
+    // 🔹 Jika tidak ditemukan di admin_perusahaan, cek di users
+    let user = null;
+    let tableType = "";
+
+    if (adminRows.length > 0) {
+      user = adminRows[0];
+      tableType = "admin_perusahaan";
+    } else {
+      const [userRows] = await db.execute(
+        "SELECT * FROM users WHERE email = ?",
+        [email]
+      );
+      if (userRows.length > 0) {
+        user = userRows[0];
+        tableType = "users";
+      }
+    }
+
+    await db.end();
+
+    // 🔹 Kalau tidak ditemukan di kedua tabel
+    if (!user) {
       return NextResponse.json(
-        { success: false, message: "Email tidak ditemukan." },
-        { status: 401 }
+        { success: false, message: "Email tidak ditemukan di sistem!" },
+        { status: 404 }
       );
     }
 
-    const user = rows[0];
+ 
 
-    // 🔐 Bandingkan password (plain text dulu, nanti bisa diganti bcrypt)
-    // if (password !== user.password) {
-    //   await db.end();
-    //   return NextResponse.json(
-    //     { success: false, message: "Password salah." },
-    //     { status: 401 }
-    //   );
-    // }
 
-    // ✅ Kalau email & password benar
-    await db.end();
+    // 🔹 Tentukan redirect sesuai role
+    let redirect = "/";
+    let role = user.role;
+
+
+    // ✅ Login berhasil
     return NextResponse.json({
       success: true,
-      message: "Login berhasil.",
-      perusahaan: {
-        id_admin: user.id_admin,
-        nama_admin: user.nama_admin,
-        nama_perusahaan: user.nama_perusahaan,
-        email: user.email_perusahaan,
-        alamat: user.alamat_perusahaan,
-        no_telepone: user.no_telepone,
-      },
+      message: "Login berhasil!",
+      redirect,
+    
+      data
     });
-  } catch (err) {
-    console.error("Error saat login:", err);
+  } catch (error) {
+    console.error("❌ Error saat login:", error);
     return NextResponse.json(
-      { success: false, message: "Terjadi kesalahan server." },
+      { success: false, message: "Terjadi kesalahan server!" },
       { status: 500 }
     );
   }

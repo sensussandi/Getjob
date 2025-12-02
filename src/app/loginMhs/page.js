@@ -1,95 +1,107 @@
 "use client";
-import { useState } from "react";
+import React, { useEffect, useState } from "react";
+import { useRouter } from "next/navigation";
 import { User, Lock, Eye, EyeOff, GraduationCap, X, Mail, Phone } from "lucide-react";
-import { signIn } from "next-auth/react";
+import { useSession, signIn } from "next-auth/react";
+
 
 export default function LoginMhs() {
   const [showPassword, setShowPassword] = useState(false);
-  const [rememberMe, setRememberMe] = useState(false); // State untuk checkbox "Ingat Saya"
+  const [rememberMeMHS, setRememberMeMHS] = useState(false); // State untuk checkbox "Ingat Saya"
+  const [error, setError] = useState("");
+  const [showForgotPassword, setShowForgotPassword] = useState(false);
+  const router = useRouter();
+  const { data: session, status } = useSession();
   const [formData, setFormData] = useState({
     nim: "",
     password: "",
-    nama_lengkap: "",
-    email: "",
-    no_telephone: "",
   });
+  //  AUTO REDIRECT jika sudah login
+  useEffect(() => {
+    if (status === "loading") return; // tunggu session selesai dicek
 
-  const handleChange = (e) => {
-    setFormData({ ...formData, [e.target.name]: e.target.value });
-  };
+    if (session?.user?.role === "alumni") {
+      router.push("/dashboardMHS");
+    }
+  }, [session, status]);
 
-  // const handleLogin = async () => {
-  //   if (!formData.nim || !formData.password) {
-  //     alert("NIM dan Password harus diisi!");
-  //     return;
-  //   }
+  useEffect(() => {
+    // Ambil data remember me
+    const saved = JSON.parse(localStorage.getItem("rememberMeMHSNIM"));
+    if (saved) {
+      setFormData({
+        nim: saved.nim,
+        password: saved.password,
+      });
+      setRememberMeMHS(true);
+    }
+  }, []);
 
-  //   try {
-  //     const response = await fetch("/api/loginMhs", {
-  //       method: "POST",
-  //       headers: { "Content-Type": "application/json" },
-  //       body: JSON.stringify(formData),
-  //     });
-
-  //     const result = await response.json();
-
-  //     if (response.ok && result.success) {
-  //       // Simpan seluruh data user ke localStorage
-  //       localStorage.setItem("user", JSON.stringify(result.data));
-
-  //       alert("Login berhasil!");
-  //       window.location.href = "/dashboardMHS";
-  //     } else {
-  //       alert(result.message || "Login gagal!");
-  //     }
-  //   } catch (error) {
-  //     console.error("Error:", error);
-  //     alert("Tidak bisa terhubung ke server!");
-  //   }
-  // };
-
-  // LOGIN menggunakan NextAuth
   const handleLogin = async (e) => {
     e.preventDefault();
+    setError("");
 
-    if (!formData.nim || !formData.password) {
-      alert("NIM dan Password harus diisi!");
+    // LOGIN MAHASISWA
+    let res = await signIn("alumni", {
+      redirect: false,
+      nim: formData.nim,
+      password: formData.password,
+      rememberMeMHS: rememberMeMHS,
+    });
+
+    if (res?.error) {
+      setError("NIM atau password salah!");
       return;
     }
 
-    try {
-      const res = await signIn("credentials", {
-        redirect: false,
-        nim: formData.nim, // Mengirim NIM ke backend
-        password: formData.password, // Mengirim password ke backend
-        callbackUrl: "/dashboardMHS", // redirect ke halaman dashboard mhs setelah login
-      });
+    // HARUS AMBIL SESSION BARU
+    const currentsession = await fetch("/api/auth/session").then((r) => r.json());
 
-      if (res.ok) {
-        await fetch("/api/auth/session?update", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ rememberMe }),
-        });
-
-        alert("Login berhasil!");
-        window.location.href = "/dashboardMHS";
+    if (currentsession?.user?.role === "alumni") {
+      if (rememberMeMHS) {
+        localStorage.setItem(
+          "rememberMeMHSNIM",
+          JSON.stringify({
+            nim: formData.nim,
+            password: formData.password,
+          })
+        );
       } else {
-        alert("NIM atau Password salah!");
+        localStorage.removeItem("rememberMeMHSNIM");
       }
-    } catch (error) {
-      console.error("Error:", error);
-      alert("Tidak bisa terhubung ke server!");
+      router.push("/dashboardMHS");
+    } else {
+      setError("Akses tidak diizinkan.");
     }
   };
 
-  const handleForgotPassword = () => {
-    const email = prompt("Masukkan email Anda untuk reset password:");
-    if (email) {
-      alert(`Link reset password telah dikirim ke ${email}`);
-      setShowForgotPassword(false);
+  const handleForgotPassword = async () => {
+  if (!formData.nim) {
+    alert("Masukkan NIM terlebih dahulu.");
+    return;
+  }
+
+  try {
+    const res = await fetch("/api/auth/request-reset", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ nim: formData.nim }),
+    });
+
+    const data = await res.json();
+
+    if (data.success) {
+      alert("Permintaan reset password berhasil dikirim. Admin akan segera mereset password Anda.");
+    } else {
+      alert("Gagal mengirim permintaan reset password.");
     }
-  };
+
+  } catch (error) {
+    console.error(error);
+    alert("Terjadi kesalahan koneksi.");
+  }
+};
+
 
   const handleCancel = () => {
     // Langsung redirect ke home tanpa konfirmasi
@@ -130,7 +142,7 @@ export default function LoginMhs() {
                   type="text"
                   name="nim"
                   value={formData.nim}
-                  onChange={handleChange}
+                  onChange={(e) => setFormData({ ...formData, nim: e.target.value })}
                   placeholder="Masukkan NIM"
                   className="w-full pl-12 pr-4 py-3 border text-black placeholder-gray-400 rounded-lg focus:ring-2 focus:ring-red-900 focus:border-transparent transition"
                 />
@@ -146,7 +158,7 @@ export default function LoginMhs() {
                   type={showPassword ? "text" : "password"}
                   name="password"
                   value={formData.password}
-                  onChange={handleChange}
+                  onChange={(e) => setFormData({ ...formData, password: e.target.value })}
                   placeholder="Masukkan Password"
                   className="w-full pl-12 pr-12 py-3 border text-black placeholder-gray-400 rounded-lg focus:ring-2 focus:ring-red-900 focus:border-transparent transition"
                 />
@@ -159,20 +171,13 @@ export default function LoginMhs() {
             {/* Forgot Password Link */}
             <div className="flex items-center justify-between mb-6">
               <label className="flex items-center cursor-pointer">
-                <input type="checkbox" checked={rememberMe} onChange={(e) => setRememberMe(e.target.checked)} className="w-4 h-4 text-red-900 border-gray-300 rounded focus:ring-2 focus:ring-red-900" />
+                <input type="checkbox" checked={rememberMeMHS} onChange={(e) => setRememberMeMHS(e.target.checked)} className="w-4 h-4 text-red-900 border-gray-300 rounded focus:ring-2 focus:ring-red-900" />
                 <span className="ml-2 text-sm text-gray-700">Ingat Saya</span>
               </label>
+
               <button type="button" onClick={handleForgotPassword} className="text-sm text-red-900 hover:text-red-700 font-medium transition">
                 Lupa Kata Sandi?
               </button>
-            </div>
-            <div className="text-center mt-6">
-              <p className="text-sm text-gray-600">
-                Belum punya akun?{" "}
-                <a href="/registrasiMHS" className="text-red-900 font-semibold hover:text-red-700 transition">
-                  Daftar di sini
-                </a>
-              </p>
             </div>
 
             {/* Login Button */}

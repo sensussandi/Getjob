@@ -1,21 +1,23 @@
 "use client";
+import useAdminPerusahaanAuth from "@/hooks/useAdminPerusahaanAuth";
 import React, { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
+import { useSession, signOut } from "next-auth/react";
 import {
   Briefcase,
   Users,
   TrendingUp,
-  Clock,
   CheckCircle,
   MapPin,
   Plus,
   Settings,
   Eye,
   CalendarDays,
-  Calendar,
   Building2,
   Mail,
-  ArrowUpRight,
+  ArrowRight,
+  Search,
+  Filter,
 } from "lucide-react";
 
 function formatTanggal(tanggal) {
@@ -24,10 +26,8 @@ function formatTanggal(tanggal) {
     const date = new Date(tanggal);
     if (isNaN(date)) return tanggal;
 
-    // Sesuaikan zona waktu WIB (+7 jam)
     const localDate = new Date(date.getTime() + 7 * 60 * 60 * 1000);
 
-    // Format ke bahasa Indonesia
     return localDate.toLocaleDateString("id-ID", {
       day: "2-digit",
       month: "long",
@@ -39,28 +39,37 @@ function formatTanggal(tanggal) {
 }
 
 export default function DashboardPerusahaan() {
+  useAdminPerusahaanAuth();
   const [data, setData] = useState(null);
+  const [showLogoutModal, setShowLogoutModal] = useState(false);
   const router = useRouter();
 
-  // ✅ Ambil data dari API Next.js (bukan dummy)
+  const { data: session, status } = useSession();
+
+  // === SEARCH & FILTER LOWONGAN ===
+  const [searchLowongan, setSearchLowongan] = useState("");
+  const [filterLokasi, setFilterLokasi] = useState("semua");
+
   useEffect(() => {
+    if (!session || session.user.role !== "admin") return;
+
     const fetchData = async () => {
-      try {
-        const res = await fetch("/api/perusahaan/dashboard");
-        const result = await res.json();
-        if (result.success) {
-          setData(result);
-        } else {
-          console.error("Gagal ambil data dashboard");
-        }
-      } catch (err) {
-        console.error("Error:", err);
+      const res = await fetch(
+        `/api/perusahaan/dashboard?id_admin=${session.user.id}`
+      );
+
+      const result = await res.json();
+
+      if (result.success) {
+        setData(result);
+      } else {
+        console.error(result.message);
       }
     };
-    fetchData();
-  }, []);
 
-  // ✅ Kalau data belum siap tampil loading
+    fetchData();
+  }, [session]);
+
   if (!data)
     return (
       <div className="flex flex-col justify-center items-center min-h-screen bg-gradient-to-br from-gray-50 to-gray-100">
@@ -74,8 +83,28 @@ export default function DashboardPerusahaan() {
       </div>
     );
 
-  // ✅ Ambil data dari hasil API
+  const handleLogout = () => {
+    signOut({
+      redirect: true,
+      callbackUrl: "/",
+    });
+  };
+
   const { admin, lowongan, pelamar, stats } = data;
+
+  // === FILTER & SEARCH LOWONGAN ===
+  const filteredLowongan = lowongan.filter((job) => {
+    const q = searchLowongan.toLowerCase();
+
+    const matchSearch =
+      job.nama_posisi.toLowerCase().includes(q) ||
+      job.deskripsi_pekerjaan.toLowerCase().includes(q);
+
+    const matchLokasi =
+      filterLokasi === "semua" ? true : job.lokasi === filterLokasi;
+
+    return matchSearch && matchLokasi;
+  });
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-gray-50 via-gray-100 to-gray-50">
@@ -85,14 +114,11 @@ export default function DashboardPerusahaan() {
           <div className="flex justify-between items-start">
             {/* Company Info */}
             <div className="flex items-start gap-4">
-              {/* LOGO PERUSAHAAN */}
               <div className="w-16 h-16 rounded-2xl overflow-hidden bg-gray-100 flex items-center justify-center shadow-lg">
-                {admin.logo_url ? (
+                {admin && admin.logo_url ? (
                   <img
                     src={
                       admin.logo_url.startsWith("http")
-                        ? admin.logo_url
-                        : admin.logo_url.startsWith("/")
                         ? admin.logo_url
                         : "/" + admin.logo_url
                     }
@@ -104,10 +130,9 @@ export default function DashboardPerusahaan() {
                 )}
               </div>
 
-              {/* INFORMASI PERUSAHAAN */}
               <div>
                 <h1 className="text-3xl font-bold text-gray-900 mb-1">
-                  {admin.nama_perusahaan}
+                  {admin?.nama_perusahaan || "Perusahaan"}
                 </h1>
                 <div className="flex items-center gap-4 text-sm text-gray-600 flex-wrap">
                   <span className="flex items-center gap-1">
@@ -145,6 +170,45 @@ export default function DashboardPerusahaan() {
                 <Settings className="w-5 h-5" />
                 <span>Pengaturan</span>
               </button>
+
+              <button
+                onClick={() => setShowLogoutModal(true)}
+                className="px-5 py-3 border-2 border-gray-300 text-gray-600 rounded-xl font-semibold hover:bg-red-50 transition-all flex items-center gap-2"
+              >
+                <span>Logout</span>
+              </button>
+
+              {showLogoutModal && (
+                <div className="fixed inset-0 bg-black/40 flex items-center justify-center z-50">
+                  <div className="bg-white p-6 rounded-xl shadow-lg w-[340px]">
+                    <h3 className="text-xl font-bold mb-2 text-gray-800">
+                      Konfirmasi Logout
+                    </h3>
+                    <p className="text-gray-600 mb-5">
+                      Apakah Anda yakin ingin logout dari akun ini?
+                    </p>
+
+                    <div className="flex justify-end gap-3">
+                      <button
+                        onClick={() => setShowLogoutModal(false)}
+                        className="px-4 py-2 text-black rounded-lg border border-gray-300 hover:bg-red-100"
+                      >
+                        Batal
+                      </button>
+
+                      <button
+                        onClick={() => {
+                          setShowLogoutModal(false);
+                          handleLogout();
+                        }}
+                        className="px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700"
+                      >
+                        Ya, Logout
+                      </button>
+                    </div>
+                  </div>
+                </div>
+              )}
             </div>
           </div>
         </div>
@@ -195,82 +259,133 @@ export default function DashboardPerusahaan() {
               </p>
             </div>
 
+            {/* SEARCH & FILTER LOWONGAN - DIPINDAHKAN KE SINI */}
+            <div className="bg-white p-5 rounded-xl shadow-md border border-gray-200">
+              <div className="flex flex-col md:flex-row gap-4">
+                {/* SEARCH INPUT */}
+                <div className="flex-1 relative">
+                  <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" />
+                  <input
+                    type="text"
+                    placeholder="Cari posisi atau deskripsi..."
+                    value={searchLowongan}
+                    onChange={(e) => setSearchLowongan(e.target.value)}
+                    className="w-full pl-11 pr-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#800000] focus:border-transparent outline-none transition-all duration-200"
+                  />
+                </div>
+
+                {/* FILTER LOKASI */}
+                <div className="relative md:w-56">
+                  <Filter className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" />
+                  <select
+                    value={filterLokasi}
+                    onChange={(e) => setFilterLokasi(e.target.value)}
+                    className="w-full pl-11 pr-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#800000] focus:border-transparent outline-none appearance-none cursor-pointer transition-all duration-200"
+                  >
+                    <option value="semua">Semua Lokasi</option>
+                    {[...new Set(lowongan.map((l) => l.lokasi))].map((lok) => (
+                      <option key={lok} value={lok}>
+                        {lok}
+                      </option>
+                    ))}
+                  </select>
+                </div>
+              </div>
+
+              {/* Result Count */}
+              <div className="mt-3 text-sm text-gray-600">
+                Menampilkan <span className="font-semibold text-[#800000]">{filteredLowongan.length}</span> dari {lowongan.length} lowongan
+              </div>
+            </div>
+
             {/* Job Cards */}
             <div className="space-y-5">
-              {lowongan.map((job) => (
-                <div
-                  key={job.id_lowongan}
-                  className="bg-white rounded-xl border border-gray-200 hover:border-[#800000]/30 hover:shadow-xl transition-all duration-300 overflow-hidden group"
-                >
-                  <div className="p-6">
-                    {/* Header Section */}
-                    <div className="flex items-start justify-between mb-4">
-                      <div className="flex-1">
-                        <h3 className="font-bold text-gray-900 text-xl mb-2 group-hover:text-[#800000] transition-colors">
-                          {job.nama_posisi}
-                        </h3>
-                        <div className="flex flex-wrap items-center gap-3 text-sm text-gray-600">
-                          <span className="flex items-center gap-1.5">
-                            <MapPin className="w-4 h-4" />
-                            {job.lokasi}
-                          </span>
-                          <span className="flex items-center gap-1.5">
-                            <CalendarDays className="w-4 h-4" />
-                            Tutup: {formatTanggal(job.tanggal_ditutup)}
-                          </span>
+              {filteredLowongan.length === 0 ? (
+                <div className="bg-white rounded-xl border border-gray-200 p-12 text-center">
+                  <Briefcase className="w-16 h-16 text-gray-300 mx-auto mb-4" />
+                  <h3 className="text-lg font-semibold text-gray-900 mb-2">
+                    Tidak ada lowongan ditemukan
+                  </h3>
+                  <p className="text-gray-500 text-sm">
+                    Coba ubah kata kunci pencarian atau filter lokasi
+                  </p>
+                </div>
+              ) : (
+                filteredLowongan.map((job) => (
+                  <div
+                    key={job.id_lowongan}
+                    className="bg-white rounded-xl border border-gray-200 hover:border-[#800000]/30 hover:shadow-xl transition-all duration-300 overflow-hidden group"
+                  >
+                    <div className="p-6">
+                      {/* Header Section */}
+                      <div className="flex items-start justify-between mb-4">
+                        <div className="flex-1">
+                          <h3 className="font-bold text-gray-900 text-xl mb-2 group-hover:text-[#800000] transition-colors">
+                            {job.nama_posisi}
+                          </h3>
+                          <div className="flex flex-wrap items-center gap-3 text-sm text-gray-600">
+                            <span className="flex items-center gap-1.5">
+                              <MapPin className="w-4 h-4" />
+                              {job.lokasi}
+                            </span>
+                            <span className="flex items-center gap-1.5">
+                              <CalendarDays className="w-4 h-4" />
+                              Tutup: {formatTanggal(job.tanggal_ditutup)}
+                            </span>
+                          </div>
                         </div>
+                        <span className="bg-green-100 text-green-700 text-xs px-3 py-1.5 rounded-full font-semibold flex items-center gap-1.5 ml-4">
+                          <div className="w-2 h-2 bg-green-500 rounded-full animate-pulse"></div>
+                          {job.status}
+                        </span>
                       </div>
-                      <span className="bg-green-100 text-green-700 text-xs px-3 py-1.5 rounded-full font-semibold flex items-center gap-1.5 ml-4">
-                        <div className="w-2 h-2 bg-green-500 rounded-full animate-pulse"></div>
-                        {job.status}
-                      </span>
-                    </div>
 
-                    {/* Description */}
-                    <p className="text-sm text-gray-600 mb-5 line-clamp-2 leading-relaxed">
-                      {job.deskripsi_pekerjaan}
-                    </p>
+                      {/* Description */}
+                      <p className="text-sm text-gray-600 mb-5 line-clamp-2 leading-relaxed">
+                        {job.deskripsi_pekerjaan}
+                      </p>
 
-                    {/* Metrics Bar */}
-                    <div className="flex items-center justify-between pt-4 border-t border-gray-100">
-                      <div className="flex items-center gap-6">
-                        <div className="flex items-center gap-2">
-                          <div className="bg-blue-50 p-2 rounded-lg">
-                            <Eye className="w-4 h-4 text-blue-600" />
+                      {/* Metrics Bar */}
+                      <div className="flex items-center justify-between pt-4 border-t border-gray-100">
+                        <div className="flex items-center gap-6">
+                          <div className="flex items-center gap-2">
+                            <div className="bg-blue-50 p-2 rounded-lg">
+                              <Eye className="w-4 h-4 text-blue-600" />
+                            </div>
+                            <div>
+                              <p className="font-semibold text-gray-900 text-sm">
+                                {job.views}
+                              </p>
+                              <p className="text-xs text-gray-500">Views</p>
+                            </div>
                           </div>
-                          <div>
-                            <p className="font-semibold text-gray-900 text-sm">
-                              {job.views}
-                            </p>
-                            <p className="text-xs text-gray-500">Views</p>
+                          <div className="flex items-center gap-2">
+                            <div className="bg-purple-50 p-2 rounded-lg">
+                              <Users className="w-4 h-4 text-purple-600" />
+                            </div>
+                            <div>
+                              <p className="font-semibold text-gray-900 text-sm">
+                                {job.jumlah_pelamar}
+                              </p>
+                              <p className="text-xs text-gray-500">Pelamar</p>
+                            </div>
                           </div>
                         </div>
-                        <div className="flex items-center gap-2">
-                          <div className="bg-purple-50 p-2 rounded-lg">
-                            <Users className="w-4 h-4 text-purple-600" />
-                          </div>
-                          <div>
-                            <p className="font-semibold text-gray-900 text-sm">
-                              {job.jumlah_pelamar}
-                            </p>
-                            <p className="text-xs text-gray-500">Pelamar</p>
-                          </div>
-                        </div>
+                        <button
+                          onClick={() =>
+                            router.push(
+                              `/dashboardPerusahaan/lowongan/edit/${job.id_lowongan}`
+                            )
+                          }
+                          className="px-4 py-2 bg-[#800000] text-white rounded-lg text-sm font-medium hover:bg-[#5c0000] transition-all opacity-0 group-hover:opacity-100"
+                        >
+                          Kelola
+                        </button>
                       </div>
-                      <button
-                        onClick={() =>
-                          router.push(
-                            `/dashboardPerusahaan/lowongan/edit/${job.id_lowongan}`
-                          )
-                        }
-                        className="px-4 py-2 bg-[#800000] text-white rounded-lg text-sm font-medium hover:bg-[#5c0000] transition-all opacity-0 group-hover:opacity-100"
-                      >
-                        Kelola
-                      </button>
                     </div>
                   </div>
-                </div>
-              ))}
+                ))
+              )}
             </div>
           </div>
 
@@ -291,42 +406,59 @@ export default function DashboardPerusahaan() {
 
             {/* Applicant Cards */}
             <div className="space-y-4">
-              {pelamar.map((p) => (
-                <div
-                  key={p.id}
-                  className="bg-white border border-gray-200 rounded-xl p-5 hover:border-[#800000]/30 hover:shadow-lg transition-all duration-300 cursor-pointer group"
-                >
-                  <div className="flex items-start gap-3 mb-3">
-                    <div className="w-12 h-12 bg-gradient-to-br from-[#800000] to-[#b22222] rounded-full flex items-center justify-center text-white font-bold text-lg flex-shrink-0">
-                      {p.nama_pelamar.charAt(0)}
-                    </div>
-                    <div className="flex-1 min-w-0">
-                      <h4 className="font-semibold text-gray-900 group-hover:text-[#800000] transition-colors truncate">
-                        {p.nama_pelamar}
-                      </h4>
-                      <p className="text-sm text-gray-600 truncate">
-                        {p.nama_posisi}
-                      </p>
-                    </div>
-                  </div>
+              {pelamar
+                .sort(
+                  (a, b) =>
+                    new Date(b.tanggal_input) - new Date(a.tanggal_input)
+                )
+                .slice(0, 3)
+                .map((p) => (
+                  <div
+                    key={p.id}
+                    className="bg-white border border-gray-200 rounded-xl p-5 hover:border-[#800000]/30 hover:shadow-lg transition-all duration-300 cursor-pointer group"
+                  >
+                    <div className="flex items-start gap-3 mb-3">
+                      <div className="w-12 h-12 bg-gradient-to-br from-[#800000] to-[#b22222] rounded-full flex items-center justify-center text-white font-bold text-lg flex-shrink-0">
+                        {p.nama_pelamar.charAt(0)}
+                      </div>
 
-                  <div className="flex justify-between items-center pt-3 border-t border-gray-100">
-                    <span
-                      className={`text-xs px-3 py-1.5 rounded-full font-semibold ${
-                        p.status === "Baru"
-                          ? "bg-orange-100 text-orange-700"
-                          : "bg-[#800000] text-white"
-                      }`}
-                    >
-                      {p.status}
-                    </span>
-                    <span className="text-xs text-gray-500 flex items-center gap-1">
-                      <Clock className="w-3.5 h-3.5" />
-                      {p.tanggal_input}
-                    </span>
+                      <div className="flex-1 min-w-0">
+                        <h4 className="font-semibold text-gray-900 group-hover:text-[#800000] transition-colors truncate">
+                          {p.nama_pelamar}
+                        </h4>
+                        <p className="text-sm text-gray-600 truncate">
+                          {p.nama_posisi}
+                        </p>
+                      </div>
+                    </div>
+
+                    <div className="flex justify-between items-center pt-3 border-t border-gray-100">
+                      <span
+                        className={`text-xs px-3 py-1.5 rounded-full font-semibold ${
+                          p.status === "Baru"
+                            ? "bg-orange-100 text-orange-700"
+                            : "bg-[#800000] text-white"
+                        }`}
+                      >
+                        {p.status}
+                      </span>
+                    </div>
                   </div>
-                </div>
-              ))}
+                ))}
+            </div>
+
+            {/* Tombol Lihat Semua Pelamar */}
+            <div className="text-center mt-6">
+              <button
+                onClick={() =>
+                  router.push("/dashboardPerusahaan/semuaPelamar")
+                }
+                className="group inline-flex items-center gap-2 px-6 py-3 bg-gradient-to-r from-[#800000] to-[#a00000] text-white font-semibold rounded-lg shadow-lg hover:shadow-xl hover:scale-105 transition-all duration-300"
+              >
+                <Users className="w-5 h-5" />
+                Lihat Semua Kandidat
+                <ArrowRight className="w-5 h-5 group-hover:translate-x-1 transition-transform duration-300" />
+              </button>
             </div>
           </div>
         </div>
