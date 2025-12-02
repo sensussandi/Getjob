@@ -2,15 +2,15 @@
 import usePencakerAuth from "@/hooks/usePencakerAuth";
 import { useState, useEffect } from "react";
 import { useRouter, usePathname } from "next/navigation";
-import { Home, Briefcase, User, Settings, ChevronLeft, ChevronRight, BookOpen } from "lucide-react";
+import { Home, Briefcase, User, Settings, LogOut, ChevronLeft, ChevronRight, BookOpen } from "lucide-react";
 import { useSession, signOut } from "next-auth/react";
 
 export default function Sidebar() {
   usePencakerAuth();
   const router = useRouter();
   const pathname = usePathname();
+  const [data, setData] = useState(null);
   const { data: session } = useSession();
-
   const [isCollapsed, setIsCollapsed] = useState(false);
   const [activeMenu, setActiveMenu] = useState("");
   const [showLogoutModal, setShowLogoutModal] = useState(false); // button logout
@@ -57,6 +57,12 @@ export default function Sidebar() {
     else if (pathname.startsWith("/lihatLokerSaya")) setActiveMenu("lihatLokerSaya");
     else if (pathname.startsWith("/editProfileMHS")) setActiveMenu("edit_profile");
   }, [pathname]);
+
+  const handleLogout = () => {
+    signOut({ 
+      redirect: true,
+      callbackUrl: "/" });
+  };
 
   const menuItems = [
     { id: "dashboard", icon: Home, label: "Dashboard", href: "/dashboardMHS" },
