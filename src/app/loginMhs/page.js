@@ -75,13 +75,33 @@ export default function LoginMhs() {
     }
   };
 
-  const handleForgotPassword = () => {
-    const email = prompt("Masukkan email Anda untuk reset password:");
-    if (email) {
-      alert(`Link reset password telah dikirim ke ${email}`);
-      setShowForgotPassword(false);
+  const handleForgotPassword = async () => {
+  if (!formData.nim) {
+    alert("Masukkan NIM terlebih dahulu.");
+    return;
+  }
+
+  try {
+    const res = await fetch("/api/auth/request-reset", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ nim: formData.nim }),
+    });
+
+    const data = await res.json();
+
+    if (data.success) {
+      alert("Permintaan reset password berhasil dikirim. Admin akan segera mereset password Anda.");
+    } else {
+      alert("Gagal mengirim permintaan reset password.");
     }
-  };
+
+  } catch (error) {
+    console.error(error);
+    alert("Terjadi kesalahan koneksi.");
+  }
+};
+
 
   const handleCancel = () => {
     // Langsung redirect ke home tanpa konfirmasi
@@ -154,6 +174,7 @@ export default function LoginMhs() {
                 <input type="checkbox" checked={rememberMeMHS} onChange={(e) => setRememberMeMHS(e.target.checked)} className="w-4 h-4 text-red-900 border-gray-300 rounded focus:ring-2 focus:ring-red-900" />
                 <span className="ml-2 text-sm text-gray-700">Ingat Saya</span>
               </label>
+
               <button type="button" onClick={handleForgotPassword} className="text-sm text-red-900 hover:text-red-700 font-medium transition">
                 Lupa Kata Sandi?
               </button>

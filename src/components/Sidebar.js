@@ -13,7 +13,39 @@ export default function Sidebar() {
 
   const [isCollapsed, setIsCollapsed] = useState(false);
   const [activeMenu, setActiveMenu] = useState("");
-  const [showLogoutModal, setShowLogoutModal] = useState(false);
+  const [showLogoutModal, setShowLogoutModal] = useState(false); // button logout
+  const [userName, setUserName] = useState("Memuat...");
+  const [userRole, setUserRole] = useState("pencari_kerja");
+
+  // 🔥 FIX ACTIVE MENU BERDASARKAN URL
+  useEffect(() => {
+    if (!session || session.user.role !== "alumni") return;
+    const fetchData = async () => {
+      const res = await fetch(`/api/pencari_kerja?nim=${session.user.id}`);
+
+      const result = await res.json();
+
+      if (result.success) {
+        setData(result);
+      }
+    };
+    if (!pathname) return;
+
+    if (pathname.startsWith("/dashboardMHS/rekomendasi")) {
+      setActiveMenu("loker");
+    } else if (pathname.startsWith("/dashboardMHS")) {
+      setActiveMenu("dashboard");
+    } else if (pathname.startsWith("/lamaran")) {
+      setActiveMenu("lamaran");
+    } else if (pathname.startsWith("/statistik")) {
+      setActiveMenu("statistik");
+    } else if (pathname.startsWith("/lihatLokerSaya")) {
+      setActiveMenu("lihatLokerSaya");
+    } else if (pathname.startsWith("/pengaturan")) {
+      setActiveMenu("pengaturan");
+    }
+    fetchData();
+  }, [session]);
 
   const user = session?.user;
 
@@ -61,58 +93,66 @@ export default function Sidebar() {
         })}
       </nav>
 
-      {/* USER PANEL */}
-      {!isCollapsed && (
-        <div className="bg-gradient-to-br from-red-50 to-orange-50 rounded-xl p-4 border mt-6">
-          {/* FOTO USER */}
-          <div className="flex items-center gap-3 mb-4">
-            <img
-              src={user?.foto ? `/uploads/${user.foto}` : "/default-avatar.jpg"}
-              alt="Foto User"
-              className="w-12 h-12 rounded-full object-cover border-2 border-red-800"
-              onError={(e) => {
-                e.target.src = "/default-avatar.jpg";
-              }}
-            />
-
-            <div>
-              <p className="font-semibold text-gray-900 text-sm">{user?.name || user?.nama_lengkap || "User"}</p>
-              <p className="text-xs text-gray-500">{user?.role || "pencari_kerja"}</p>
+      {/* === USER + LOGOUT FIXED DI BAWAH === */}
+      <div className={`absolute bottom-4 left-4 right-4 
+  ${isCollapsed ? "left-2 right-2" : ""}
+`}>
+        <div className="bg-gray-50 rounded-xl p-4 border shadow-sm">
+          <div className="flex items-center gap-3 mb-3">
+            <div className="w-10 h-10 bg-gradient-to-br from-red-900 to-red-700 rounded-full flex items-center justify-center">
+              <User className="w-5 h-5 text-white" />
             </div>
+
+            {!isCollapsed && (
+              <div>
+                <p className="font-semibold text-gray-900 text-sm truncate">{userName}</p>
+                <p className="text-xs text-gray-500 truncate">{userRole}</p>
+              </div>
+            )}
           </div>
 
           {/* TOMBOL LOGOUT */}
-          <button onClick={() => setShowLogoutModal(true)} className="w-full px-5 py-3 border-2 border-gray-300 text-gray-600 rounded-xl font-semibold hover:bg-red-50 transition-all flex items-center gap-2 justify-center">
-            Logout
-          </button>
-
-          {/* MODAL LOGOUT */}
-          {showLogoutModal && (
-            <div className="fixed inset-0 bg-black/40 flex items-center justify-center z-50">
-              <div className="bg-white p-6 rounded-xl shadow-lg w-[340px]">
-                <h3 className="text-xl font-bold mb-2 text-gray-800">Konfirmasi Logout</h3>
-                <p className="text-gray-600 mb-5">Apakah Anda yakin ingin keluar?</p>
-
-                <div className="flex justify-end gap-3">
-                  <button onClick={() => setShowLogoutModal(false)} className="px-4 py-2 text-black rounded-lg border border-gray-300 hover:bg-red-100">
-                    Batal
-                  </button>
-
-                  <button
-                    onClick={() => {
-                      setShowLogoutModal(false);
-                      signOut({ redirect: true, callbackUrl: "/" });
-                    }}
-                    className="px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700"
-                  >
-                    Ya, Logout
-                  </button>
-                </div>
-              </div>
-            </div>
+          {!isCollapsed && (
+            <button
+              onClick={() => setShowLogoutModal(true)}
+              className="w-full py-2 border border-gray-300 text-gray-600 rounded-lg hover:bg-red-50 transition flex items-center justify-center gap-2"
+            >
+              <LogOut className="w-4 h-4" />
+              Logout
+            </button>
           )}
         </div>
+      </div>
+      {showLogoutModal && (
+        <div className="fixed inset-0 bg-black/40 flex items-center justify-center z-[9999]">
+          <div className="bg-white p-6 rounded-xl shadow-xl w-[340px]">
+            <h3 className="text-xl font-bold mb-2 text-gray-800">Konfirmasi Logout</h3>
+            <p className="text-gray-600 mb-5">
+              Apakah Anda yakin ingin logout dari akun ini?
+            </p>
+
+            <div className="flex justify-end gap-3">
+              <button
+                onClick={() => setShowLogoutModal(false)}
+                className="px-4 py-2 text-black rounded-lg border border-gray-300 hover:bg-red-100"
+              >
+                Batal
+              </button>
+
+              <button
+                onClick={() => {
+                  setShowLogoutModal(false);
+                  handleLogout();
+                }}
+                className="px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700"
+              >
+                Ya, Logout
+              </button>
+            </div>
+          </div>
+        </div>
       )}
+
     </aside>
   );
 }

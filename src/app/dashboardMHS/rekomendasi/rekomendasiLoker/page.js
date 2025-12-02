@@ -35,9 +35,8 @@ export default function RekomendasiPage() {
     "Farmasi", "Psikologi", "Ilmu Komunikasi", "Manajemen", "Akuntansi",
     "Ekonomi", "Pendidikan Bahasa Inggris", "Pendidikan Bahasa Indonesia",
     "Pendidikan Fisika", "Pendidikan Biologi", "Pendidikan Guru SD",
-    "Bimbingan dan Konseling", "Arsitektur", "Sastra Inggris",
-    "Sastra Indonesia", "Sastra Jerman", "Sastra Prancis",
-    "Ilmu Hukum", "Keperawatan", "Teknik Mesin", "Teknik Sipil"
+    "Bimbingan dan Konseling", "Sastra Inggris","Sastra Indonesia",
+    "Teknik Mesin"
   ];
 
   // === Keahlian & Minat Lengkap ===
@@ -61,6 +60,8 @@ export default function RekomendasiPage() {
     "Perawat", "Apoteker", "Analis Kesehatan", "Laboran",
     // Umum
     "Admin Kantor", "Barista", "Kasir", "Event Organizer", "Customer Support"
+    // psikolog
+    ,"Story telling", "Psikolog Industri & Organisasi", "Psikolog Pendidikan"
   ];
 
   const handleKeahlianChange = (skill) => {
@@ -89,7 +90,7 @@ export default function RekomendasiPage() {
       const res = await fetch("/api/pencari_kerja/updateprofil", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ nim: session?.user?.nim, prodi, keahlian }),
+        body: JSON.stringify({ nim: session?.user?.id, prodi, keahlian }),
       });
 
       const result = await res.json();

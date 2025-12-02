@@ -1,12 +1,24 @@
 import { useState } from "react";
 import { Search, MapPin, Briefcase, ChevronDown, ChevronUp } from "lucide-react";
+import { useRouter } from "next/navigation";
 
 export default function HeroSection() {
+  const router = useRouter();
   const [keyword, setKeyword] = useState("");
   const [location, setLocation] = useState("");
   const [category, setCategory] = useState("");
   const [showLocationDropdown, setShowLocationDropdown] = useState(false);
   const [showCategoryDropdown, setShowCategoryDropdown] = useState(false);
+  const handleSearch = () => {
+    const params = new URLSearchParams({
+      keyword: keyword || "",
+      lokasi: location || "",
+      kategori: category || "",
+    });
+
+    router.push(`/cari-loker?${params.toString()}`);
+  };
+
 
   const locations = [
     "Jakarta", "Bandung", "Surabaya", "Semarang", "Yogyakarta",
@@ -27,14 +39,8 @@ export default function HeroSection() {
     cat.toLowerCase().includes(category.toLowerCase())
   );
 
-  const handleSearch = () => {
-    alert(
-      `Mencari: ${keyword || "semua"} di ${location || "semua lokasi"} kategori ${category || "semua"}`
-    );
-  };
-
   return (
-    <section className="relative bg-gradient-to-br from-[#800000] via-[#900000] to-[#700000] text-white py-16 overflow-hidden">
+    <section className="relative bg-gradient-to-br from-[#800000] via-[#900000] to-[#700000] text-white py-16 overflow-visible">
       {/* Background Pattern */}
       <div className="absolute inset-0 opacity-10">
         <div className="absolute top-0 right-0 w-96 h-96 bg-white rounded-full blur-3xl animate-pulse"></div>

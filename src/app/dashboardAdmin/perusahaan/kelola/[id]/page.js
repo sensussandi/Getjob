@@ -67,8 +67,8 @@ export default function DetailPerusahaan() {
 
       const result = await res.json();
       if (result.success) {
-        setMessage("✅ Perusahaan berhasil diperbarui!");
-        setTimeout(() => router.push("/dashboardAdmin"), 1500);
+        alert("✅ Perusahaan berhasil diperbarui!");
+        setTimeout(() => router.back(), 150);
       } else {
         setMessage("❌ Gagal memperbarui data");
       }
@@ -84,7 +84,7 @@ export default function DetailPerusahaan() {
     <div className="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100 p-8">
       <div className="max-w-3xl mx-auto bg-white p-8 rounded-2xl shadow-xl">
         <div className="flex items-center justify-between mb-6">
-          <h1 className="text-2xl font-bold text-gray-800">Tambah Data Perusahaan</h1>
+          <h1 className="text-2xl font-bold text-gray-800">Kelola Data Perusahaan</h1>
           <button
             onClick={() => router.back()}
             className="flex items-center gap-2 text-gray-600 hover:text-[#800000]"
@@ -97,7 +97,7 @@ export default function DetailPerusahaan() {
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <Input label="Nama Perusahaan" name="nama_perusahaan" value={formData.nama_perusahaan} onChange={handleChange} required />
             <Input label="Email Perusahaan" name="email_perusahaan" value={formData.email_perusahaan} onChange={handleChange} required />
-            <Input label="Password" name="password" type={showPassword ? "text" : "password"} onChange={handleChange} required togglePassword={() => setShowPassword(!showPassword)}/>
+            <Input label="Password" name="password" type={showPassword ? "text" : "password"} onChange={handleChange} togglePassword={() => setShowPassword(!showPassword)}/>
             <Input label="No. Telepon" name="no_telepone" value={formData.no_telepone} onChange={handleChange} />
             <Input label="Logo URL (opsional)" name="logo_url" value={formData.logo_url} onChange={handleChange} />
           </div>

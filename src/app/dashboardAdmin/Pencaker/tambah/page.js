@@ -52,7 +52,7 @@ export default function RegisterPage() {
         alert("Berhasil menambahkan.");
         const confirmExit = confirm("Apakah Anda ingin keluar?");
         if (confirmExit) {
-          router.push("/dashboardAdmin");
+          router.back();
         } else {
           // RESET FORM SAJA
           setFormData({
@@ -206,70 +206,66 @@ export default function RegisterPage() {
           </div>
 
           {/* Program Studi */}
+          
           <div>
-            <label className="block font-medium mb-1 text-black">Program Studi</label>
-            <select
+            <EditableSelectField
+              label="Program Studi"
               name="prodi"
               value={formData.prodi}
               onChange={handleChange}
-              className="w-full border rounded-lg px-3 py-2 text-black"
-              required
-            >
-              <option value="">Pilih Prodi</option>
-              <option value="Informatika">Informatika</option>
-              <option value="Teknik Mesin">Teknik Mesin</option>
-              <option value="Teknik Elektro">Teknik Elektro</option>
-              <option value="Matematika">Matematika</option>
-              <option value="Biologi">Biologi</option>
-              <option value="Fisika">Fisika</option>
-              <option value="Biologi">Biologi</option>
-              <option value="Farmasi">Farmasi</option>
-              <option value="Psikologi">Psikologi</option>
-              <option value="Ilmu Komunikasi">Ilmu Komunikasi</option>
-              <option value="Manajemen">Manajemen</option>
-              <option value="Akuntasi">Akuntasi</option>
-              <option value="Ekonomi">Ekonomi</option>
-              <option value="Pendidikan Bahasa Inggris">Pendidikan Bahasa Inggris</option>
-              <option value="Pendidikan Bahasa Indonesia">Pendidikan Bahasa Indonesia</option>
-              <option value="Pendidikan Fisika">Pendidikan Fisika</option>
-              <option value="Pendidikan Biologi">Pendidikan Biologi</option>
-              <option value="Pendidikan Guru SD">Pendidikan Guru SD</option>
-              <option value="Bimbingan dan Konseling">Bimbingan dan Konseling</option>
-              <option value="Arsitektur">Arsitektur</option>
-              <option value="Sastra Inggris">Sastra Inggris</option>
-              <option value="Sastra Indonesia">Sastra Indonesia</option>
-              <option value="Sastra Jerman">Sastra Jerman</option>
-              <option value="Sastra Prancis">Sastra Prancis</option>
-              <option value="Ilmu Hukum">Ilmu Hukum</option>
-              <option value="Keperawatan">Keperawatan</option>
-              <option value="Teknik Mesin">Teknik Mesin</option>
-              <option value="Teknik Sipil">Teknik Sipil</option>
-            </select>
+              options={[
+                "Informatika",
+                "Teknik Mesin",
+                "Teknik Elektro",
+                "Matematika",
+                "Biologi",
+                "Fisika",
+                "Farmasi",
+                "Psikologi",
+                "Ilmu Komunikasi",
+                "Manajemen",
+                "Akuntasi",
+                "Ekonomi",
+                "Pendidikan Bahasa Inggris",
+                "Pendidikan Bahasa Indonesia",
+                "Pendidikan Fisika",
+                "Pendidikan Biologi",
+                "Pendidikan Guru SD",
+                "Bimbingan dan Konseling",
+                "Arsitektur",
+                "Sastra Inggris",
+                "Sastra Indonesia",
+                "Sastra Jerman",
+                "Sastra Prancis",
+                "Ilmu Hukum",
+                "Keperawatan",
+                "Teknik Sipil",
+              ]}
+            />
           </div>
 
           {/* Pendidikan Terakhir */}
           <div>
-            <label className="block font-medium mb-1 text-black">Pendidikan Terakhir</label>
-            <select
+            <EditableSelectField
+              label="Pendidikan Terakhir"
               name="pendidikan_terakhir"
               value={formData.pendidikan_terakhir}
               onChange={handleChange}
-              className="w-full border rounded-lg px-3 py-2 text-black"
-              required
-            >
-              <option value="">Pilih Pendidikan</option>
-              <option value="SDMI">SD / MI (Sekolah Dasar / Madrasah Ibtidaiyah)</option>
-              <option value="SMPMTs">SMP / MTs (Sekolah Menengah Pertama / Madrasah Tsanawiyah)</option>
-              <option value="SMAMA">SMA / MA (Sekolah Menengah Atas / Madrasah Aliyah)</option>
-              <option value="SMK">SMK (Sekolah Menengah Kejuruan)</option>
-              <option value="D1">D1 (Diploma 1)</option>
-              <option value="D2">D2 (Diploma 2)</option>
-              <option value="D3">D3 (Diploma 3 / Ahli Madya)</option>
-              <option value="D4">D4 / Sarjana Terapan</option>
-              <option value="S1">S1 (Strata 1)</option>
-              <option value="S2">S2 (Strata 2 / Magister)</option>
-              <option value="S3">S3 (Strata 3 / Doktor)</option>
-            </select>
+              options={[
+                "SD / MI",
+                "SMP / MTs",
+                "SMA / MA",
+                "SMK",
+                "D1",
+                "D2",
+                "D3",
+                "D4",
+                "S1",
+                "S2",
+                "S3",
+              ]}
+            />
+
           </div>
 
           {/* LinkedIn */}
@@ -315,6 +311,84 @@ export default function RegisterPage() {
           </button>
         </form>
       </div>
+    </div>
+  );
+}
+
+function EditableSelectField({ label, name, value, onChange, options, icon }) {
+  const [showDropdown, setShowDropdown] = useState(false);
+  const [filter, setFilter] = useState(value || "");
+
+  const normalizeText = (opt) => {
+    if (typeof opt === "string") return opt;
+    if (typeof opt === "object") return opt.label || "";
+    return "";
+  };
+
+  const filteredOptions = options.filter((opt) =>
+    normalizeText(opt).toLowerCase().includes(filter.toLowerCase())
+  );
+
+  const handleSelect = (opt) => {
+    if (typeof opt === "string") {
+      onChange({ target: { name, value: opt } });
+      setFilter(opt);
+    } else {
+      onChange({ target: { name, value: opt.value } });
+      setFilter(opt.label);
+    }
+    setShowDropdown(false);
+  };
+
+  return (
+    <div className="relative">
+      <label className="block text-sm font-semibold text-gray-700 mb-2">
+        {label}
+      </label>
+
+      <div className="relative">
+        {icon && (
+          <div className="absolute left-4 top-1/2 -translate-y-1/2 z-10">
+            {icon}
+          </div>
+        )}
+
+        <input
+          name={name}
+          value={filter}
+          placeholder={`Pilih atau ketik ${label}`}
+          onChange={(e) => {
+            setFilter(e.target.value);
+            setShowDropdown(true);
+            onChange({ target: { name, value: e.target.value } });
+          }}
+          onFocus={() => setShowDropdown(true)}
+          className={`w-full border-2 border-gray-200 rounded-xl px-4 py-3 ${icon ? "pl-12" : ""
+            } focus:border-[#800000] focus:ring-2 focus:ring-[#800000]/20`}
+        />
+      </div>
+
+      {showDropdown && (
+        <div className="absolute w-full bg-white border border-gray-200 mt-1 rounded-xl shadow-lg max-h-52 overflow-y-auto z-50">
+          {filteredOptions.length === 0 ? (
+            <p className="px-4 py-2 text-gray-500 text-sm">Tidak ada pilihan</p>
+          ) : (
+            filteredOptions.map((opt, idx) => {
+              const text = normalizeText(opt);
+              return (
+                <button
+                  key={idx}
+                  type="button"
+                  onClick={() => handleSelect(opt)}
+                  className="w-full text-left px-4 py-2 hover:bg-gray-100 text-gray-700"
+                >
+                  {text}
+                </button>
+              );
+            })
+          )}
+        </div>
+      )}
     </div>
   );
 }

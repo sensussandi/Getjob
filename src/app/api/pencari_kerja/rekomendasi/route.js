@@ -1,7 +1,6 @@
 import mysql from "mysql2/promise";
 import { NextResponse } from "next/server";
 
-// GET method untuk rekomendasi lowongan
 export async function GET(req) {
   try {
     const { searchParams } = new URL(req.url);
@@ -14,67 +13,77 @@ export async function GET(req) {
       database: "getjob_db",
     });
 
-    // Ambil data user (prodi & keahlian)
+    // Ambil profil user
     const [userRows] = await db.execute(
       "SELECT prodi, keahlian FROM pencari_kerja WHERE nim = ?",
       [nim]
     );
 
     if (userRows.length === 0) {
-      await db.end();
-      return NextResponse.json({
-        success: false,
-        message: "User tidak ditemukan.",
-      });
+      return NextResponse.json({ success: false, message: "User tidak ditemukan." });
     }
 
     const { prodi, keahlian } = userRows[0];
 
-    // Cek apakah keahlian kosong atau tidak
+    // Jika user belum mengisi keahlian ⇒ redirect
     if (!keahlian || keahlian.trim() === "") {
-      await db.end();
-      return NextResponse.json({
-        success: false,
-        emptySkill: true,  // Kirim tanda khusus
-      });
+      return NextResponse.json({ success: false, emptySkill: true });
     }
 
-    const skillsArray = keahlian
-      ? keahlian.split(",").map((s) => s.trim().toLowerCase())
-      : [];
+    // Ubah string jadi array
+    const prodiUser = prodi?.toLowerCase();
+    const skillsUser = keahlian.split(",").map((s) => s.trim().toLowerCase());
 
-    const searchKeywords = [...skillsArray, prodi?.toLowerCase()].filter(Boolean);
-
-    const [lowongan] = await db.query(`
+    // Ambil semua lowongan
+    const [lowongan] = await db.execute(`
       SELECT l.*, a.nama_perusahaan
       FROM lowongan_kerja l
       JOIN admin_perusahaan a ON l.id_admin = a.id_admin
     `);
 
-    const hasilRekomendasi = lowongan.map((job) => {
-      const teksGabungan = `${job.nama_posisi} ${job.deskripsi_pekerjaan} ${job.kualifikasi}`.toLowerCase();
+    await db.end();
+
+    // ================================
+    //        SEQUENTIAL SEARCH
+    // ================================
+    const hasil = lowongan.map((job) => {
       let skor = 0;
 
-      // Pencarian sequential berdasarkan kata kunci (keahlian dan prodi)
-      searchKeywords.forEach((key) => {
-        if (teksGabungan.includes(key)) {
-          skor += 1; // Tambah skor jika kata kunci ditemukan
-        }
+      const teksJob = `
+        ${job.nama_posisi}
+        ${job.deskripsi_pekerjaan}
+        ${job.kualifikasi}
+        ${job.tipe_pekerjaan}
+        ${job.tingkat_pengalaman}
+        ${job.prodi}
+        ${job.keahlian}
+      `.toLowerCase();
+
+      // 1. Cocokkan prodi user dengan lowongan
+      if (prodiUser && teksJob.includes(prodiUser)) skor += 3;
+
+      // 2. Cocokkan semua keahlian
+      skillsUser.forEach((skill) => {
+        if (teksJob.includes(skill)) skor += 2;
+      });
+
+      // 3. Bonus jika nama posisi mengandung skill
+      skillsUser.forEach((skill) => {
+        if (job.nama_posisi?.toLowerCase().includes(skill)) skor += 1;
       });
 
       return { ...job, skor };
     });
 
-
-    hasilRekomendasi.sort((a, b) => b.skor - a.skor);
-
-    await db.end();
+    // Urutkan dari skor terbesar
+    hasil.sort((a, b) => b.skor - a.skor);
 
     return NextResponse.json({
       success: true,
       message: "Rekomendasi berhasil diambil.",
-      lowongan: hasilRekomendasi,
+      lowongan: hasil,
     });
+
   } catch (error) {
     console.error("❌ Error rekomendasi:", error);
     return NextResponse.json({

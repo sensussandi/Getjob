@@ -45,8 +45,8 @@ export default function TambahPerusahaanPage() {
       const result = await res.json();
 
       if (result.success) {
-        setMessage("✅ Data perusahaan berhasil ditambahkan!");
-        setTimeout(() => router.push("/dashboardAdmin"), 1500);
+        alert("✅ Data perusahaan berhasil ditambahkan!");
+        setTimeout(() => router.back(), 150);
       } else {
         setMessage("❌ " + result.message);
       }

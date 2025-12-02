@@ -3,15 +3,23 @@ import { useEffect, useState } from "react";
 import { useSession } from "next-auth/react";
 import { useParams, useRouter } from "next/navigation";
 import {
-  MapPin, DollarSign, CalendarDays, Briefcase, Building2,
-  Clock, ExternalLink, ArrowLeft
+  MapPin,
+  DollarSign,
+  CalendarDays,
+  Briefcase,
+  Building2,
+  Clock,
+  ExternalLink,
+  ArrowLeft,
 } from "lucide-react";
 
 function formatTanggal(t) {
   if (!t) return "-";
   const d = new Date(t);
   return d.toLocaleDateString("id-ID", {
-    day: "2-digit", month: "long", year: "numeric"
+    day: "2-digit",
+    month: "long",
+    year: "numeric",
   });
 }
 
@@ -26,12 +34,11 @@ export default function DetailLowongan() {
   // 🔥 FETCH DETAIL LOWONGAN
   // ================================
   useEffect(() => {
-    
     const fetchDetail = async () => {
       try {
         const res = await fetch(`/api/lowongan/${id}`);
         const data = await res.json();
-        
+
         if (data.success) setLowongan(data.data);
       } finally {
         setLoading(false);
@@ -44,6 +51,39 @@ export default function DetailLowongan() {
   // ================================
   // 🔥 HANDLE LAMAR (dipanggil saat tombol ditekan)
   // ================================
+  const handleLamarExternal = async () => {
+    if (!session?.user?.id) {
+      alert("Silakan login terlebih dahulu.");
+      router.push("/loginMhs");
+      return;
+    }
+
+    try {
+      // 1️⃣ Simpan lamaran ke database
+      const res = await fetch("/api/lowongan/lamar", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          id_lowongan: lowongan.id_lowongan,
+          id: session.user.id,
+        }),
+      });
+
+      const data = await res.json();
+
+      if (data.success || data.already) {
+        // 2️⃣ Redirect ke website perusahaan
+        window.open(lowongan.external_url, "_blank");
+
+        alert("Lamaran tercatat. Anda dialihkan ke situs perusahaan.");
+      } else {
+        alert("Gagal menyimpan lamaran.");
+      }
+    } catch (e) {
+      alert("Terjadi kesalahan server.");
+    }
+  };
+
   const handleLamar = async () => {
     if (!session?.user?.id) {
       alert("Silakan login terlebih dahulu.");
@@ -57,7 +97,7 @@ export default function DetailLowongan() {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           id_lowongan: lowongan.id_lowongan,
-          id: session.user.id, // ← INI BENAR
+          id: session.user.id,
         }),
       });
 
@@ -65,19 +105,17 @@ export default function DetailLowongan() {
 
       if (data.success) {
         alert("Lamaran berhasil dikirim!");
-        router.push("/dashboardMHS/");
+        router.back();
       } else if (data.already) {
         alert("Anda sudah melamar lowongan ini.");
-        router.push("/dashboardMHS/");
+        router.back();
       } else {
         alert("Gagal mengirim lamaran.");
       }
-    } catch (e) {
-      console.error(e);
+    } catch (error) {
       alert("Terjadi kesalahan server.");
     }
   };
-
 
   // 🌀 Loading state
   if (loading)
@@ -102,7 +140,6 @@ export default function DetailLowongan() {
         </div>
       </div>
     );
-
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-gray-50 via-white to-gray-50 py-8 px-4 sm:px-6 lg:px-8">
@@ -198,15 +235,13 @@ export default function DetailLowongan() {
           {/* CTA / Tombol Lamar */}
           <div className="p-8 bg-gradient-to-br from-gray-50 to-white border-t border-gray-100">
             {lowongan.external_url ? (
-              <a
-                href={lowongan.external_url}
-                target="_blank"
-                rel="noopener noreferrer"
+              <button
+                onClick={handleLamarExternal}
                 className="group relative w-full inline-flex items-center justify-center gap-2 bg-gradient-to-r from-[#800000] to-[#a00000] hover:from-[#5c0000] hover:to-[#800000] text-white py-4 px-8 rounded-2xl font-semibold text-lg shadow-lg hover:shadow-xl transition-all duration-300 transform hover:-translate-y-0.5"
               >
                 <span>Lamar di Situs Perusahaan</span>
                 <ExternalLink className="w-5 h-5 group-hover:translate-x-1 transition-transform" />
-              </a>
+              </button>
             ) : (
               <button
                 onClick={handleLamar}
