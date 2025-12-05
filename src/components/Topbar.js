@@ -14,6 +14,7 @@ export default function Topbar() {
   const [keyword, setKeyword] = useState("");
   const [lokasi, setLokasi] = useState("Semua Lokasi");
   const [kategori, setKategori] = useState("Semua Pekerjaan");
+  const [showNewNotification, setShowNewNotification] = useState(false);
 
   const router = useRouter();
 
@@ -23,22 +24,31 @@ export default function Topbar() {
   useEffect(() => {
     if (!session?.user?.id) return;
 
-    const fetchNotif = async () => {
+    const interval = setInterval(async () => {
       try {
         const res = await fetch(`/api/notifikasiLokerPencariKerja?nim=${session.user.id}`);
         const result = await res.json();
 
         if (result.success) {
-          setNotifications(result.data);
-          setUnreadCount(result.data.filter((n) => n.unread).length);
-        }
-      } catch (err) {
-        console.error("Gagal load notifikasi:", err);
-      }
-    };
+          // Jika ada notif baru, munculkan alert animasi
+          const newUnread = result.data.filter((n) => n.unread).length;
+          if (newUnread > unreadCount) {
+            setShowNewNotification(true);
 
-    fetchNotif();
-  }, [session]);
+            // sembunyikan alert setelah 3 detik
+            setTimeout(() => setShowNewNotification(false), 3000);
+          }
+
+          setNotifications(result.data);
+          setUnreadCount(newUnread);
+        }
+      } catch (error) {
+        console.error("Gagal auto-refresh notif:", error);
+      }
+    }, 10000); // cek tiap 10 detik
+
+    return () => clearInterval(interval);
+  }, [session, unreadCount]);
 
   // ===============================
   // Fungsi Search
@@ -126,7 +136,7 @@ export default function Topbar() {
             {showNotifications && (
               <div className="absolute right-0 mt-3 w-80 bg-white rounded-2xl shadow-xl border border-slate-200 overflow-hidden z-50">
                 <div className="p-4 bg-gradient-to-r from-red-900 to-red-700 text-white">
-                  <h3 className="font-bold text-lg">Notifikasi</h3>
+                  <h3 className="font-bold text-lg">🔔 Notifikasi Baru</h3>
                   <p className="text-sm text-red-100">{unreadCount} belum dibaca</p>
                 </div>
 

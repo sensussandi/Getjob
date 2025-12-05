@@ -2,7 +2,7 @@
 import usePencakerAuth from "@/hooks/usePencakerAuth";
 import { useState, useEffect } from "react";
 import { useRouter, usePathname } from "next/navigation";
-import { Home, Briefcase, User, Settings, ChevronLeft, ChevronRight, BookOpen } from "lucide-react";
+import { Home, Briefcase, Settings, ChevronLeft, ChevronRight, BookOpen, LogOut, User } from "lucide-react";
 import { useSession, signOut } from "next-auth/react";
 
 export default function Sidebar() {
@@ -13,41 +13,33 @@ export default function Sidebar() {
 
   const [isCollapsed, setIsCollapsed] = useState(false);
   const [activeMenu, setActiveMenu] = useState("");
-  const [showLogoutModal, setShowLogoutModal] = useState(false); // button logout
+  const [showLogoutModal, setShowLogoutModal] = useState(false);
+
   const [userName, setUserName] = useState("Memuat...");
   const [userRole, setUserRole] = useState("pencari_kerja");
+  const [userPhoto, setUserPhoto] = useState(null);
 
-  // 🔥 FIX ACTIVE MENU BERDASARKAN URL
   useEffect(() => {
     if (!session || session.user.role !== "alumni") return;
+
     const fetchData = async () => {
-      const res = await fetch(`/api/pencari_kerja?nim=${session.user.id}`);
+      try {
+        const res = await fetch(`/api/pencari_kerja?nim=${session.user.id}`);
+        const result = await res.json();
 
-      const result = await res.json();
-
-      if (result.success) {
-        setData(result);
+        if (result.success) {
+          const profile = result.data;
+          setUserName(profile.nama || "Pengguna");
+          setUserRole(profile.role || "pencari_kerja");
+          setUserPhoto(profile.foto || null);
+        }
+      } catch (error) {
+        console.error("Gagal load profil:", error);
       }
     };
-    if (!pathname) return;
 
-    if (pathname.startsWith("/dashboardMHS/rekomendasi")) {
-      setActiveMenu("loker");
-    } else if (pathname.startsWith("/dashboardMHS")) {
-      setActiveMenu("dashboard");
-    } else if (pathname.startsWith("/lamaran")) {
-      setActiveMenu("lamaran");
-    } else if (pathname.startsWith("/statistik")) {
-      setActiveMenu("statistik");
-    } else if (pathname.startsWith("/lihatLokerSaya")) {
-      setActiveMenu("lihatLokerSaya");
-    } else if (pathname.startsWith("/pengaturan")) {
-      setActiveMenu("pengaturan");
-    }
     fetchData();
   }, [session]);
-
-  const user = session?.user;
 
   useEffect(() => {
     if (!pathname) return;
@@ -65,15 +57,18 @@ export default function Sidebar() {
     { id: "edit_profile", icon: Settings, label: "Edit Profile", href: "/editProfileMHS" },
   ];
 
+  const handleLogout = async () => {
+    await signOut({ callbackUrl: "/" });
+  };
+
   return (
-    <aside className={`${isCollapsed ? "w-20" : "w-64"} bg-white border-r border-slate-200 p-4 flex flex-col transition-all duration-300 shadow-sm relative`}>
-      {/* Collapse Button */}
-      <button onClick={() => setIsCollapsed(!isCollapsed)} className="absolute -right-3 top-8 w-6 h-6 bg-white border rounded-full flex items-center justify-center shadow-md">
+    <aside className={`${isCollapsed ? "w-20" : "w-72"} bg-white border-r border-slate-200 p-5 flex flex-col transition-all duration-300 shadow-sm relative`}>
+      <button onClick={() => setIsCollapsed(!isCollapsed)} className="absolute -right-3 top-8 w-7 h-7 bg-white border rounded-full flex items-center justify-center shadow-md">
         {isCollapsed ? <ChevronRight /> : <ChevronLeft />}
       </button>
 
-      {/* Menu List */}
-      <nav className="flex-1 space-y-1 mt-6">
+      {/* MENU */}
+      <nav className="flex-1 space-y-2 mt-6">
         {menuItems.map((item) => {
           const Icon = item.icon;
           const isActive = activeMenu === item.id;
@@ -82,77 +77,62 @@ export default function Sidebar() {
             <a
               key={item.id}
               href={item.href}
-              className={`group flex items-center gap-3 px-3 py-3 rounded-xl transition-all 
-                ${isActive ? "bg-gradient-to-r from-red-900 to-red-700 text-white shadow-lg" : "text-gray-700 hover:bg-slate-50 hover:text-red-900"} 
-                ${isCollapsed ? "justify-center" : ""}`}
+              className={`group flex items-center gap-4 px-4 py-4 rounded-xl transition-all cursor-pointer
+                ${isActive ? "bg-gradient-to-r from-red-900 to-red-700 text-white shadow-lg" : "text-gray-700 hover:bg-slate-100 hover:text-red-800"}
+                ${isCollapsed ? "justify-center" : ""}
+              `}
             >
-              <Icon className={`w-5 h-5 ${isActive ? "text-white" : "text-gray-500"}`} />
-              {!isCollapsed && <span className="text-sm font-medium">{item.label}</span>}
+              <Icon className={`w-6 h-6 ${isActive ? "text-white" : "text-gray-500"}`} />
+              {!isCollapsed && <span className="text-base font-medium">{item.label}</span>}
             </a>
           );
         })}
       </nav>
 
-      {/* === USER + LOGOUT FIXED DI BAWAH === */}
-      <div className={`absolute bottom-4 left-4 right-4 
-  ${isCollapsed ? "left-2 right-2" : ""}
-`}>
-        <div className="bg-gray-50 rounded-xl p-4 border shadow-sm">
-          <div className="flex items-center gap-3 mb-3">
-            <div className="w-10 h-10 bg-gradient-to-br from-red-900 to-red-700 rounded-full flex items-center justify-center">
-              <User className="w-5 h-5 text-white" />
+      {/* USER PROFILE */}
+      <div className={`absolute bottom-4 left-4 right-4 ${isCollapsed ? "left-2 right-2" : ""}`}>
+        <div className="bg-gray-50 rounded-xl p-5 border shadow-sm">
+          <div className="flex items-center gap-4 mb-4">
+            <div className="w-12 h-12 rounded-full overflow-hidden bg-gray-200 flex items-center justify-center">
+              {userPhoto ? <img src={userPhoto.startsWith("http") ? userPhoto : `/uploads/${userPhoto}`} className="w-full h-full object-cover" /> : <User className="w-6 h-6 text-gray-500" />}
             </div>
 
             {!isCollapsed && (
               <div>
-                <p className="font-semibold text-gray-900 text-sm truncate">{userName}</p>
-                <p className="text-xs text-gray-500 truncate">{userRole}</p>
+                <p className="font-semibold text-gray-900 text-base">{userName}</p>
+                <p className="text-sm text-gray-500">{userRole}</p>
               </div>
             )}
           </div>
 
-          {/* TOMBOL LOGOUT */}
           {!isCollapsed && (
-            <button
-              onClick={() => setShowLogoutModal(true)}
-              className="w-full py-2 border border-gray-300 text-gray-600 rounded-lg hover:bg-red-50 transition flex items-center justify-center gap-2"
-            >
-              <LogOut className="w-4 h-4" />
+            <button onClick={() => setShowLogoutModal(true)} className="w-full py-3 border border-gray-300 text-gray-700 rounded-lg hover:bg-red-50 transition flex items-center justify-center gap-2 text-base">
+              <LogOut className="w-5 h-5" />
               Logout
             </button>
           )}
         </div>
       </div>
+
+      {/* MODAL */}
       {showLogoutModal && (
         <div className="fixed inset-0 bg-black/40 flex items-center justify-center z-[9999]">
-          <div className="bg-white p-6 rounded-xl shadow-xl w-[340px]">
+          <div className="bg-white p-6 rounded-xl shadow-xl w-[350px]">
             <h3 className="text-xl font-bold mb-2 text-gray-800">Konfirmasi Logout</h3>
-            <p className="text-gray-600 mb-5">
-              Apakah Anda yakin ingin logout dari akun ini?
-            </p>
+            <p className="text-gray-600 mb-5">Apakah Anda yakin ingin logout?</p>
 
             <div className="flex justify-end gap-3">
-              <button
-                onClick={() => setShowLogoutModal(false)}
-                className="px-4 py-2 text-black rounded-lg border border-gray-300 hover:bg-red-100"
-              >
+              <button onClick={() => setShowLogoutModal(false)} className="px-4 py-2 border rounded-lg hover:bg-gray-100">
                 Batal
               </button>
 
-              <button
-                onClick={() => {
-                  setShowLogoutModal(false);
-                  handleLogout();
-                }}
-                className="px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700"
-              >
+              <button onClick={handleLogout} className="px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700">
                 Ya, Logout
               </button>
             </div>
           </div>
         </div>
       )}
-
     </aside>
   );
 }
