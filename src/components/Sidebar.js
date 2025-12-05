@@ -122,7 +122,7 @@ export default function Sidebar() {
             <p className="text-gray-600 mb-5">Apakah Anda yakin ingin logout?</p>
 
             <div className="flex justify-end gap-3">
-              <button onClick={() => setShowLogoutModal(false)} className="px-4 py-2 border rounded-lg hover:bg-gray-100">
+              <button onClick={() => setShowLogoutModal(false)} className="px-4 py-2 bg-gray-200 text-gray-800 rounded-lg hover:bg-gray-300 transition font-medium">
                 Batal
               </button>
 

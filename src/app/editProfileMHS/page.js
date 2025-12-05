@@ -73,7 +73,6 @@ export default function PengaturanPage() {
     if (status === "authenticated") loadData();
   }, [session, status]);
 
-
   // ======================== HANDLER ========================
   const handleChange = (e) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
@@ -94,7 +93,6 @@ export default function PengaturanPage() {
       }
     }
   };
-
 
   // ======================== SUBMIT ========================
   const handleSubmit = async (e) => {
@@ -140,10 +138,8 @@ export default function PengaturanPage() {
     }
   };
 
-
   // ======================== UI ========================
-  if (status === "loading" || loading)
-    return <div className="flex justify-center items-center h-screen">Memuat data...</div>;
+  if (status === "loading" || loading) return <div className="flex justify-center items-center h-screen">Memuat data...</div>;
 
   if (!session?.user)
     return (
@@ -158,7 +154,6 @@ export default function PengaturanPage() {
   return (
     <div className="min-h-screen bg-[#fff8f8] flex items-center justify-center py-10 px-4">
       <div className="w-full max-w-3xl bg-white shadow-2xl rounded-3xl overflow-hidden border border-gray-200">
-
         {/* HEADER */}
         <div className="bg-gradient-to-r from-[#6b0000] to-[#b22c2c] text-white p-6 text-center">
           <h1 className="text-3xl font-bold tracking-wide">Edit Profile</h1>
@@ -166,14 +161,9 @@ export default function PengaturanPage() {
 
         {/* FORM */}
         <form onSubmit={handleSubmit} className="flex flex-col items-center p-8 bg-gradient-to-b from-orange-100 to-gray-100">
-
           {/* FOTO */}
           <div className="flex flex-col items-center mb-5">
-            <img
-              src={previewFoto}
-              alt="Foto Profil"
-              className="w-32 h-32 rounded-full object-cover border-4 border-[#6b0000] shadow-lg"
-            />
+            <img src={previewFoto} alt="Foto Profil" className="w-32 h-32 rounded-full object-cover border-4 border-[#6b0000] shadow-lg" />
 
             <label className="bg-[#6b0000] text-white px-4 py-2 mt-3 rounded-lg text-sm cursor-pointer hover:bg-[#8b0000] transition shadow">
               Pilih Foto
@@ -184,9 +174,9 @@ export default function PengaturanPage() {
           </div>
 
           {/* INPUTS */}
-          <input name="nim" value={formData.nim} readOnly className="border border-gray-300 p-3 w-full mb-3 rounded bg-gray-100 text-gray-800"/>
+          <input name="nim" value={formData.nim} readOnly className="border border-gray-400 p-3 w-full mb-3 rounded bg-gray-200 text-gray-700 cursor-not-allowed" />
 
-          <input name="nama_lengkap" value={formData.nama_lengkap} onChange={handleChange} placeholder="Nama Lengkap" className="border border-gray-400 p-3 w-full mb-3 rounded bg-white text-gray-900 placeholder-gray-600" />
+          <input name="nama_lengkap" value={formData.nama_lengkap} readOnly className="border border-gray-400 p-3 w-full mb-3 rounded bg-white text-gray-900 placeholder-gray-600" />
 
           <input type="date" name="tanggal_lahir" value={formData.tanggal_lahir} onChange={handleChange} className="border border-gray-400 p-3 w-full mb-3 rounded bg-white text-gray-900" />
 
@@ -217,53 +207,8 @@ export default function PengaturanPage() {
             </button>
           </div>
 
-          {/* DROPDOWNS */}
-          <select name="prodi" value={formData.prodi} onChange={handleChange} className="border border-gray-400 p-3 w-full mb-3 rounded bg-white text-gray-900">
-            <option value="">Pilih Program Studi</option>
-            <option value="Informatika">Teknik Elektromedis (D3)</option>
-            <option value="TM">Mekatronika (D3)</option>
-            <option value="TE">Akuntansi (S1)</option>
-            <option value="Ekonomi">Ekonomi (S1)</option>
-            <option value="Manajemen">Manajemen (S1)</option>
-            <option value="Farmasi">Farmasi (S1)</option>
-            <option value="BK">Bimbingan dan Konseling (S1)</option>
-            <option value="PBSI">Pendidikan Bahasa dan Sastra indonesia (S1)</option>
-            <option value="PBI">Pendidikan Bahasa Inggris (S1)</option>
-            <option value="PBio">Pendidikan Biologi (S1)</option>
-            <option value="PEBPA">Pendidikan Ekonomi Bidang Keahlian Khusus Pendidikan Akuntansi (S1)</option>
-            <option value="PEBPE">Pendidikan Ekonomi Bidang Keahlian Khusus Pendidikan Ekonomi (S1)</option>
-            <option value="PFisika">Pendidikan Fisika (S1)</option>
-            <option value="PGSD">Pendidikan Guru Sekolah Dasar (S1)</option>
-            <option value="PAK">Pendidikan Keagamaan Katolik (S1)</option>
-            <option value="PKimia">Pendidikan Kimia (S1)</option>
-            <option value="PMat">Pendidikan Matematika (S1)</option>
-            <option value="PSejarah">Pendidikan Sejarah (S1)</option>
-            <option value="Psikologi">Psikologi (S1)</option>
-            <option value="Informatika">Informatika (S1)</option>
-            <option value="Matematika">Matematika (S1)</option>
-            <option value="TE">Teknik Elektro (S1)</option>
-            <option value="TM">Teknik Mesin (S1)</option>
-            <option value="Sasindo">Sastra Indonesia (S1)</option>
-            <option value="Sasing">Sastra Inggris (S1)</option>
-            <option value="Sejarah">Sejarah (S1)</option>
-            <option value="FilKeilahian">Filsafat Keilahian (S1)</option>
-            <option value="PenProfApt">Pendidikan Profesi Apoteker (Profesi)</option>
-            <option value="PenProfGr">PendidikanProfesi Guru (Profesi)</option>
-            <option value="PenProfGPE">Pendidikan Profesi Guru Prajab Ekonomi (Profesi)</option>
-            <option value="PenProfGPFis">Pendidikan Profesi Guru Prajab Fisika (Profesi)</option>
-            <option value="PenProfIns">Pendidikan Profesi Insinyur (Profesi)</option>
-            <option value="ManMAG">Manajemen (S2)</option>
-            <option value="FarmMag">Farmasi (S2)</option>
-            <option value="PBIMag">Pendidikan Bahasa Indonesia (S2)</option>
-            <option value="PBIngMag">Pendidikan Bahasa Inggris (S2)</option>
-            <option value="PmatMag">Pendidikan Matematika (S2)</option>
-            <option value="KBingMag">Kajian Bahasa Inggris (S2)</option>
-            <option value="KBudMag">Kajian Budaya (S2)</option>
-            <option value="PsiMag">Psikologi (S2)</option>
-            <option value="SastraMag">Sastra (S2)</option>
-            <option value="TeoMag">Teologi (S2)</option>
-            <option value="KaBudDok">Kajian Budaya (S3)</option>
-          </select>
+          {/* Prodi */}
+          <input name="prodi" value={formData.prodi} readOnly className="border border-gray-400 p-3 w-full mb-3 rounded bg-gray-200 text-gray-700 cursor-not-allowed" placeholder="Program Studi" />
 
           <select name="pendidikan_terakhir" value={formData.pendidikan_terakhir} onChange={handleChange} className="border border-gray-400 p-3 w-full mb-3 rounded bg-white text-gray-900">
             <option value="">Pendidikan Terakhir</option>
@@ -309,10 +254,7 @@ export default function PengaturanPage() {
 
           {/* BUTTON */}
           <div className="flex justify-between w-full mt-6">
-            <a
-              href="/dashboardMHS"
-              className="inline-flex items-center gap-2 bg-gradient-to-r from-orange-500 to-orange-600 text-white px-4 py-2 rounded-md hover:from-orange-600 hover:to-orange-700"
-            >
+            <a href="/dashboardMHS" className="inline-flex items-center gap-2 bg-gradient-to-r from-orange-500 to-orange-600 text-white px-4 py-2 rounded-md hover:from-orange-600 hover:to-orange-700">
               <ArrowLeft className="w-4 h-4" />
               Kembali
             </a>
@@ -321,7 +263,6 @@ export default function PengaturanPage() {
               Simpan Perubahan
             </button>
           </div>
-
         </form>
       </div>
     </div>
