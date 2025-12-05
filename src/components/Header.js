@@ -59,6 +59,9 @@ export default function Header() {
             <a href="/cari-loker" className="hover:text-[#FFD700]">
               Cari Loker
             </a>
+            <a href="/lihatLulusan" className="hover:text-red-300 transition-colors flex items-center gap-1">
+               Lihat lulusan
+            </a>
           </div>
         </div>
 
