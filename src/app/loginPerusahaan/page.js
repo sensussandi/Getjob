@@ -13,15 +13,15 @@ export default function LoginPerusahaan() {
   const { data: session, status } = useSession();
 
   //  AUTO REDIRECT jika sudah login
-  useEffect(() => {
-    if (status === "loading") return; // tunggu session selesai dicek
+  // useEffect(() => {
+  //   if (status === "loading") return; // tunggu session selesai dicek
 
-    if (session?.user?.role === "admin") {
-      router.push("/dashboardPerusahaan");
-    } else if (session?.user?.role === "super_admin") {
-      router.push("/dashboardAdmin");
-    }
-  }, [session, status]);
+  //   if (session?.user?.role === "admin") {
+  //     router.push("/dashboardPerusahaan");
+  //   } else if (session?.user?.role === "super_admin") {
+  //     router.push("/dashboardAdmin");
+  //   }
+  // }, [session, status]);
 
   useEffect(() => {
     // Ambil data remember me

@@ -88,39 +88,8 @@ export default function DashboardAdmin() {
     signOut({ redirect: true, callbackUrl: "/" });
   };
 
-  const handleDeletePencaker = async (id) => {
-    if (!confirm("Yakin ingin menghapus pencari kerja ini?")) return;
 
-    const res = await fetch(`/api/admin/pencaker/delete/${id}`, {
-      method: "DELETE",
-    });
 
-    const data = await res.json();
-
-    if (data.success) {
-      alert("Berhasil menghapus pencari kerja.");
-      setDataPencariKerja(prev => prev.filter((u) => u.nim !== id)); // update UI
-    } else {
-      alert("Gagal menghapus pencari kerja.");
-    }
-  };
-
-  const handleDeleteLowongan = async (id) => {
-    if (!confirm("Yakin ingin menghapus loker ini?")) return;
-
-    const res = await fetch(`/api/lowongan/delete/${id}`, {
-      method: "DELETE",
-    });
-
-    const data = await res.json();
-
-    if (data.success) {
-      alert("Berhasil menghapus loker.");
-      setDataLowongan(prev => prev.filter((job) => job.id_lowongan !== id)); // update UI
-    } else {
-      alert("Gagal menghapus loker.");
-    }
-  };
 
   // ======== Notifikasi Reset Password ========
   const notifRef = useRef(null);
@@ -489,12 +458,6 @@ export default function DashboardAdmin() {
                           </button>
                         )}
 
-                        <button
-                          onClick={() => handleDeletePencaker(u.nim)}
-                          className="text-sm font-medium text-red-600 hover:underline flex items-center gap-1"
-                        >
-                          <Trash2 className="w-4 h-4" /> Hapus
-                        </button>
                       </div>
                     </div>
                   </div>
@@ -505,7 +468,7 @@ export default function DashboardAdmin() {
         </div>
 
         {/* === DATA LOWONGAN (TETAP PREMIUM) === */}
-        <LowonganSection dataLowongan={dataLowongan} router={router} handleDeleteLowongan={handleDeleteLowongan}
+        <LowonganSection dataLowongan={dataLowongan} router={router}
         />
       </div>
     </div>
@@ -531,7 +494,7 @@ function StatCard({ icon, title, value, color, onClick }) {
 
 
 /* === KOMPONEN LOWONGAN === */
-function LowonganSection({ dataLowongan, router, handleDeleteLowongan }) {
+function LowonganSection({ dataLowongan, router,  }) {
   return (
     <div className="bg-white shadow-xl rounded-2xl overflow-hidden">
       <div className="flex justify-between items-center px-6 py-4 border-b border-gray-100 bg-gray-50">
@@ -598,13 +561,6 @@ function LowonganSection({ dataLowongan, router, handleDeleteLowongan }) {
                     <span className="ml-1 px-2 py-0.5 text-xs rounded-full bg-blue-100 text-blue-700 border border-blue-300">
                       {job.jumlah_pelamar ?? 0}
                     </span>
-                  </button>
-
-                  <button
-                    onClick={() => handleDeleteLowongan(job.id_lowongan)}
-                    className="text-sm font-medium text-red-600 hover:underline flex items-center gap-1"
-                  >
-                    <Trash2 className="w-4 h-4" /> Hapus
                   </button>
 
                 </div>

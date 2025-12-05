@@ -52,9 +52,9 @@ export default function DetailLowongan() {
   // 🔥 HANDLE LAMAR (dipanggil saat tombol ditekan)
   // ================================
   const handleLamarExternal = async () => {
-    if (!session?.user?.id) {
-      alert("Silakan login terlebih dahulu.");
-      router.push("/loginMhs");
+    if (!session?.user?.nim) {
+      alert("loker ini khusus alumni Universitas Sanata Dharma.");
+      router.back();
       return;
     }
 
@@ -65,7 +65,7 @@ export default function DetailLowongan() {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           id_lowongan: lowongan.id_lowongan,
-          id: session.user.id,
+          nim: session.user.nim,
         }),
       });
 
@@ -85,9 +85,9 @@ export default function DetailLowongan() {
   };
 
   const handleLamar = async () => {
-    if (!session?.user?.id) {
-      alert("Silakan login terlebih dahulu.");
-      router.push("/loginMhs");
+    if (!session?.user?.nim) {
+      alert("loker ini khusus alumni Universitas Sanata Dharma.");
+      router.back();
       return;
     }
 

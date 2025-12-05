@@ -24,6 +24,10 @@ export default function EditLowongan() {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [loading, setLoading] = useState(true);
   const { data: session, status } = useSession();
+  const [keahlianList, setKeahlianList] = useState([]);
+  const [searchSkill, setSearchSkill] = useState("");
+  const [prodiList, setProdiList] = useState([]);
+  const [searchProdi, setSearchProdi] = useState("");
 
   const [form, setForm] = useState({
     nama_posisi: "",
@@ -38,6 +42,124 @@ export default function EditLowongan() {
     prodi: "",
     keahlian: "",
   });
+
+  const daftarProdi = [
+    "D3 Bahasa Inggris",
+    "D3 Sekretari",
+    "D3 Perpustakaan",
+    "D3 Teknik Elektronika",
+    "S1 Akuntansi",
+    "S1 Arsitektur",
+    "S1 Biologi",
+    "S1 Bimbingan dan Konseling",
+    "S1 Farmasi",
+    "S1 Fisika",
+    "S1 Ilmu Komunikasi",
+    "S1 Keperawatan",
+    "S1 Kimia",
+    "S1 Matematika",
+    "S1 Manajemen",
+    "S1 Pendidikan Akuntansi",
+    "S1 Pendidikan Bahasa Inggris",
+    "S1 Pendidikan Bahasa Jawa",
+    "S1 Pendidikan Bahasa dan Sastra Indonesia",
+    "S1 Pendidikan Biologi",
+    "S1 Pendidikan Fisika",
+    "S1 Pendidikan Guru SD (PGSD)",
+    "S1 Pendidikan Kimia",
+    "S1 Pendidikan Matematika",
+    "S1 Pendidikan Musik",
+    "S1 Pendidikan Sejarah",
+    "S1 Pendidikan Teologi",
+    "S1 Psikologi",
+    "S1 Sastra Inggris",
+    "S1 Sastra Indonesia",
+    "S1 Sastra Jepang",
+    "S1 Sistem Informasi",
+    "S1 Teknik Elektro",
+    "S1 Teknik Informatika",
+    "S1 Teknologi Pangan",
+    "S1 Teologi",
+    "S2 Kajian Bahasa Inggris",
+    "S2 Kajian Bahasa & Budaya Indonesia",
+    "S2 Pendidikan Bahasa Inggris",
+    "S2 Ilmu Religi & Budaya",
+    "S2 Pendidikan Teologi",
+    "S2 Manajemen Pendidikan",
+    "S2 Kajian Bahasa & Budaya Jawa",
+    "S3 Kajian Ilmu Pendidikan",
+    "S3 Kajian Budaya",
+  ];
+
+  // === Keahlian & Minat Lengkap ===
+  const daftarKeahlian = [
+    // IT
+    "Web Developer", "Mobile Developer", "UI/UX Designer", "Data Analyst",
+    "Data Scientist", "Game Developer", "Cyber Security", "AI Engineer", "DevOps Engineer",
+    // Bisnis & Manajemen
+    "Marketing", "Digital Marketing", "Sales", "Public Relations", "Business Analyst",
+    "Finance Analyst", "Entrepreneurship", "Human Resource", "Customer Service",
+    // Kreatif
+    "Graphic Designer", "Video Editor", "Content Creator", "Copywriter", "Photographer",
+    "Animator", "Brand Strategist", "Illustrator",
+    // Pendidikan & Sosial
+    "Guru SD", "Guru Bahasa Inggris", "Tutor Privat", "Psikolog", "Konselor", "Peneliti",
+    "Penerjemah", "Trainer", "Instruktur",
+    // Teknik
+    "Teknisi Listrik", "Teknisi Mesin", "Arsitek", "Drafter", "Quality Control",
+    "Surveyor", "Operator Produksi", "Project Engineer",
+    // Kesehatan
+    "Perawat", "Apoteker", "Analis Kesehatan", "Laboran",
+    // Umum
+    "Admin Kantor", "Barista", "Kasir", "Event Organizer", "Customer Support",
+    // psikolog
+    "Story telling", "Psikolog Industri & Organisasi", "Psikolog Pendidikan",
+  ];
+
+  const filteredProdi = daftarProdi.filter((p) =>
+    p.toLowerCase().includes(searchProdi.toLowerCase())
+  );
+
+  const handleProdiClick = (prodi) => {
+    let updated;
+
+    if (!prodiList.includes(prodi) && prodiList.length >= 5) {
+      alert("Maksimal 5 Program Studi!");
+      return;
+    }
+
+    if (prodiList.includes(prodi)) {
+      updated = prodiList.filter((x) => x !== prodi);
+    } else {
+      updated = [...prodiList, prodi];
+    }
+
+    setProdiList(updated);
+    setForm({ ...form, prodi: updated.join(",") });
+  };
+
+
+  const filteredSkills = daftarKeahlian.filter((skill) =>
+    skill.toLowerCase().includes(searchSkill.toLowerCase())
+  );
+
+  const handleSkillClick = (skill) => {
+    let updated;
+
+    if (!keahlianList.includes(skill) && keahlianList.length >= 5) {
+      alert("Maksimal 5 keahlian!");
+      return;
+    }
+
+    if (keahlianList.includes(skill)) {
+      updated = keahlianList.filter((x) => x !== skill);
+    } else {
+      updated = [...keahlianList, skill];
+    }
+
+    setKeahlianList(updated);
+    setForm({ ...form, keahlian: updated.join(",") });
+  };
 
   // 🔹 Ambil data lama dari database
   useEffect(() => {
@@ -60,6 +182,17 @@ export default function EditLowongan() {
             external_url: data.data.external_url || '',
           };
           setForm(formattedData);
+          // === SET MULTISELECT PRODI ===
+          if (formattedData.prodi) {
+            const prodiArray = formattedData.prodi.split(",").map((p) => p.trim());
+            setProdiList(prodiArray);
+          }
+
+          // === SET MULTISELECT KEAHLIAN ===
+          if (formattedData.keahlian) {
+            const skillArray = formattedData.keahlian.split(",").map((s) => s.trim());
+            setKeahlianList(skillArray);
+          }
         } else {
           alert("❌ Lowongan tidak ditemukan atau data kosong.");
           setTimeout(() => router.back(), 150);
@@ -165,86 +298,7 @@ export default function EditLowongan() {
   const tipePekerjaan = ["Full-time", "Part-time", "Contract", "Internship", "Freelance"];
   const tingkatPengalaman = ["Entry Level", "Junior", "Mid Level", "Senior", "Lead/Manager"];
 
-  // ⭐️ PROGRAM STUDI
-  const daftarProdi = [
-    // ====== D3 ======
-    "D3 Bahasa Inggris",
-    "D3 Sekretari",
-    "D3 Perpustakaan",
-    "D3 Teknik Elektronika",
 
-    // ====== S1 ======
-    "S1 Akuntansi",
-    "S1 Arsitektur",
-    "S1 Biologi",
-    "S1 Bimbingan dan Konseling",
-    "S1 Farmasi",
-    "S1 Fisika",
-    "S1 Ilmu Komunikasi",
-    "S1 Keperawatan",
-    "S1 Kimia",
-    "S1 Matematika",
-    "S1 Manajemen",
-    "S1 Pendidikan Akuntansi",
-    "S1 Pendidikan Bahasa Inggris",
-    "S1 Pendidikan Bahasa Jawa",
-    "S1 Pendidikan Bahasa dan Sastra Indonesia",
-    "S1 Pendidikan Biologi",
-    "S1 Pendidikan Fisika",
-    "S1 Pendidikan Guru SD (PGSD)",
-    "S1 Pendidikan Kimia",
-    "S1 Pendidikan Matematika",
-    "S1 Pendidikan Musik",
-    "S1 Pendidikan Sejarah",
-    "S1 Pendidikan Teologi",
-    "S1 Psikologi",
-    "S1 Sastra Inggris",
-    "S1 Sastra Indonesia",
-    "S1 Sastra Jepang",
-    "S1 Sistem Informasi",
-    "S1 Teknik Elektro",
-    "S1 Teknik Informatika",
-    "S1 Teknologi Pangan",
-    "S1 Teologi",
-
-    // ====== S2 ======
-    "S2 Kajian Bahasa Inggris",
-    "S2 Kajian Bahasa dan Budaya Indonesia",
-    "S2 Pendidikan Bahasa Inggris",
-    "S2 Ilmu Religi dan Budaya",
-    "S2 Pendidikan Teologi",
-    "S2 Manajemen Pendidikan",
-    "S2 Kajian Bahasa dan Budaya Jawa",
-
-    // ====== S3 ======
-    "S3 Kajian Ilmu Pendidikan",
-    "S3 Kajian Budaya",
-  ];
-  // AKHIR PROGRAM STUDI
-
-  // === Keahlian & Minat Lengkap ===
-  const keahlian = [
-    // IT
-    "Web Developer", "Mobile Developer", "UI/UX Designer", "Data Analyst",
-    "Data Scientist", "Game Developer", "Cyber Security", "AI Engineer", "DevOps Engineer",
-    // Bisnis & Manajemen
-    "Marketing", "Digital Marketing", "Sales", "Public Relations", "Business Analyst",
-    "Finance Analyst", "Entrepreneurship", "Human Resource", "Customer Service",
-    // Kreatif
-    "Graphic Designer", "Video Editor", "Content Creator", "Copywriter", "Photographer",
-    "Animator", "Brand Strategist", "Illustrator",
-    // Pendidikan & Sosial
-    "Guru SD", "Guru Bahasa Inggris", "Tutor Privat", "Psikolog", "Konselor", "Peneliti",
-    "Penerjemah", "Trainer", "Instruktur",
-    // Teknik
-    "Teknisi Listrik", "Teknisi Mesin", "Arsitek", "Drafter", "Quality Control",
-    "Surveyor", "Operator Produksi", "Project Engineer",
-    // Kesehatan
-    "Perawat", "Apoteker", "Analis Kesehatan", "Laboran",
-    // Umum
-    "Admin Kantor", "Barista", "Kasir", "Event Organizer", "Customer Support"
-  ];
-  
   // 🔹 Loading State
   if (loading)
     return (
@@ -303,19 +357,6 @@ export default function EditLowongan() {
                   />
                 </div>
 
-                {/* ⭐️ FIELD PRODI BARU DITAMBAHKAN */}
-                <div className="md:col-span-2 text-black">
-                  <EditableSelectField
-                    label="Latar Belakang Pendidikan"
-                    name="latar_belakang_pendidikan"
-                    value={form.prodi}
-                    onChange={handleChange}
-                    options={daftarProdi}
-                    icon={<FileText className="w-5 h-5 text-gray-400" />}
-                  />
-                </div>
-                {/* AKHIR FIELD PRODI BARU */}
-
                 <SelectField
                   label="Tipe Pekerjaan"
                   name="tipe_pekerjaan"
@@ -334,14 +375,92 @@ export default function EditLowongan() {
                   icon={<Users className="w-5 h-5 text-gray-400" />}
                 />
 
-                <EditableSelectField
-                  label="Keahlian"
-                  name="keahlian"
-                  value={form.keahlian}
-                  onChange={handleChange}
-                  options={keahlian}
-                  icon={<Briefcase className="w-5 h-5 text-gray-400" />}
-                />
+                <div className="md:col-span-2">
+                  <label className="font-semibold text-gray-700">Program Studi (maks 5)</label>
+
+                  <input
+                    type="text"
+                    placeholder="Cari program studi..."
+                    value={searchProdi}
+                    onChange={(e) => setSearchProdi(e.target.value)}
+                    className="w-full border rounded-xl px-4 py-3 mt-2 mb-2"
+                  />
+
+                  <div className="max-h-44 overflow-y-auto border rounded-xl p-2 bg-white">
+                    {filteredProdi.map((p, idx) => (
+                      <div
+                        key={idx}
+                        onClick={() => handleProdiClick(p)}
+                        className={`cursor-pointer px-3 py-2 rounded-lg mb-1 border transition-all ${prodiList.includes(p)
+                          ? "bg-blue-100 border-blue-300 text-blue-700"
+                          : "hover:bg-gray-100 border-gray-300"
+                          }`}
+                      >
+                        {p}
+                      </div>
+                    ))}
+                  </div>
+
+                  <div className="flex flex-wrap gap-2 mt-3">
+                    {prodiList.map((p, idx) => (
+                      <span
+                        key={idx}
+                        className="px-3 py-1 bg-blue-50 text-blue-700 rounded-full flex items-center gap-2"
+                      >
+                        {p}
+                        <button onClick={() => handleProdiClick(p)} className="font-bold">
+                          ×
+                        </button>
+                      </span>
+                    ))}
+                  </div>
+                </div>
+
+                {/* === MULTISELECT KEAHLIAN === */}
+                <div className="md:col-span-2">
+                  <label className="font-semibold text-gray-700">Keahlian (maks 5)</label>
+
+                  <input
+                    type="text"
+                    placeholder="Cari keahlian..."
+                    value={searchSkill}
+                    onChange={(e) => setSearchSkill(e.target.value)}
+                    className="w-full border rounded-xl px-4 py-3 mt-2 mb-2"
+                  />
+
+                  <div className="max-h-44 overflow-y-auto border rounded-xl p-2 bg-white">
+                    {filteredSkills.map((skill, idx) => (
+                      <div
+                        key={idx}
+                        onClick={() => handleSkillClick(skill)}
+                        className={`cursor-pointer px-3 py-2 rounded-lg mb-1 border transition-all ${keahlianList.includes(skill)
+                          ? "bg-red-100 border-red-300 text-red-700"
+                          : "hover:bg-gray-100 border-gray-300"
+                          }`}
+                      >
+                        {skill}
+                      </div>
+                    ))}
+                  </div>
+
+                  <div className="flex flex-wrap gap-2 mt-3">
+                    {keahlianList.map((skill, idx) => (
+                      <span
+                        key={idx}
+                        className="px-3 py-1 bg-red-50 text-red-700 rounded-full flex items-center gap-2"
+                      >
+                        {skill}
+                        <button
+                          onClick={() => handleSkillClick(skill)}
+                          className="font-bold"
+                        >
+                          ×
+                        </button>
+                      </span>
+                    ))}
+                  </div>
+                </div>
+
               </div>
             </div>
 
@@ -526,9 +645,8 @@ function EditableSelectField({ label, name, value, onChange, options, icon }) {
             onChange({ target: { name, value: e.target.value } });
           }}
           onFocus={() => setShowDropdown(true)}
-          className={`w-full border-2 border-gray-200 rounded-xl px-4 py-3 ${
-            icon ? "pl-12" : ""
-          } focus:border-[#800000] focus:ring-2 focus:ring-[#800000]/20`}
+          className={`w-full border-2 border-gray-200 rounded-xl px-4 py-3 ${icon ? "pl-12" : ""
+            } focus:border-[#800000] focus:ring-2 focus:ring-[#800000]/20`}
         />
       </div>
 

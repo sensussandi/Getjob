@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { Search, MapPin, Briefcase } from "lucide-react";
+import { Search, MapPin, Briefcase, ArrowRight } from "lucide-react";
 import { useSearchParams } from "next/navigation";
 
 export default function CariLoker() {
@@ -147,9 +147,13 @@ export default function CariLoker() {
                 <p className="font-semibold text-[#800000] mb-4">
                   💰 {job.gaji || "Negosiasi"}
                 </p>
-                <button className="w-full bg-[#800000] text-white py-2 rounded-lg font-semibold hover:bg-[#a00000] transition">
-                  Lihat Detail
-                </button>
+                <a
+                    href={`/lowongan/${job.id_lowongan}`}
+                    className="w-full mt-5 bg-[#800000] hover:bg-[#5c0000] text-white py-3 rounded-xl font-semibold flex items-center justify-center gap-2 transition-all group-hover:shadow-lg"
+                  >
+                    <span>Lamar Sekarang</span>
+                    <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
+                  </a>
               </div>
             ))}
           </div>

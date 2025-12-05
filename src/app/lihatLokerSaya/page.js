@@ -26,16 +26,6 @@ export default function LokerSaya() {
 
   if (status === "loading" || loading) return <div className="text-center py-20 text-gray-500">Memuat data pendaftaran...</div>;
 
-  if (!session?.user)
-    return (
-      <div className="flex flex-col items-center justify-center h-screen">
-        <p className="text-gray-700 mb-3">Anda belum login.</p>
-        <a href="/loginMhs" className="bg-red-700 text-white px-4 py-2 rounded-md hover:bg-amber-600 transition">
-          Ke Halaman Login
-        </a>
-      </div>
-    );
-
   return (
     <div className="min-h-screen bg-gradient-to-b from-orange-50 to-gray-100 py-10 px-6">
       <div className="max-w-4xl mx-auto bg-white rounded-3xl shadow-lg p-8 border border-gray-200">

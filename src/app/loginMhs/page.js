@@ -17,13 +17,13 @@ export default function LoginMhs() {
     password: "",
   });
   //  AUTO REDIRECT jika sudah login
-  useEffect(() => {
-    if (status === "loading") return; // tunggu session selesai dicek
+  // useEffect(() => {
+  //   if (status === "loading") return; // tunggu session selesai dicek
 
-    if (session?.user?.role === "alumni") {
-      router.push("/dashboardMHS");
-    }
-  }, [session, status]);
+  //   if (session?.user?.role === "alumni") {
+  //     router.push("/dashboardMHS");
+  //   }
+  // }, [session, status]);
 
   useEffect(() => {
     // Ambil data remember me
@@ -124,7 +124,7 @@ export default function LoginMhs() {
           <div className="inline-block p-4 bg-white rounded-full shadow-xl mb-4">
             <GraduationCap className="w-12 h-12 text-red-900" />
           </div>
-          <h1 className="text-3xl font-bold text-white mb-2">Portal Mahasiswa</h1>
+          <h1 className="text-3xl font-bold text-white mb-2">Portal Alumni Universitas Sanata Dharma</h1>
           <p className="text-red-100">Silakan login untuk melanjutkan</p>
         </div>
 
@@ -201,7 +201,7 @@ export default function LoginMhs() {
         {/* Additional Info */}
         <div className="text-center mt-6">
           <p className="text-red-100 text-sm">
-            Butuh bantuan? Hubungi <span className="font-semibold">admin@university.ac.id</span>
+            Butuh bantuan? Hubungi <span className="font-semibold">admin@getjob.co.id</span>
           </p>
         </div>
       </div>

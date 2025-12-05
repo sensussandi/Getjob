@@ -18,7 +18,7 @@ import {
 } from "lucide-react";
 
 // PAGE UTAMA
-  
+
 export default function TambahLowongan() {
   useProtectedAuth();
   const router = useRouter();
@@ -44,8 +44,57 @@ export default function TambahLowongan() {
   const [daftarPerusahaan, setDaftarPerusahaan] = useState([]);
   const [keahlianList, setKeahlianList] = useState([]);
   const [searchSkill, setSearchSkill] = useState("");
-  
-  
+  const [prodiList, setProdiList] = useState([]);
+  const [searchProdi, setSearchProdi] = useState("");
+
+  const daftarProdi = [
+    "D3 Bahasa Inggris",
+    "D3 Sekretari",
+    "D3 Perpustakaan",
+    "D3 Teknik Elektronika",
+    "S1 Akuntansi",
+    "S1 Arsitektur",
+    "S1 Biologi",
+    "S1 Bimbingan dan Konseling",
+    "S1 Farmasi",
+    "S1 Fisika",
+    "S1 Ilmu Komunikasi",
+    "S1 Keperawatan",
+    "S1 Kimia",
+    "S1 Matematika",
+    "S1 Manajemen",
+    "S1 Pendidikan Akuntansi",
+    "S1 Pendidikan Bahasa Inggris",
+    "S1 Pendidikan Bahasa Jawa",
+    "S1 Pendidikan Bahasa dan Sastra Indonesia",
+    "S1 Pendidikan Biologi",
+    "S1 Pendidikan Fisika",
+    "S1 Pendidikan Guru SD (PGSD)",
+    "S1 Pendidikan Kimia",
+    "S1 Pendidikan Matematika",
+    "S1 Pendidikan Musik",
+    "S1 Pendidikan Sejarah",
+    "S1 Pendidikan Teologi",
+    "S1 Psikologi",
+    "S1 Sastra Inggris",
+    "S1 Sastra Indonesia",
+    "S1 Sastra Jepang",
+    "S1 Sistem Informasi",
+    "S1 Teknik Elektro",
+    "S1 Teknik Informatika",
+    "S1 Teknologi Pangan",
+    "S1 Teologi",
+    "S2 Kajian Bahasa Inggris",
+    "S2 Kajian Bahasa & Budaya Indonesia",
+    "S2 Pendidikan Bahasa Inggris",
+    "S2 Ilmu Religi & Budaya",
+    "S2 Pendidikan Teologi",
+    "S2 Manajemen Pendidikan",
+    "S2 Kajian Bahasa & Budaya Jawa",
+    "S3 Kajian Ilmu Pendidikan",
+    "S3 Kajian Budaya",
+  ];
+
   // === Keahlian & Minat Lengkap ===
   const daftarKeahlian = [
     // IT
@@ -70,7 +119,30 @@ export default function TambahLowongan() {
     // psikolog
     "Story telling", "Psikolog Industri & Organisasi", "Psikolog Pendidikan",
   ];
-  
+
+  const filteredProdi = daftarProdi.filter((p) =>
+    p.toLowerCase().includes(searchProdi.toLowerCase())
+  );
+
+  const handleProdiClick = (prodi) => {
+    let updated;
+
+    if (!prodiList.includes(prodi) && prodiList.length >= 5) {
+      alert("Maksimal 5 Program Studi!");
+      return;
+    }
+
+    if (prodiList.includes(prodi)) {
+      updated = prodiList.filter((x) => x !== prodi);
+    } else {
+      updated = [...prodiList, prodi];
+    }
+
+    setProdiList(updated);
+    setForm({ ...form, prodi: updated.join(",") });
+  };
+
+
   const filteredSkills = daftarKeahlian.filter((skill) =>
     skill.toLowerCase().includes(searchSkill.toLowerCase())
   );
@@ -201,54 +273,6 @@ export default function TambahLowongan() {
     "Lead/Manager",
   ];
 
-  const daftarProdi = [
-    "D3 Bahasa Inggris",
-    "D3 Sekretari",
-    "D3 Perpustakaan",
-    "D3 Teknik Elektronika",
-    "S1 Akuntansi",
-    "S1 Arsitektur",
-    "S1 Biologi",
-    "S1 Bimbingan dan Konseling",
-    "S1 Farmasi",
-    "S1 Fisika",
-    "S1 Ilmu Komunikasi",
-    "S1 Keperawatan",
-    "S1 Kimia",
-    "S1 Matematika",
-    "S1 Manajemen",
-    "S1 Pendidikan Akuntansi",
-    "S1 Pendidikan Bahasa Inggris",
-    "S1 Pendidikan Bahasa Jawa",
-    "S1 Pendidikan Bahasa dan Sastra Indonesia",
-    "S1 Pendidikan Biologi",
-    "S1 Pendidikan Fisika",
-    "S1 Pendidikan Guru SD (PGSD)",
-    "S1 Pendidikan Kimia",
-    "S1 Pendidikan Matematika",
-    "S1 Pendidikan Musik",
-    "S1 Pendidikan Sejarah",
-    "S1 Pendidikan Teologi",
-    "S1 Psikologi",
-    "S1 Sastra Inggris",
-    "S1 Sastra Indonesia",
-    "S1 Sastra Jepang",
-    "S1 Sistem Informasi",
-    "S1 Teknik Elektro",
-    "S1 Teknik Informatika",
-    "S1 Teknologi Pangan",
-    "S1 Teologi",
-    "S2 Kajian Bahasa Inggris",
-    "S2 Kajian Bahasa & Budaya Indonesia",
-    "S2 Pendidikan Bahasa Inggris",
-    "S2 Ilmu Religi & Budaya",
-    "S2 Pendidikan Teologi",
-    "S2 Manajemen Pendidikan",
-    "S2 Kajian Bahasa & Budaya Jawa",
-    "S3 Kajian Ilmu Pendidikan",
-    "S3 Kajian Budaya",
-  ];
-
   return (
     <div className="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100 py-8 px-4">
       <div className="max-w-5xl mx-auto">
@@ -328,14 +352,47 @@ export default function TambahLowongan() {
                   icon={<Users className="w-5 h-5 text-gray-400" />}
                 />
 
-                <EditableSelectField
-                  label="Program Studi (Prodi)"
-                  name="prodi"
-                  value={form.prodi}
-                  onChange={handleChange}
-                  options={daftarProdi}
-                  icon={<GraduationCap className="w-5 h-5 text-gray-400" />}
-                />
+                <div className="md:col-span-2">
+                  <label className="font-semibold text-gray-700">Program Studi (maks 5)</label>
+
+                  <input
+                    type="text"
+                    placeholder="Cari program studi..."
+                    value={searchProdi}
+                    onChange={(e) => setSearchProdi(e.target.value)}
+                    className="w-full border rounded-xl px-4 py-3 mt-2 mb-2"
+                  />
+
+                  <div className="max-h-44 overflow-y-auto border rounded-xl p-2 bg-white">
+                    {filteredProdi.map((p, idx) => (
+                      <div
+                        key={idx}
+                        onClick={() => handleProdiClick(p)}
+                        className={`cursor-pointer px-3 py-2 rounded-lg mb-1 border transition-all ${prodiList.includes(p)
+                          ? "bg-blue-100 border-blue-300 text-blue-700"
+                          : "hover:bg-gray-100 border-gray-300"
+                          }`}
+                      >
+                        {p}
+                      </div>
+                    ))}
+                  </div>
+
+                  <div className="flex flex-wrap gap-2 mt-3">
+                    {prodiList.map((p, idx) => (
+                      <span
+                        key={idx}
+                        className="px-3 py-1 bg-blue-50 text-blue-700 rounded-full flex items-center gap-2"
+                      >
+                        {p}
+                        <button onClick={() => handleProdiClick(p)} className="font-bold">
+                          ×
+                        </button>
+                      </span>
+                    ))}
+                  </div>
+                </div>
+
                 {/* === MULTISELECT KEAHLIAN === */}
                 <div className="md:col-span-2">
                   <label className="font-semibold text-gray-700">Keahlian (maks 5)</label>
@@ -353,11 +410,10 @@ export default function TambahLowongan() {
                       <div
                         key={idx}
                         onClick={() => handleSkillClick(skill)}
-                        className={`cursor-pointer px-3 py-2 rounded-lg mb-1 border transition-all ${
-                          keahlianList.includes(skill)
-                            ? "bg-red-100 border-red-300 text-red-700"
-                            : "hover:bg-gray-100 border-gray-300"
-                        }`}
+                        className={`cursor-pointer px-3 py-2 rounded-lg mb-1 border transition-all ${keahlianList.includes(skill)
+                          ? "bg-red-100 border-red-300 text-red-700"
+                          : "hover:bg-gray-100 border-gray-300"
+                          }`}
                       >
                         {skill}
                       </div>
@@ -624,9 +680,8 @@ function EditableSelectField({ label, name, value, onChange, options, icon }) {
             onChange({ target: { name, value: e.target.value } });
           }}
           onFocus={() => setShowDropdown(true)}
-          className={`w-full border-2 border-gray-200 rounded-xl px-4 py-3 ${
-            icon ? "pl-12" : ""
-          } focus:border-[#800000] focus:ring-2 focus:ring-[#800000]/20`}
+          className={`w-full border-2 border-gray-200 rounded-xl px-4 py-3 ${icon ? "pl-12" : ""
+            } focus:border-[#800000] focus:ring-2 focus:ring-[#800000]/20`}
         />
       </div>
 

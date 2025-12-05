@@ -68,7 +68,7 @@ export default function PengaturanPage() {
     if (formData.logo) data.append("logo", formData.logo);
 
     try {
-      const res = await fetch(`/api/perusahaan/pengaturan?id_admin=${id}`, {
+      const res = await fetch(`/api/perusahaan/pengaturan?id_admin=${session.user.id}`, {
         method: "POST",
         body: data,
       });
@@ -197,9 +197,6 @@ export default function PengaturanPage() {
                 onClick={() => {
                   if (confirm("Apakah Anda yakin ingin logout?")) {
                     // 🔹 Hapus data login (ubah sesuai yang kamu simpan di localStorage)
-                    localStorage.removeItem("id_admin");
-                    localStorage.removeItem("nama_perusahaan");
-                    localStorage.removeItem("token");
 
                     alert("Anda telah logout.");
                     router.push("/loginPerusahaan");

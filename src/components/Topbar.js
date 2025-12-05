@@ -53,18 +53,23 @@ export default function Topbar() {
     router.push(`/hasilCariKerja?${params.toString()}`);
   };
 
+  const handleLogoClick = () => {
+    router.push("/");
+  };
+  
   return (
     <header className="bg-white border-b border-slate-200 sticky top-0 z-50 backdrop-blur-lg bg-white/90">
       <div className="px-4 md:px-6 py-4">
         <div className="flex items-center justify-between gap-4">
           {/* Logo */}
+          <div onClick={handleLogoClick} className="flex items-center space-x-2 cursor-pointer hover:opacity-80 transition">
           <div className="flex items-center gap-3 mr-4 shrink-0">
             <img src="/logo.jpg" className="h-10 w-10 rounded-lg" alt="Logo" />
             <h1 className="text-xl font-bold text-red-900 tracking-wide">
               <span className="text-orange-600">USD Get Job</span>
             </h1>
           </div>
-
+        </div>
           {/* Search Bar */}
           <div className="flex-1 flex items-center gap-3 max-w-4xl">
             {/* Keyword */}

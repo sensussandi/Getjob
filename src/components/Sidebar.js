@@ -111,8 +111,8 @@ export default function Sidebar() {
 
             {!isCollapsed && (
               <div>
-                <p className="font-semibold text-gray-900 text-sm truncate">{userName}</p>
-                <p className="text-xs text-gray-500 truncate">{userRole}</p>
+                <p className="font-semibold text-gray-900 text-sm truncate">{user?.name}</p>
+                <p className="text-xs text-gray-500 truncate">{user?.role}</p>
               </div>
             )}
           </div>

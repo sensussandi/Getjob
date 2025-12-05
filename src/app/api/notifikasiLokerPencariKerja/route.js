@@ -4,9 +4,9 @@ import mysql from "mysql2/promise";
 export async function GET(req) {
   try {
     const { searchParams } = new URL(req.url);
-    const nim = searchParams.get("nim");
+    const id= searchParams.get("nim");
 
-    if (!nim) {
+    if (!id) {
       return NextResponse.json({
         success: false,
         message: "NIM tidak diberikan",
@@ -34,7 +34,7 @@ export async function GET(req) {
       WHERE m.nim = ?
       ORDER BY m.id_pendaftaran DESC
       `,
-      [nim]
+      [id]
     );
 
     await db.end();
